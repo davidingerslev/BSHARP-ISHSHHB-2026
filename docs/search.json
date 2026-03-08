@@ -1,0 +1,23 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "BSHARP",
+    "section": "",
+    "text": "Order By\n      Default\n      \n        Date - Oldest\n      \n      \n        Date - Newest\n      \n      \n        Title\n      \n      \n        Author\n      \n    \n  \n    \n      \n      \n    \n\n\n\n\n\n\nDate\n\n\n\nTitle\n\n\n\nAuthor\n\n\n\n\n\n\n\n\nFeb 8, 2026\n\n\n01. Social housing returns\n\n\nDavid Ingerslev\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "01_social_housing_returns.html",
+    "href": "01_social_housing_returns.html",
+    "title": "01. Social housing returns",
+    "section": "",
+    "text": "Code\n# Setup code\nimport pandas as pd\nfrom python_scripts import setup\nfrom python_scripts import services\nfrom python_scripts import helper\ndf, dffp = setup.setup(verbose=False)\n\nfrom python_scripts import distinct_pathways\ndpw_pls = distinct_pathways.get_distinct_pathways_routes(dffp)\nqrows = dpw_pls[\"rt_end_cat\"] == \"[Not ended or invalid end reason]\"\ndpw_pls.loc[qrows, \"rt_end_cat\"] = dpw_pls.loc[qrows, \"pl_end_dt\"].isna().map({True: \"[Not ended]\", False: \"Missing data/error\"})\ndpw_pls[\"rt_end_cat\"] = dpw_pls[\"rt_end_cat\"].str.replace(\"To care/hosp.\", \"To care/hospital\")\ndpw_rt_starts = dpw_pls.groupby(\"route_id\").head(1)\ndpw_rt_ends = dpw_pls.groupby(\"route_id\").tail(1)\ndpw_clis = dpw_pls.groupby([\"o_cli_id\"]).head(1)  # 1 duplicate client but first entry has more detailed answers\n\nimport matplotlib\nimport matplotlib.pyplot as plt\nmatplotlib.rcParams.update({\n    'figure.figsize': (6.2, 4.1),\n    'font.size': 12,\n    'figure.constrained_layout.use': True\n})\n\nasset_themes = {\"opaque\": \"assets_output/\",\n                \"transparent_lightbg\": \"assets_transparent_lightbg/\",\n                \"transparent_darkbg\": \"assets_transparent_darkbg/\"}\nassets_output = asset_themes[\"opaque\"]\nexcel_output = {}"
+  },
+  {
+    "objectID": "01_social_housing_returns.html#social-housing-returns",
+    "href": "01_social_housing_returns.html#social-housing-returns",
+    "title": "01. Social housing returns",
+    "section": "Social housing returns",
+    "text": "Social housing returns\n\n\nCode\nsoc_moves = dpw_pls[dpw_pls[\"rt_end_cat\"] == \"To social housing\"]\n# soc_move_type: \"BCC\" or \"RSL\" depending on end reason for last placement in route\nsoc_move_type = (soc_moves.groupby(\"route_id\").tail(1)\n                  .set_index(\"route_id\")\n                  [\"pl_end_reason\"].str[0:3]\n                  .rename(\"soc_move_type\")\n                  .replace({\"BCC\": \"Local authority\", \"RSL\": \"Housing association\"})\n                  .astype(\"category\"))\ndpw_pls = dpw_pls.join(soc_move_type, on=\"route_id\")\ndpw_rt_starts = dpw_pls.groupby(\"route_id\").head(1)\ndpw_rt_ends = dpw_pls.groupby(\"route_id\").tail(1)\ndpw_clis = dpw_pls.groupby([\"o_cli_id\"]).head(1)  # 1 duplicate client but first entry has more detailed answers\ntbl = dpw_rt_ends[[\"rt_end_cat\", \"soc_move_type\"]].value_counts().to_frame()\nexcel_output[\"Social housing returns\"] = tbl\ndisplay(tbl)\n\n\n\n\n\n\n\n\n\n\ncount\n\n\nrt_end_cat\nsoc_move_type\n\n\n\n\n\nTo social housing\nLocal authority\n693\n\n\nHousing association\n306"
+  }
+]

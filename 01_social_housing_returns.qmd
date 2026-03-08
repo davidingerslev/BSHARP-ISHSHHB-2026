@@ -1,0 +1,58 @@
+---
+title: "01. Social housing returns"
+date: 2026-02-08
+warning: false
+---
+
+```{python}
+# Setup code
+import pandas as pd
+from python_scripts import setup
+from python_scripts import services
+from python_scripts import helper
+df, dffp = setup.setup(verbose=False)
+
+from python_scripts import distinct_pathways
+dpw_pls = distinct_pathways.get_distinct_pathways_routes(dffp)
+qrows = dpw_pls["rt_end_cat"] == "[Not ended or invalid end reason]"
+dpw_pls.loc[qrows, "rt_end_cat"] = dpw_pls.loc[qrows, "pl_end_dt"].isna().map({True: "[Not ended]", False: "Missing data/error"})
+dpw_pls["rt_end_cat"] = dpw_pls["rt_end_cat"].str.replace("To care/hosp.", "To care/hospital")
+dpw_rt_starts = dpw_pls.groupby("route_id").head(1)
+dpw_rt_ends = dpw_pls.groupby("route_id").tail(1)
+dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1)  # 1 duplicate client but first entry has more detailed answers
+
+import matplotlib
+import matplotlib.pyplot as plt
+matplotlib.rcParams.update({
+    'figure.figsize': (6.2, 4.1),
+    'font.size': 12,
+    'figure.constrained_layout.use': True
+})
+
+asset_themes = {"opaque": "assets_output/",
+                "transparent_lightbg": "assets_transparent_lightbg/",
+                "transparent_darkbg": "assets_transparent_darkbg/"}
+assets_output = asset_themes["opaque"]
+excel_output = {}
+```
+
+## Social housing returns
+
+```{python}
+soc_moves = dpw_pls[dpw_pls["rt_end_cat"] == "To social housing"]
+# soc_move_type: "BCC" or "RSL" depending on end reason for last placement in route
+soc_move_type = (soc_moves.groupby("route_id").tail(1)
+                  .set_index("route_id")
+                  ["pl_end_reason"].str[0:3]
+                  .rename("soc_move_type")
+                  .replace({"BCC": "Local authority", "RSL": "Housing association"})
+                  .astype("category"))
+dpw_pls = dpw_pls.join(soc_move_type, on="route_id")
+dpw_rt_starts = dpw_pls.groupby("route_id").head(1)
+dpw_rt_ends = dpw_pls.groupby("route_id").tail(1)
+dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1)  # 1 duplicate client but first entry has more detailed answers
+tbl = dpw_rt_ends[["rt_end_cat", "soc_move_type"]].value_counts().to_frame()
+excel_output["Social housing returns"] = tbl
+display(tbl)
+```
+

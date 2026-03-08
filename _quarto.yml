@@ -1,0 +1,27 @@
+project:
+    title: "BSHARP"
+    type: website
+    output-dir: docs
+
+author: David Ingerslev
+
+format:
+    html: 
+        code-fold: true
+        theme: 
+            dark: darkly
+            light: flatly
+        respect-user-color-scheme: true
+        embed-resources: false
+        page-layout: full
+
+website:
+    page-footer:
+        center:
+            - text: "Back to list"
+              href: index.qmd
+
+jupyter: python3
+
+
+

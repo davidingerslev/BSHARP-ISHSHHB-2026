@@ -324,7 +324,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div id="8721e13e" class="cell" data-execution_count="1">
+<div id="8685ecdf" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup code</span></span>
@@ -355,12 +355,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>                <span class="st">"transparent_lightbg"</span>: <span class="st">"assets_transparent_lightbg/"</span>,</span>
 <span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>                <span class="st">"transparent_darkbg"</span>: <span class="st">"assets_transparent_darkbg/"</span>}</span>
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>assets_output <span class="op">=</span> asset_themes[<span class="st">"opaque"</span>]</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>excel_output <span class="op">=</span> {}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>output_dir <span class="op">=</span> assets_output</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>transparent <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>excel_output <span class="op">=</span> {}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <section id="social-housing-returns" class="level2">
 <h2 class="anchored" data-anchor-id="social-housing-returns">Social housing returns</h2>
-<div id="b0db9dbb" class="cell" data-execution_count="2">
+<div id="2724af2d" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>soc_moves <span class="op">=</span> dpw_pls[dpw_pls[<span class="st">"rt_end_cat"</span>] <span class="op">==</span> <span class="st">"To social housing"</span>]</span>
@@ -412,6 +414,478 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+</section>
+<section id="durations-for-social-housing-outcomes-distributions" class="level2">
+<h2 class="anchored" data-anchor-id="durations-for-social-housing-outcomes-distributions">Durations for social housing outcomes: distributions</h2>
+<div id="53aaf01f" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn.objects <span class="im">as</span> so</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>sns.<span class="bu">set</span>()</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Set up data</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#############</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>durations <span class="op">=</span> dpw_pls.set_index(<span class="st">"route_id"</span>)[[<span class="st">"dur"</span>, <span class="st">"pl_start_dt"</span>]]</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>durations[<span class="st">"dur_days"</span>] <span class="op">=</span> durations[<span class="st">"dur"</span>].dt.days</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>durations[<span class="st">"dur_days"</span>] <span class="op">=</span> durations[<span class="st">"dur_days"</span>].fillna(<span class="dv">1</span> <span class="op">+</span> (distinct_pathways.dpw_end_dt <span class="op">-</span> durations.pl_start_dt).dt.days)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>durations <span class="op">=</span> durations.drop(columns<span class="op">=</span>[<span class="st">"dur"</span>, <span class="st">"pl_start_dt"</span>])</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>hist_data <span class="op">=</span> (</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    durations.groupby(level<span class="op">=</span><span class="dv">0</span>).dur_days.<span class="bu">sum</span>().to_frame()</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    .join(dpw_rt_ends.set_index(<span class="st">"route_id"</span>)[<span class="st">"pl_end_dt"</span>].notna().rename(<span class="st">"ended"</span>).astype(<span class="st">"category"</span>))</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    .join(dpw_rt_ends.set_index(<span class="st">"route_id"</span>)[[<span class="st">"rt_end_cat"</span>, <span class="st">"soc_move_type"</span>]])</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>hist_data <span class="op">=</span> hist_data[hist_data[<span class="st">"rt_end_cat"</span>] <span class="op">==</span> <span class="st">"To social housing"</span>]</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>hist_data <span class="op">=</span> hist_data.drop(columns<span class="op">=</span><span class="st">"rt_end_cat"</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>hist_data <span class="op">=</span> pd.concat([hist_data, hist_data.assign(soc_move_type<span class="op">=</span><span class="st">"All"</span>)])</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>hist_data[<span class="st">"ended"</span>] <span class="op">=</span> pd.Categorical(hist_data[<span class="st">"ended"</span>], categories<span class="op">=</span>[<span class="va">True</span>, <span class="va">False</span>], ordered<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>hist_data[<span class="st">"dur_years"</span>] <span class="op">=</span> hist_data[<span class="st">"dur_days"</span>] <span class="op">/</span> <span class="fl">365.25</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>colours <span class="op">=</span> sns.color_palette(as_cmap<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate positions of separators between groups for log unit labels</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>days_logunits <span class="op">=</span> {<span class="st">"day"</span>: <span class="dv">1</span>, <span class="st">"week"</span>: <span class="dv">7</span>, <span class="st">"month"</span>: <span class="fl">365.25</span><span class="op">/</span><span class="dv">12</span>, <span class="st">"year"</span>: <span class="fl">365.25</span>}</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>days_loglists <span class="op">=</span> {</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">"days"</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">4</span>],</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">"weeks"</span>: [<span class="dv">1</span>, <span class="dv">2</span>],</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">"months"</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">8</span>],</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">"years"</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">8</span>, <span class="dv">16</span>]</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>days_logsep <span class="op">=</span> []</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (a_u, a_l), (b_u, b_l) <span class="kw">in</span> <span class="bu">zip</span>(<span class="bu">list</span>(days_loglists.items())[:<span class="op">-</span><span class="dv">1</span>], <span class="bu">list</span>(days_loglists.items())[<span class="dv">1</span>:]):</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    a_end <span class="op">=</span> days_logunits[a_u[:<span class="op">-</span><span class="dv">1</span>]] <span class="op">*</span> a_l[<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    b_start <span class="op">=</span> days_logunits[b_u[:<span class="op">-</span><span class="dv">1</span>]] <span class="op">*</span> b_l[<span class="dv">0</span>]</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    log_midpoint <span class="op">=</span> <span class="dv">10</span> <span class="op">**</span> ((np.log10(a_end) <span class="op">+</span> np.log10(b_start))<span class="op">/</span><span class="dv">2</span>)</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    days_logsep.append(log_midpoint)</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate positions of group labels for log units</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>days_loggrp_edges <span class="op">=</span> [<span class="fl">0.8</span>] <span class="op">+</span> days_logsep <span class="op">+</span> [<span class="dv">30</span> <span class="op">*</span> days_logunits[<span class="st">"year"</span>]]</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>days_logpos_grp <span class="op">=</span> <span class="bu">list</span>(<span class="dv">10</span> <span class="op">**</span> ((np.log10(a) <span class="op">+</span> np.log10(b))<span class="op">/</span><span class="dv">2</span>) <span class="cf">for</span> a, b <span class="kw">in</span> <span class="bu">zip</span>(days_loggrp_edges[:<span class="op">-</span><span class="dv">1</span>], days_loggrp_edges[<span class="dv">1</span>:]))</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate order for facets</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>facet_order <span class="op">=</span> [<span class="st">"All"</span>, <span class="st">"Local authority"</span>, <span class="st">"Housing association"</span>]</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate human-readable units and tick positions for log timescales</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a><span class="co">#####################################################################</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>days_logunits <span class="op">=</span> {<span class="st">"day"</span>: <span class="dv">1</span>, <span class="st">"week"</span>: <span class="dv">7</span>, <span class="st">"month"</span>: <span class="fl">365.25</span><span class="op">/</span><span class="dv">12</span>, <span class="st">"year"</span>: <span class="fl">365.25</span>}</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>days_loglists <span class="op">=</span> {</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>    <span class="st">"weeks"</span>: [<span class="dv">1</span>],</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    <span class="st">"months"</span>: [<span class="dv">1</span>, <span class="dv">4</span>],</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    <span class="st">"years"</span>: [<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">9</span>]</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>days_logscale <span class="op">=</span> []</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>days_loglabels_u <span class="op">=</span> []</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>days_loglabels_full <span class="op">=</span> []</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>days_loglabels_grp <span class="op">=</span> []</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> u, l <span class="kw">in</span> days_loglists.items():</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>    days_logscale.extend(days_logunits[u[:<span class="op">-</span><span class="dv">1</span>]] <span class="op">*</span> i <span class="cf">for</span> i <span class="kw">in</span> l)</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>    <span class="co"># days_loglabels_u.extend(l)</span></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>    days_loglabels_u.extend(<span class="ss">f"</span><span class="sc">{</span>x<span class="sc">}{</span>u[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">"</span> <span class="cf">for</span> x <span class="kw">in</span> l)</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>    days_loglabels_full.extend(<span class="ss">f"</span><span class="sc">{</span>i<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>u <span class="cf">if</span> i <span class="op">&gt;</span> <span class="dv">1</span> <span class="cf">else</span> u[:<span class="op">-</span><span class="dv">1</span>]<span class="sc">}</span><span class="ss">"</span> <span class="cf">for</span> i <span class="kw">in</span> l)</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>    days_loglabels_grp.append(u)</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>days_logformatter <span class="op">=</span> matplotlib.ticker.FixedFormatter(days_loglabels_u)</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot log scale charts</span></span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a><span class="co">#######################</span></span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>limits <span class="op">=</span> {<span class="st">"x"</span>: (<span class="fl">0.014</span><span class="op">*</span><span class="fl">365.25</span>, <span class="dv">10</span><span class="op">*</span><span class="fl">365.25</span>), <span class="st">"y"</span>: (<span class="va">None</span>, <span class="dv">100</span>)}</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure(layout<span class="op">=</span><span class="st">"constrained"</span>, figsize<span class="op">=</span>(<span class="fl">4.2</span>, <span class="fl">4.1</span>))</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>subfigs <span class="op">=</span> fig.subfigures(<span class="dv">1</span>, <span class="dv">2</span>, width_ratios<span class="op">=</span>[<span class="dv">7</span>, <span class="dv">6</span>])</span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> (</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>    so.Plot(data<span class="op">=</span>hist_data, x<span class="op">=</span><span class="st">"dur_years"</span>)</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>    .label(x<span class="op">=</span><span class="st">"Duration (years)"</span>)</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>    .add(so.Bars(), so.Hist(binwidth<span class="op">=</span><span class="fl">0.5</span>), so.Stack(), color<span class="op">=</span><span class="st">"ended"</span>, legend<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>    .scale(x<span class="op">=</span>so.Continuous().tick(every<span class="op">=</span><span class="dv">2</span>),</span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>           color<span class="op">=</span>so.Nominal(order<span class="op">=</span>[<span class="va">True</span>, <span class="va">False</span>]))</span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>    .facet(row<span class="op">=</span><span class="st">"soc_move_type"</span>, order<span class="op">=</span>facet_order)</span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>    .limit(x<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">10</span>))</span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>    .on(subfigs[<span class="dv">0</span>])</span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>    .plot()</span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> (</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>    so.Plot(data<span class="op">=</span>hist_data, x<span class="op">=</span><span class="st">"dur_days"</span>)</span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>    .label(x<span class="op">=</span><span class="st">"Duration (log scale)"</span>)</span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>    .add(so.Bars(), so.Hist(bins<span class="op">=</span><span class="dv">20</span>), so.Stack(), color<span class="op">=</span><span class="st">"ended"</span>, legend<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>    .scale(x<span class="op">=</span>so.Continuous(trans<span class="op">=</span><span class="st">"log"</span>).tick(at<span class="op">=</span>days_logscale).label(formatter<span class="op">=</span>days_logformatter),</span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>           color<span class="op">=</span>so.Nominal(order<span class="op">=</span>[<span class="va">True</span>, <span class="va">False</span>]))</span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>    .facet(row<span class="op">=</span><span class="st">"soc_move_type"</span>, order<span class="op">=</span>facet_order)</span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a>    .limit(x<span class="op">=</span>limits[<span class="st">"x"</span>])</span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a>    .on(subfigs[<span class="dv">1</span>])</span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a>    .plot()</span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax <span class="kw">in</span> subfigs[<span class="dv">1</span>].axes:</span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>    ax.yaxis.set_tick_params(labelleft<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a>fig_filename <span class="op">=</span> <span class="st">"Figure_1.1.svg"</span></span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>fig.savefig(output_dir <span class="op">+</span> fig_filename, transparent<span class="op">=</span>transparent)</span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p><img src="assets_output/Figure_1.1.svg" class="img-fluid"></p>
+</section>
+<section id="durations-for-social-housing-outcomes-descriptive-statistics" class="level2">
+<h2 class="anchored" data-anchor-id="durations-for-social-housing-outcomes-descriptive-statistics">Durations for social housing outcomes: descriptive statistics</h2>
+<div id="b85b25ec" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>tbl_data <span class="op">=</span> hist_data.copy()</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># tbl_data = hist_data[["ended", "dur_years"]]</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>percentiles <span class="op">=</span> [<span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span>]</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> (tbl_data.groupby(<span class="st">"soc_move_type"</span>, observed<span class="op">=</span><span class="va">True</span>).describe(percentiles<span class="op">=</span>percentiles)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>       .sort_index())</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> tbl.astype(<span class="st">"object"</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>int_cols <span class="op">=</span> {<span class="st">"dur_days"</span>: [<span class="st">"count"</span>, <span class="st">"min"</span>, <span class="st">"max"</span>], <span class="st">"dur_years"</span>: [<span class="st">"count"</span>]}</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>float_cols <span class="op">=</span> {k: tbl.columns.levels[<span class="dv">1</span>].difference(v) <span class="cf">for</span> k, v <span class="kw">in</span> int_cols.items()}</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>float_prec <span class="op">=</span> {<span class="st">"dur_days"</span>: <span class="dv">1</span>, <span class="st">"dur_years"</span>: <span class="dv">3</span>}</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> dt <span class="kw">in</span> [<span class="st">"dur_days"</span>, <span class="st">"dur_years"</span>]:</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    fp <span class="op">=</span> float_prec[dt]</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    tbl.loc[:, (dt, float_cols[dt])] <span class="op">=</span> (tbl.loc[:, (dt, float_cols[dt])].<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="ss">f"</span><span class="sc">{</span>x<span class="sc">:,.</span>{fp}f<span class="sc">}</span><span class="ss">"</span>))</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    tbl.loc[:, (dt, int_cols[dt])] <span class="op">=</span> (tbl.loc[:, (dt, int_cols[dt])].<span class="bu">map</span>(<span class="kw">lambda</span> x: <span class="ss">f"</span><span class="sc">{</span>x<span class="sc">:,.0f}</span><span class="ss">"</span>))</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> (</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    tbl.T.reindex((a, b)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">for</span> a <span class="kw">in</span> [<span class="st">"dur_years"</span>, <span class="st">"dur_days"</span>]</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">for</span> b <span class="kw">in</span> [x <span class="cf">for</span> x <span class="kw">in</span> tbl[<span class="st">"dur_days"</span>].columns <span class="cf">if</span> x <span class="op">!=</span> <span class="st">"count"</span>] <span class="op">+</span> [<span class="st">"count"</span>]).T</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    .rename(columns<span class="op">=</span>{<span class="st">"50%"</span>: <span class="st">"median"</span>})</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> pd.concat([tbl[<span class="st">"dur_years"</span>], tbl[<span class="st">"dur_days"</span>]], keys<span class="op">=</span>[<span class="st">"Years"</span>, <span class="st">"Days"</span>])</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>excel_output[<span class="st">"Table 1.1: Descriptive statistics for route durations by social housing move type"</span>] <span class="op">=</span> tbl</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>display(tbl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">std</th>
+<th data-quarto-table-cell-role="th">min</th>
+<th data-quarto-table-cell-role="th">10%</th>
+<th data-quarto-table-cell-role="th">median</th>
+<th data-quarto-table-cell-role="th">90%</th>
+<th data-quarto-table-cell-role="th">max</th>
+<th data-quarto-table-cell-role="th">count</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">soc_move_type</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td rowspan="3" data-quarto-table-cell-role="th" data-valign="top">Years</td>
+<td data-quarto-table-cell-role="th">All</td>
+<td>1.877</td>
+<td>1.265</td>
+<td>0.027</td>
+<td>0.482</td>
+<td>1.643</td>
+<td>3.569</td>
+<td>7.291</td>
+<td>999</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Housing association</td>
+<td>1.889</td>
+<td>1.213</td>
+<td>0.126</td>
+<td>0.560</td>
+<td>1.667</td>
+<td>3.440</td>
+<td>7.291</td>
+<td>306</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Local authority</td>
+<td>1.871</td>
+<td>1.289</td>
+<td>0.027</td>
+<td>0.438</td>
+<td>1.607</td>
+<td>3.590</td>
+<td>6.899</td>
+<td>693</td>
+</tr>
+<tr class="even">
+<td rowspan="3" data-quarto-table-cell-role="th" data-valign="top">Days</td>
+<td data-quarto-table-cell-role="th">All</td>
+<td>685.4</td>
+<td>462.1</td>
+<td>10</td>
+<td>176.2</td>
+<td>600.0</td>
+<td>1,303.6</td>
+<td>2,663</td>
+<td>999</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Housing association</td>
+<td>689.9</td>
+<td>443.0</td>
+<td>46</td>
+<td>204.5</td>
+<td>609.0</td>
+<td>1,256.5</td>
+<td>2,663</td>
+<td>306</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Local authority</td>
+<td>683.4</td>
+<td>470.6</td>
+<td>10</td>
+<td>159.8</td>
+<td>587.0</td>
+<td>1,311.2</td>
+<td>2,520</td>
+<td>693</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="returns-at-periods-of-time-after-exit-by-social-housing-type-table" class="level2">
+<h2 class="anchored" data-anchor-id="returns-at-periods-of-time-after-exit-by-social-housing-type-table">Returns at periods of time after exit by social housing type: table</h2>
+<div id="483bc565" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate table</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>stable_periods <span class="op">=</span> {x: <span class="ss">f"after_rt_ret_within_</span><span class="sc">{</span>x<span class="sc">}</span><span class="ss">"</span> <span class="cf">for</span> x <span class="kw">in</span> distinct_pathways.stable_offsets.keys()}</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>stable_period_max_end_dts <span class="op">=</span> {x: distinct_pathways.dpw_end_dt <span class="op">-</span> distinct_pathways.stable_offsets[x]</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                             <span class="cf">for</span> x <span class="kw">in</span> distinct_pathways.stable_offsets.keys()}</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>soc_move_grp <span class="op">=</span> (pd.concat([dpw_rt_ends,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                           (dpw_rt_ends[dpw_rt_ends[<span class="st">"rt_end_cat"</span>] <span class="op">==</span> <span class="st">"To social housing"</span>]</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>                            .assign(soc_move_type<span class="op">=</span><span class="st">"All"</span>))</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>                           ])</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>                .groupby(<span class="st">"soc_move_type"</span>))</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>route_outcomes <span class="op">=</span> soc_move_grp.size().rename((<span class="st">"outcomes"</span>, <span class="st">"n"</span>)).to_frame()</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>route_outcomes[(<span class="st">"outcomes"</span>, <span class="st">"%"</span>)] <span class="op">=</span> (<span class="dv">100</span><span class="op">*</span>route_outcomes[(<span class="st">"outcomes"</span>, <span class="st">"n"</span>)]</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>                                     <span class="op">/</span> route_outcomes[(<span class="st">"outcomes"</span>, <span class="st">"n"</span>)].<span class="bu">sum</span>())</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k, v <span class="kw">in</span> stable_periods.items():</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    route_outcomes[k, <span class="ss">f"Eligible (n)"</span>] <span class="op">=</span> (soc_move_grp[<span class="st">"pl_end_dt"</span>]</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>                                 .<span class="bu">apply</span>(<span class="kw">lambda</span> x: (x <span class="op">&lt;</span> stable_period_max_end_dts[k]).<span class="bu">sum</span>()).astype(<span class="st">"Int64"</span>))</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> outcome <span class="kw">in</span> [<span class="st">"Yes"</span>, <span class="st">"No"</span>]:</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>        route_outcomes[k, outcome] <span class="op">=</span> (soc_move_grp</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>                                      .<span class="bu">apply</span>(<span class="kw">lambda</span> x: ((x[<span class="st">"pl_end_dt"</span>] <span class="op">&lt;</span> stable_period_max_end_dts[k])</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>                                                        <span class="op">&amp;</span> (x[v] <span class="op">==</span> outcome)).<span class="bu">sum</span>()).astype(<span class="st">"Int64"</span>))</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    route_outcomes[k, <span class="st">"</span><span class="sc">% r</span><span class="st">eturned"</span>] <span class="op">=</span> (route_outcomes[k, <span class="st">"Yes"</span>]</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>                                       .mul(<span class="dv">100</span>).div(route_outcomes[k, <span class="st">"Yes"</span>]</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>                                                     <span class="op">+</span> route_outcomes[k, <span class="st">"No"</span>]))</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    route_outcomes <span class="op">=</span> route_outcomes.drop(columns<span class="op">=</span>(k, <span class="st">"No"</span>))</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    route_outcomes <span class="op">=</span> route_outcomes.rename(columns<span class="op">=</span>{<span class="st">"Yes"</span>: <span class="st">"Returned (n)"</span>}, level<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>na_cols <span class="op">=</span> [<span class="st">"[Not ended]"</span>, <span class="st">"Died"</span>]</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>tbl_n <span class="op">=</span> route_outcomes.iloc[:, :<span class="dv">2</span>]</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>tbl_periods <span class="op">=</span> (route_outcomes.astype(<span class="st">"object"</span>)</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>               .loc[[x <span class="cf">for</span> x <span class="kw">in</span> route_outcomes.index.to_list() <span class="cf">if</span> x <span class="kw">not</span> <span class="kw">in</span> na_cols]]</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>               .iloc[:, <span class="dv">2</span>:].stack(sort<span class="op">=</span><span class="va">False</span>))</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> tbl_periods</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>tbl.index <span class="op">=</span> tbl.index.set_names((<span class="st">"End reason"</span>, <span class="st">"Statistic"</span>))</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">"display.float_format"</span>, <span class="st">"</span><span class="sc">{:,.1f}</span><span class="st">"</span>.<span class="bu">format</span>):</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>    display(tbl)</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>excel_output[<span class="st">"Table 1.2: Returns at periods of time after exit by social housing moves"</span>] <span class="op">=</span> tbl</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">90d</th>
+<th data-quarto-table-cell-role="th">6m</th>
+<th data-quarto-table-cell-role="th">15m</th>
+<th data-quarto-table-cell-role="th">18m</th>
+<th data-quarto-table-cell-role="th">2y</th>
+<th data-quarto-table-cell-role="th">5y</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">End reason</th>
+<th data-quarto-table-cell-role="th">Statistic</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td rowspan="3" data-quarto-table-cell-role="th" data-valign="top">All</td>
+<td data-quarto-table-cell-role="th">Eligible (n)</td>
+<td>979</td>
+<td>954</td>
+<td>885</td>
+<td>870</td>
+<td>822</td>
+<td>418</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Returned (n)</td>
+<td>1</td>
+<td>1</td>
+<td>4</td>
+<td>6</td>
+<td>8</td>
+<td>10</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">% returned</td>
+<td>0.1</td>
+<td>0.1</td>
+<td>0.5</td>
+<td>0.7</td>
+<td>1.0</td>
+<td>2.4</td>
+</tr>
+<tr class="even">
+<td rowspan="3" data-quarto-table-cell-role="th" data-valign="top">Housing association</td>
+<td data-quarto-table-cell-role="th">Eligible (n)</td>
+<td>300</td>
+<td>288</td>
+<td>269</td>
+<td>267</td>
+<td>251</td>
+<td>125</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Returned (n)</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">% returned</td>
+<td>0.3</td>
+<td>0.3</td>
+<td>0.0</td>
+<td>0.4</td>
+<td>0.4</td>
+<td>0.8</td>
+</tr>
+<tr class="odd">
+<td rowspan="3" data-quarto-table-cell-role="th" data-valign="top">Local authority</td>
+<td data-quarto-table-cell-role="th">Eligible (n)</td>
+<td>679</td>
+<td>666</td>
+<td>616</td>
+<td>603</td>
+<td>571</td>
+<td>293</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Returned (n)</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>5</td>
+<td>7</td>
+<td>9</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">% returned</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.6</td>
+<td>0.8</td>
+<td>1.2</td>
+<td>3.1</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="returns-at-periods-of-time-after-exit-by-social-housing-type-charts" class="level2">
+<h2 class="anchored" data-anchor-id="returns-at-periods-of-time-after-exit-by-social-housing-type-charts">Returns at periods of time after exit by social housing type: charts</h2>
+<div id="ee5e6f5f" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot chart</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn.objects <span class="im">as</span> so</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>periodMult <span class="op">=</span> {<span class="st">"d"</span>: <span class="dv">1</span>, <span class="st">"m"</span>: <span class="fl">365.25</span><span class="op">/</span><span class="dv">12</span>, <span class="st">"y"</span>: <span class="fl">365.25</span>}</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>periodYears <span class="op">=</span> {x: <span class="bu">int</span>(x[:<span class="op">-</span><span class="dv">1</span>]) <span class="op">*</span> periodMult[x[<span class="op">-</span><span class="dv">1</span>]] <span class="op">/</span> periodMult[<span class="st">"y"</span>] <span class="cf">for</span> x <span class="kw">in</span> distinct_pathways.stable_offsets.keys()}</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>plotdata <span class="op">=</span> (</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    tbl.unstack(<span class="dv">0</span>).loc[<span class="st">"</span><span class="sc">% r</span><span class="st">eturned"</span>].reset_index(<span class="dv">1</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    .assign(years<span class="op">=</span><span class="kw">lambda</span> x: x.index.<span class="bu">map</span>(periodYears))</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    .reset_index()</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>zeroes <span class="op">=</span> pd.DataFrame({<span class="st">"index"</span>: <span class="st">""</span>, <span class="st">"End reason"</span>: plotdata[<span class="st">"End reason"</span>].unique(), <span class="st">"</span><span class="sc">% r</span><span class="st">eturned"</span>: <span class="dv">0</span>, <span class="st">"years"</span>: <span class="dv">0</span>},</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>                      index<span class="op">=</span><span class="bu">range</span>(<span class="bu">len</span>(plotdata), <span class="bu">len</span>(plotdata) <span class="op">+</span> plotdata[<span class="st">"End reason"</span>].nunique()))</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>plotdata <span class="op">=</span> pd.concat([zeroes, plotdata])</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>facet_order <span class="op">=</span> tbl_n.index.to_list()</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cust_plot(rc_params<span class="op">=</span>{}, annot_color<span class="op">=</span><span class="st">"black"</span>):</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>        so.Plot(data<span class="op">=</span>plotdata, y<span class="op">=</span><span class="st">"</span><span class="sc">% r</span><span class="st">eturned"</span>, x<span class="op">=</span><span class="st">"years"</span>, text<span class="op">=</span><span class="st">"index"</span>)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>        .facet(<span class="st">"End reason"</span>, wrap<span class="op">=</span><span class="dv">4</span>, order<span class="op">=</span>facet_order)</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>        .label(x<span class="op">=</span><span class="st">""</span>, y<span class="op">=</span><span class="st">""</span>)</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>        .add(so.Dot(), data<span class="op">=</span>plotdata[plotdata[<span class="st">"index"</span>] <span class="op">!=</span> <span class="st">""</span>])</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>        .add(so.Line())</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>        .add(so.Area(edgewidth<span class="op">=</span><span class="dv">0</span>))</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>        .limit(x<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">5</span>), y<span class="op">=</span>(<span class="dv">0</span>, <span class="va">None</span>))</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>        .scale(x<span class="op">=</span>(so.Continuous()</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>                  .tick(every<span class="op">=</span><span class="dv">1</span>, minor<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>                  .label(like<span class="op">=</span><span class="kw">lambda</span> x, pos: <span class="ss">f"</span><span class="sc">{</span>x<span class="sc">:.0f}</span><span class="ss">"</span> <span class="cf">if</span> x <span class="op">!=</span> <span class="dv">5</span> <span class="cf">else</span> <span class="st">"5y"</span>)),</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>              y<span class="op">=</span>so.Continuous().tick(minor<span class="op">=</span><span class="dv">1</span>).label(unit<span class="op">=</span>(<span class="st">""</span>, <span class="st">"%"</span>)))</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>        .theme({<span class="st">"axes.grid.which"</span>: <span class="st">"both"</span>} <span class="op">|</span> rc_params)</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>        .layout(size<span class="op">=</span>(<span class="fl">6.2</span>, <span class="fl">2.1</span>), engine<span class="op">=</span><span class="st">"constrained"</span>)</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>fig_filename <span class="op">=</span> <span class="st">"Figure_1.2.svg"</span></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> cust_plot()</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>p.save(output_dir <span class="op">+</span> fig_filename, transparent<span class="op">=</span>transparent)</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>p.show(block<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p><img src="assets_output/Figure_1.2.svg" class="img-fluid"></p>
+<section id="thoughts" class="level4">
+<h4 class="anchored" data-anchor-id="thoughts">Thoughts:</h4>
+<ul>
+<li>Local authority may be “landlord of last resort”, i.e.&nbsp;its statutory duties may incentivise it to accept people who may be less likely to succeed.</li>
+<li>Housing association caution (e.g.&nbsp;assessments, skipping, affordability checks) may reduce likelihood of failure at cost of lower letting rates.</li>
+</ul>
+</section>
+</section>
+<section id="tables-in-an-excel-file" class="level2">
+<h2 class="anchored" data-anchor-id="tables-in-an-excel-file">Tables in an Excel file</h2>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>sheetname <span class="op">=</span> <span class="st">"Sheet1"</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>qmdfile <span class="op">=</span> os.getenv(<span class="st">"QUARTO_DOCUMENT_FILE"</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>filename <span class="op">=</span> assets_output <span class="op">+</span> qmdfile[:<span class="op">-</span><span class="dv">4</span>]<span class="op">+</span><span class="st">".xlsx"</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.ExcelWriter(filename) <span class="im">as</span> writer:</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    next_row <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k, v <span class="kw">in</span> excel_output.items():</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        pd.DataFrame([k]).to_excel(writer, sheet_name<span class="op">=</span>sheetname, header<span class="op">=</span><span class="va">False</span>, index<span class="op">=</span><span class="va">False</span>, startrow<span class="op">=</span>next_row)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        next_row <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        v.to_excel(writer, sheet_name<span class="op">=</span>sheetname, startrow<span class="op">=</span>next_row, float_format<span class="op">=</span><span class="st">"</span><span class="sc">%.1f</span><span class="st">"</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        next_row <span class="op">+=</span> (</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>            (<span class="dv">1</span> <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(v.columns, pd.MultiIndex) <span class="cf">else</span> <span class="dv">1</span> <span class="op">+</span> <span class="bu">len</span>(v.columns.levels))</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">+</span> <span class="bu">len</span>(v) <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"[Excel file](./</span><span class="sc">{</span>filename<span class="sc">}</span><span class="ss">)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<p><a href="./assets_output/01_social_housing_returns.xlsx">Excel file</a></p>
 
 
 </section>

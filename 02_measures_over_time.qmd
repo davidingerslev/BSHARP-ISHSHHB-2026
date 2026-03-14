@@ -1,5 +1,5 @@
 ---
-title: "02. Social housing returns"
+title: "02. Changes in measures over time"
 date: 2026-03-14
 warning: false
 ---
@@ -38,9 +38,39 @@ transparent = False
 excel_output = {}
 ```
 
-## No content yet!
+## End reason proportions per quarter
+
 ```{python}
-#TODO: Start here!
+# Generate Table
+t1_1_data = dpw_rt_ends.copy()
+t1_1_data["rt_end_yr"] = t1_1_data["pl_end_dt"].dt.year.astype("Int64")
+t1_1_data["rt_end_qtr"] = t1_1_data["pl_end_dt"].dt.quarter.astype("Int64")
+t1_1 = t1_1_data[["rt_end_yr", "rt_end_qtr", "rt_end_cat"]].value_counts(dropna=False).rename("").unstack("rt_end_cat")
+t1_1 = pd.concat([t1_1], keys=["End reasons"], axis=1)
+t1_1.insert(loc=0, column=("n", ""), value=t1_1.sum(axis=1))
+t1_1["End reasons"] = 100 * t1_1["End reasons"].div(t1_1["n"], axis=0)
+t1_1 = t1_1.rename(columns={"End reasons": "End reasons %"})
+
+excel_output["Table 1.1: Route end reasons per quarter"] = t1_1
+with pd.option_context("display.precision", 3):
+    display(t1_1)
+```
+
+## End reason proportions per year
+```{python}
+# Generate Table
+t1_2_data = dpw_rt_ends.copy()
+t1_2_data["rt_end_yr"] = t1_2_data["pl_end_dt"].dt.year.astype("Int64")
+t1_2 = t1_2_data[["rt_end_yr", "rt_end_cat"]].value_counts(dropna=False).rename("").unstack("rt_end_cat")
+t1_2 = pd.concat([t1_2], keys=["End reasons"], axis=1)
+t1_2.insert(loc=0, column=("n", ""), value=t1_2.sum(axis=1))
+t1_2["End reasons"] = 100 * t1_2["End reasons"].div(t1_2["n"], axis=0)
+t1_2 = t1_2.rename(columns={"End reasons": "End reasons %"})
+
+excel_output["Table 1.2: Route end reasons per year"] = t1_2
+with pd.option_context("display.precision", 3):
+    display(t1_2)
+
 ```
 
 ## Tables in an Excel file

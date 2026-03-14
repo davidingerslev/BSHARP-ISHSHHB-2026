@@ -1,0 +1,79 @@
+---
+title: "03. Constructing dependent variables"
+date: 2026-03-14
+warning: false
+---
+
+```{python}
+# Setup code
+import pandas as pd
+from python_scripts import setup
+from python_scripts import services
+from python_scripts import helper
+df, dffp = setup.setup(verbose=False)
+
+from python_scripts import distinct_pathways
+dpw_pls = distinct_pathways.get_distinct_pathways_routes(dffp)
+qrows = dpw_pls["rt_end_cat"] == "[Not ended or invalid end reason]"
+dpw_pls.loc[qrows, "rt_end_cat"] = dpw_pls.loc[qrows, "pl_end_dt"].isna().map({True: "[Not ended]", False: "Missing data/error"})
+dpw_pls["rt_end_cat"] = dpw_pls["rt_end_cat"].str.replace("To care/hosp.", "To care/hospital")
+dpw_rt_starts = dpw_pls.groupby("route_id").head(1)
+dpw_rt_ends = dpw_pls.groupby("route_id").tail(1)
+dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1)  # 1 duplicate client but first entry has more detailed answers
+
+import matplotlib
+import matplotlib.pyplot as plt
+matplotlib.rcParams.update({
+    'figure.figsize': (6.2, 4.1),
+    'font.size': 12,
+    'figure.constrained_layout.use': True
+})
+
+asset_themes = {"opaque": "assets_output/",
+                "transparent_lightbg": "assets_transparent_lightbg/",
+                "transparent_darkbg": "assets_transparent_darkbg/"}
+assets_output = asset_themes["opaque"]
+output_dir = assets_output
+transparent = False
+excel_output = {}
+```
+
+## Outcomes at a period of time after a route started
+```{python}
+periodMult = {"d": 1, "m": 365.25/12, "y": 365.25}
+years = periodMult["y"]
+time_measure = pd.Timedelta(days=(3.08 * years))
+dpw_rt_ends = dpw_rt_ends.set_index("route_id")
+end_cols_to_drop = dpw_rt_ends.columns[
+  ~(
+    dpw_rt_ends.columns.isin(["gap", "dur"])
+    | dpw_rt_ends.columns.str.startswith("prev_")
+    | dpw_rt_ends.columns.str.startswith("vac_")
+    | dpw_rt_ends.columns.str.startswith("pl_")
+  )]
+dpw_routes = dpw_rt_ends.drop(columns=end_cols_to_drop)
+dpw_routes["rt_start_dt"] = dpw_rt_starts.set_index("route_id")["pl_start_dt"].rename("rt_start_dt")
+dpw_routes["rt_end_dt"] = dpw_rt_ends["pl_end_dt"].rename("rt_end_dt")
+# Only include routes where there has been long enough for the outcome to happen
+dpw_outcomes = dpw_routes[dpw_routes["rt_start_dt"] <= distinct_pathways.dpw_end_dt - time_measure]
+```
+
+## Tables in an Excel file
+
+```{python}
+#| output: asis
+import os
+sheetname = "Sheet1"
+qmdfile = os.getenv("QUARTO_DOCUMENT_FILE")
+filename = assets_output + qmdfile[:-4]+".xlsx"
+with pd.ExcelWriter(filename) as writer:
+    next_row = 0
+    for k, v in excel_output.items():
+        pd.DataFrame([k]).to_excel(writer, sheet_name=sheetname, header=False, index=False, startrow=next_row)
+        next_row += 1
+        v.to_excel(writer, sheet_name=sheetname, startrow=next_row, float_format="%.1f")
+        next_row += (
+            (1 if not isinstance(v.columns, pd.MultiIndex) else 1 + len(v.columns.levels))
+            + len(v) + 1)
+print(f"[Excel file](./{filename})")
+```

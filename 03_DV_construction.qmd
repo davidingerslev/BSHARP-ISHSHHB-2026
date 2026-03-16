@@ -43,19 +43,119 @@ excel_output = {}
 periodMult = {"d": 1, "m": 365.25/12, "y": 365.25}
 years = periodMult["y"]
 time_measure = pd.Timedelta(days=(3.08 * years))
+dpw_rt_ends = dpw_pls.groupby("route_id").tail(1)
 dpw_rt_ends = dpw_rt_ends.set_index("route_id")
 end_cols_to_drop = dpw_rt_ends.columns[
-  ~(
-    dpw_rt_ends.columns.isin(["gap", "dur"])
-    | dpw_rt_ends.columns.str.startswith("prev_")
-    | dpw_rt_ends.columns.str.startswith("vac_")
-    | dpw_rt_ends.columns.str.startswith("pl_")
-  )]
+    (
+        dpw_rt_ends.columns.isin(["gap", "dur"])
+        | dpw_rt_ends.columns.str.startswith("prev_")
+        | dpw_rt_ends.columns.str.startswith("vac_")
+        | dpw_rt_ends.columns.str.startswith("pl_")
+        | dpw_rt_ends.columns.str.startswith("svc_")
+    )]
 dpw_routes = dpw_rt_ends.drop(columns=end_cols_to_drop)
 dpw_routes["rt_start_dt"] = dpw_rt_starts.set_index("route_id")["pl_start_dt"].rename("rt_start_dt")
 dpw_routes["rt_end_dt"] = dpw_rt_ends["pl_end_dt"].rename("rt_end_dt")
-# Only include routes where there has been long enough for the outcome to happen
-dpw_outcomes = dpw_routes[dpw_routes["rt_start_dt"] <= distinct_pathways.dpw_end_dt - time_measure]
+# Set up map from categories to outcomes
+rt_outcomes_map = {
+    'Independent accommodation': ['To social housing', 'To private rented'],
+    'Insecure outcome': ['To friends/family', 'Custody', '[Not ended]', 'To care/hospital', 'To external supported'],
+    'Returned to homelessness': ['Evicted', 'Abandoned'],
+    'Died': ['Died'],
+    # '_excluded': ['Other', 'Missing data/error']
+}
+rt_end_cat_map = {cat: outcome for outcome in rt_outcomes_map.keys() for cat in rt_outcomes_map[outcome]}
+dpw_rt_outcomes = dpw_routes[
+    # Only include routes where there has been long enough for the outcome to happen
+    (dpw_routes["rt_start_dt"] <= distinct_pathways.dpw_end_dt - time_measure)
+    # Only include routes that have a rt_end_cat that corresponds to an outcome
+    & (dpw_routes["rt_end_cat"].isin(rt_end_cat_map.keys()))]
+dpw_rt_outcomes["rt_outcome"] = dpw_rt_outcomes["rt_end_cat"].map(rt_end_cat_map)
+dpw_rt_outcomes.loc[dpw_rt_outcomes["rt_end_dt"] > (dpw_rt_outcomes["rt_start_dt"] + time_measure), "rt_outcome"] = "Insecure outcome"
+# Create univariate table for new DV, dpw_rt_outcomes["rt_outcome"]
+n = dpw_rt_outcomes["rt_outcome"].value_counts(dropna=False).rename("n")
+pct = (100 * dpw_rt_outcomes["rt_outcome"].value_counts(dropna=False, normalize=True)).rename("pct")
+tbl = pd.concat([n, pct], axis=1)
+tbl.index = tbl.index.rename("Route outcome")
+excel_output[f"Table 3.1: Route outcomes after 3.08 years"] = tbl
+with pd.option_context("display.precision", 1):
+    display(tbl)
+```
+
+## Outcomes at a period of time after a person's first route started
+
+```{python}
+# Testing -- doesn't quite work... why would you use the same time measure for people?
+# dpw_cli_outcomes is the dpw_rt_outcome that is active after the measured time since the person's first route started
+# dpw_cli_timemeasure_dt = (dpw_rt_outcomes
+#                           .set_index("o_cli_id")
+#                           .groupby("o_cli_id")
+#                           .head(1)
+#                           ["rt_start_dt"]
+#                           + time_measure).rename("cli_timemeasure_dt")
+# dpw_cli_outcomes = dpw_rt_outcomes.join(dpw_cli_timemeasure_dt, on="o_cli_id").set_index("o_cli_id")
+# dpw_cli_outcomes.loc[dpw_cli_outcomes["rt_end_dt"] > dpw_cli_outcomes["cli_timemeasure_dt"], "cli_outcome"] = "Insecure outcome"
+#dpw_cli_rts_start_dt = dpw_rt_starts.set_index("o_cli_id").groupby("o_cli_id").head(1)["pl_start_dt"].rename("cli_rts_start_dt")
+#dpw_cli_rts_end_dt = dpw_rt_ends.set_index("o_cli_id").groupby("o_cli_id").tail(1)["pl_end_dt"].rename("cli_rts_end_dt")
+```
+Testing -- doesn't quite work.
+
+## Returning to use services multiple times
+
+```{python}
+dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1).set_index("o_cli_id")
+dpw_clis["multiple_returns"] = (dpw_rt_starts.groupby(['o_cli_id']).size() >= 3).rename("multiple_returns")
+# Create univariate table for new DV, dpw_clis["multiple_returns"]
+n = dpw_clis["multiple_returns"].value_counts(dropna=False).rename("n")
+pct = (100 * dpw_clis["multiple_returns"].value_counts(dropna=False, normalize=True)).rename("pct")
+tbl = pd.concat([n, pct], axis=1)
+tbl.index = tbl.index.rename("Multiple returns")
+excel_output[f"Table 3.2: People with multiple returns during 7.5 yrs"] = tbl
+with pd.option_context("display.precision", 1):
+    display(tbl)
+```
+
+## Using services longer-term
+
+```{python}
+durations = dpw_pls.set_index(["o_cli_id", "route_id"])[["dur", "pl_start_dt"]]
+durations["dur_days"] = durations["dur"].dt.days
+durations["dur_days"] = durations["dur_days"].fillna(1 + (distinct_pathways.dpw_end_dt - durations.pl_start_dt).dt.days)
+durations = durations.drop(columns=["dur", "pl_start_dt"]).groupby(["o_cli_id", "route_id"]).sum()
+# Set threshold to top 10% of route durations
+longer_term_threshold_days = durations.quantile(0.9)
+dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1).set_index("o_cli_id")
+dpw_clis["has_longer_term_rt"] = ((durations > longer_term_threshold_days)
+                                  .groupby("o_cli_id").any())
+# Create univariate table for new DV, dpw_clis["has_longer_term_rt"]
+n = dpw_clis["has_longer_term_rt"].value_counts(dropna=False).rename("n")
+pct = (100 * dpw_clis["has_longer_term_rt"].value_counts(dropna=False, normalize=True)).rename("pct")
+tbl = pd.concat([n, pct], axis=1)
+tbl.index = tbl.index.rename("Had a longer-term route")
+excel_output[f"Table 3.3: People with a route in top 10% of route durations"] = tbl
+with pd.option_context("display.precision", 1):
+    display(tbl)
+```
+
+## Returns within 2 years after moving to independent accommodation
+
+```{python}
+# time_measure options: ['90d', '6m', '15m', '18m', '2y', '5y']
+time_measure = "2y"
+time_offset = distinct_pathways.stable_offsets[time_measure]
+return_col = f"after_rt_ret_within_{time_measure}"
+eligible_route_ends = dpw_rt_ends[
+    # Only include routes that have a rt_end_cat that corresponds to independent accommodation
+    dpw_rt_ends["rt_end_cat"].isin(["To social housing", "To private rented"])
+    # Only include routes where there has been long enough for the outcome to happen
+    & (dpw_rt_ends["pl_end_dt"] < distinct_pathways.dpw_end_dt - time_offset)]
+n = eligible_route_ends[return_col].value_counts(dropna=False).rename("n")
+pct = (100 * eligible_route_ends[return_col].value_counts(dropna=False, normalize=True)).rename("pct")
+tbl = pd.concat([n, pct], axis=1)
+tbl.index = tbl.index.rename("Returned within 2y")
+excel_output[f"Table 3.4: Returns within 2 years after moving to independent accommodation"] = tbl
+with pd.option_context("display.precision", 1):
+    display(tbl)
 ```
 
 ## Tables in an Excel file

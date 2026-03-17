@@ -324,7 +324,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div id="a6124865" class="cell" data-execution_count="1">
+<div id="999fa7bf" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup code</span></span>
@@ -369,7 +369,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="outcomes-at-a-period-of-time-after-a-route-started" class="level2">
 <h2 class="anchored" data-anchor-id="outcomes-at-a-period-of-time-after-a-route-started">Outcomes at a period of time after a route started</h2>
-<div id="716bdb2e" class="cell" data-execution_count="2">
+<div id="8ef188eb" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>periodMult <span class="op">=</span> {<span class="st">"d"</span>: <span class="dv">1</span>, <span class="st">"m"</span>: <span class="fl">365.25</span><span class="op">/</span><span class="dv">12</span>, <span class="st">"y"</span>: <span class="fl">365.25</span>}</span>
@@ -426,7 +426,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>pct <span class="op">=</span> (<span class="dv">100</span> <span class="op">*</span> dpw_rt_outcomes[<span class="st">"rt_outcome"</span>].value_counts(dropna<span class="op">=</span><span class="va">False</span>, normalize<span class="op">=</span><span class="va">True</span>)).rename(<span class="st">"pct"</span>)</span>
 <span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> pd.concat([n, pct], axis<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>tbl.index <span class="op">=</span> tbl.index.rename(<span class="st">"Route outcome"</span>)</span>
-<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>excel_output[<span class="ss">f"Table 3.1: Route outcomes after 3.08 years"</span>] <span class="op">=</span> tbl</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>excel_output[<span class="st">"Table 3.1: Route outcomes after 3.08 years"</span>] <span class="op">=</span> tbl</span>
 <span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">"display.precision"</span>, <span class="dv">1</span>):</span>
 <span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>    display(tbl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
@@ -477,7 +477,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="outcomes-at-a-period-of-time-after-a-persons-first-route-started" class="level2">
 <h2 class="anchored" data-anchor-id="outcomes-at-a-period-of-time-after-a-persons-first-route-started">Outcomes at a period of time after a person’s first route started</h2>
-<div id="d0364f93" class="cell" data-execution_count="3">
+<div id="e1464b65" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Testing -- doesn't quite work... why would you use the same time measure for people?</span></span>
@@ -569,7 +569,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="returning-to-use-services-multiple-times" class="level2">
 <h2 class="anchored" data-anchor-id="returning-to-use-services-multiple-times">Returning to use services multiple times</h2>
-<div id="b0b61d12" class="cell" data-execution_count="4">
+<div id="6f7a2bcb" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>dpw_clis <span class="op">=</span> dpw_pls.groupby([<span class="st">"o_cli_id"</span>]).head(<span class="dv">1</span>).set_index(<span class="st">"o_cli_id"</span>)</span>
@@ -620,7 +620,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="using-services-longer-term" class="level2">
 <h2 class="anchored" data-anchor-id="using-services-longer-term">Using services longer-term</h2>
-<div id="b21556b1" class="cell" data-execution_count="5">
+<div id="0812a97e" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>durations <span class="op">=</span> dpw_pls.set_index([<span class="st">"o_cli_id"</span>, <span class="st">"route_id"</span>])[[<span class="st">"dur"</span>, <span class="st">"pl_start_dt"</span>]]</span>
@@ -678,7 +678,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="returns-within-2-years-after-moving-to-independent-accommodation" class="level2">
 <h2 class="anchored" data-anchor-id="returns-within-2-years-after-moving-to-independent-accommodation">Returns within 2 years after moving to independent accommodation</h2>
-<div id="ae912453" class="cell" data-execution_count="6">
+<div id="81577d02" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># time_measure options: ['90d', '6m', '15m', '18m', '2y', '5y']</span></span>
@@ -735,7 +735,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="outcomes-from-individual-placements" class="level2">
 <h2 class="anchored" data-anchor-id="outcomes-from-individual-placements">Outcomes from individual placements</h2>
-<div id="b3838105" class="cell" data-execution_count="7">
+<div id="ae973f96" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>

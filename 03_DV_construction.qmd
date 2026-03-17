@@ -101,7 +101,7 @@ n = dpw_rt_outcomes["rt_outcome"].value_counts(dropna=False).rename("n")
 pct = (100 * dpw_rt_outcomes["rt_outcome"].value_counts(dropna=False, normalize=True)).rename("pct")
 tbl = pd.concat([n, pct], axis=1)
 tbl.index = tbl.index.rename("Route outcome")
-excel_output[f"Table 3.1: Route outcomes after 3.08 years"] = tbl
+excel_output["Table 3.1: Route outcomes after 3.08 years"] = tbl
 with pd.option_context("display.precision", 1):
     display(tbl)
 ```

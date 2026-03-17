@@ -4,7 +4,9 @@
     "items": [
       "/01_social_housing_returns.html",
       "/02_measures_over_time.html",
-      "/03_DV_construction.html"
+      "/03_DV_construction.html",
+      "/04_bivariate_analysis_placements.html",
+      "/05_univariate_characteristics.html"
     ]
   }
 ]

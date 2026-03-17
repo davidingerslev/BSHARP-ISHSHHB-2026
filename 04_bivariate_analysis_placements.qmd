@@ -1,0 +1,240 @@
+---
+title: "04. Bivariate analysis for placement outcomes"
+date: 2026-03-17
+warning: false
+---
+
+```{python}
+# Setup code
+import pandas as pd
+from python_scripts import setup
+from python_scripts import services
+from python_scripts import helper
+df, dffp = setup.setup(verbose=False)
+
+from python_scripts import distinct_pathways
+dpw_pls = distinct_pathways.get_distinct_pathways_routes(dffp)
+qrows = dpw_pls["rt_end_cat"] == "[Not ended or invalid end reason]"
+dpw_pls.loc[dpw_pls.pl_end_dt > distinct_pathways.dpw_end_dt, ["pl_end_dt", "pl_end_reason"]] = pd.NA
+dpw_pls.loc[qrows, "rt_end_cat"] = dpw_pls.loc[qrows, "pl_end_dt"].isna().map({True: "[Not ended]", False: "Missing data/error"})
+dpw_pls["rt_end_cat"] = dpw_pls["rt_end_cat"].str.replace("To care/hosp.", "To care/hospital")
+dpw_rt_starts = dpw_pls.groupby("route_id").head(1)
+dpw_rt_ends = dpw_pls.groupby("route_id").tail(1)
+dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1)  # 1 duplicate client but first entry has more detailed answers
+
+import matplotlib
+import matplotlib.pyplot as plt
+matplotlib.rcParams.update({
+    'figure.figsize': (6.2, 4.1),
+    'font.size': 12,
+    'figure.constrained_layout.use': True
+})
+
+asset_themes = {"opaque": "assets_output/",
+                "transparent_lightbg": "assets_transparent_lightbg/",
+                "transparent_darkbg": "assets_transparent_darkbg/"}
+assets_output = asset_themes["opaque"]
+output_dir = assets_output
+transparent = False
+excel_output = {}
+
+
+def get_frequencies(series, sort=True):
+    n = series.value_counts(sort=sort).rename("n")
+    pct = 100 * series.value_counts(sort=sort, normalize=True).rename("pct")
+    return pd.concat([n, pct], axis=1)
+```
+
+## Outcomes from individual placements
+
+```{python}
+import numpy as np
+from python_scripts import routes
+pl_end_cat_map = routes.get_end_cats_map()
+pl_outcomes = dpw_pls.set_index("vac_id")
+pl_outcomes["pl_end_cat"] = pl_outcomes["pl_end_reason"].map(pl_end_cat_map)
+next_pls = (dpw_pls.loc[dpw_pls["prev_vac_id"].notna()]
+            .rename(columns={"vac_id": "next_vac_id", "prev_vac_id": "vac_id", "svc_type_short": "pathway"})
+            .set_index("vac_id"))
+next_pls["pathway"] = next_pls["pathway"].cat.remove_unused_categories()
+pl_outcomes.loc[next_pls.index, "pl_end_cat"] = "Internal move"
+pl_outcomes.loc[dpw_pls.loc[dpw_pls["prev_svc_id"] == dpw_pls["svc_id"], "prev_vac_id"].values, "pl_end_cat"] = "Internal move: same service"
+pl_outcomes["pathway"] = pl_outcomes["svc_type_short"].cat.remove_unused_categories()
+pl_outcomes["pathway_type"] = (pl_outcomes["pathway"] == "Substance Misuse Pathway").map({True: "Substance Misuse", False: "Homelessness"})
+tbl = get_frequencies(pl_outcomes[["pathway_type", "pathway_level"]], sort=False)
+tbl_desc = "Table 4.1: Placements in different pathway levels"
+excel_output[tbl_desc] = tbl
+print(tbl_desc)
+display(tbl)
+print("")
+level_diff = (pl_outcomes.loc[pl_outcomes["pl_end_cat"] == "Internal move", ["pathway", "pathway_level"]]
+              .join(next_pls[["pathway", "pathway_level"]].add_prefix("next_"))
+              .assign(level_diff=lambda df: df[["pathway_level", "next_pathway_level"]]
+              .astype("Int64").diff(axis=1).iloc[:, -1]))
+# Difference in level is meaningful except that moves to/from SU pathway are different..
+pl_outcomes = pl_outcomes.join((level_diff[["next_pathway_level", "level_diff"]]
+                                .where((level_diff["pathway"] == level_diff["next_pathway"])
+                                       | (level_diff["pathway"] != "Substance Misuse Pathway")
+                                       | (level_diff["next_pathway"] != "Substance Misuse Pathway"))))
+pl_outcomes.loc[pl_outcomes["level_diff"].notna(), "pl_end_cat"] = (
+    "Internal move: " + np.sign(pl_outcomes.level_diff).map({-1: "backwards", 0: "sideways", 1: "forwards"})
+)
+# Exclude 42 0-day placements
+pl_outcomes = pl_outcomes[pl_outcomes["dur"] > pd.Timedelta(days=0)]
+pl_outcomes_map = {
+    'Independent accommodation': ['To social housing', 'To private rented'],
+    'Insecure outcome': ['To friends/family', 'Custody', '[Not ended]', 'To care/hospital', 'To external supported'],
+    'Returned to homelessness': ['Evicted', 'Abandoned'],
+    'Died': ['Died'],
+    # '_excluded': ['Other', 'Missing data/error']
+}
+pl_end_cat_map = {cat: outcome for outcome in pl_outcomes_map.keys() for cat in pl_outcomes_map[outcome]}
+pl_outcomes["pl_outcome"] = pl_outcomes["pl_end_cat"].map(pl_end_cat_map)
+pl_outcomes.loc[
+    pl_outcomes["pl_end_cat"].fillna("").str.startswith("Internal move"),
+    "pl_outcome"] = pl_outcomes["pl_end_cat"]
+pl_outcomes_excl_same_svc = pl_outcomes[pl_outcomes["pl_end_cat"] != "Internal move: same service"]
+tbl = get_frequencies(pl_outcomes_excl_same_svc["pl_outcome"])
+tbl_desc = "Table 4.2: Placement outcomes"
+excel_output[tbl_desc] = tbl
+print(tbl_desc)
+display(tbl)
+print("")
+tbl_n = pl_outcomes_excl_same_svc.reset_index().pivot_table(
+          values="vac_id", index="pl_outcome", columns=["pathway_type", "pathway_level"],
+          aggfunc="count", margins=True)
+tbl_n = pd.concat([tbl_n.iloc[:-1, :].sort_values(by="All", ascending=False),  tbl_n.iloc[[-1], :]])
+tbl_n_desc = "Table 4.3: Placement outcomes by pathway type and level"
+excel_output[tbl_n_desc] = tbl_n
+tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :])
+tbl_pct_desc = "Table 4.4: Placement outcomes (as row percentages) by pathway type and level"
+excel_output[tbl_pct_desc] = tbl_pct
+with pd.option_context("display.precision", 1):
+    print(tbl_n_desc)
+    display(tbl_n)
+    print("")
+    print(tbl_pct_desc)
+    display(tbl_pct)
+    print("")
+```
+
+### Placement outcomes by calendar year
+
+```{python}
+tbl_n = pl_outcomes_excl_same_svc.assign(end_year=pl_outcomes_excl_same_svc["pl_end_dt"].dt.year.astype("Int64")).reset_index().pivot_table(
+          values="vac_id", index="pl_outcome", columns=["end_year"],
+          aggfunc="count", margins=True)
+tbl_n = pd.concat([tbl_n.iloc[:-1, :].sort_values(by="All", ascending=False),  tbl_n.iloc[[-1], :]])
+tbl_n_desc = "Table 4.5: Placement outcomes by calendar year"
+excel_output[tbl_n_desc] = tbl_n
+tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :])
+tbl_pct_desc = "Table 4.6: Placement outcomes (as row percentages) by calendar year"
+excel_output[tbl_pct_desc] = tbl_pct
+with pd.option_context("display.precision", 1):
+    print(tbl_n_desc)
+    display(tbl_n)
+    print("")
+    print(tbl_pct_desc)
+    display(tbl_pct)
+    print("")
+```
+
+### Placement outcomes by level and pathway
+
+```{python}
+pl_outcomes_excl_same_svc["pathway_short"] = pl_outcomes_excl_same_svc["pathway"].map({
+    "Female Only Pathway": "F",
+    "Mixed Pathway": "M/F",
+    "Male Only Pathway": "M",
+    "Substance Misuse Pathway": "SU"})
+tbl_n = pl_outcomes_excl_same_svc.reset_index().pivot_table(
+          values="vac_id", index="pl_outcome", columns=["pathway_level", "pathway_short"],
+          aggfunc="count", margins=True)
+tbl_n = pd.concat([tbl_n.iloc[:-1, :].sort_values(by="All", ascending=False),  tbl_n.iloc[[-1], :]])
+tbl_n_desc = "Table 4.7: Placement outcomes by level and pathway"
+excel_output[tbl_n_desc] = tbl_n
+tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :])
+tbl_pct_desc = "Table 4.8: Placement outcomes (as row percentages) by level and pathway"
+excel_output[tbl_pct_desc] = tbl_pct
+with pd.option_context("display.precision", 1):
+    print(tbl_n_desc)
+    display(tbl_n)
+    print("")
+    print(tbl_pct_desc)
+    display(tbl_pct)
+    print("")
+```
+
+### Placement outcomes from L3-4 by shared vs. self-contained
+
+```{python}
+l3_l4_outcomes = pl_outcomes_excl_same_svc[pl_outcomes_excl_same_svc["pathway_level"].isin(["3", "4"])]
+l3_l4_outcomes["pathway_short"] = l3_l4_outcomes["pathway_short"].cat.remove_unused_categories()
+l3_l4_outcomes["shared"] = l3_l4_outcomes["shared"].map({"Yes": "Shared", "No": "Self-contained"})
+tbl_n = l3_l4_outcomes.reset_index().pivot_table(
+          values="vac_id", index="pl_outcome", columns=["shared"],
+          aggfunc="count", margins=True)
+tbl_n = pd.concat([tbl_n.iloc[:-1, :].sort_values(by="All", ascending=False),  tbl_n.iloc[[-1], :]])
+tbl_n_desc = "Table 4.9: Placement outcomes from level 3-4 by shared vs. self-contained"
+excel_output[tbl_n_desc] = tbl_n
+tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :]).add_suffix(" %")
+tbl_pct_desc = "Table 4.10: Placement outcomes (as row percentages) from level 3-4 by shared vs. self-contained"
+excel_output[tbl_pct_desc] = tbl_pct
+with pd.option_context("display.precision", 1):
+    print(tbl_n_desc)
+    display(tbl_n)
+    print("")
+    print(tbl_pct_desc)
+    display(tbl_pct)
+    print("")
+```
+
+### Placement outcomes from L3-4 by shared vs. self-contained and pathway
+
+```{python}
+l3_l4_outcomes = pl_outcomes_excl_same_svc[pl_outcomes_excl_same_svc["pathway_level"].isin(["3", "4"])]
+l3_l4_outcomes["pathway_short"] = l3_l4_outcomes["pathway_short"].cat.remove_unused_categories()
+l3_l4_outcomes["shared"] = l3_l4_outcomes["shared"].map({"Yes": "Shared", "No": "Self-contained"})
+tbl_n = l3_l4_outcomes.reset_index().pivot_table(
+          values="vac_id", index="pl_outcome", columns=["shared", "pathway_short"],
+          aggfunc="count", margins=True)
+tbl_n = pd.concat([tbl_n.iloc[:-1, :].sort_values(by="All", ascending=False),  tbl_n.iloc[[-1], :]])
+tbl_n_desc = "Table 4.9: Placement outcomes from level 3-4 by shared vs. self-contained"
+excel_output[tbl_n_desc] = tbl_n
+tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :]).add_suffix(" %")
+tbl_pct_desc = "Table 4.10: Placement outcomes (as row percentages) from level 3-4 by shared vs. self-contained"
+excel_output[tbl_pct_desc] = tbl_pct
+with pd.option_context("display.precision", 1):
+    print(tbl_n_desc)
+    display(tbl_n)
+    print("")
+    print(tbl_pct_desc)
+    display(tbl_pct)
+    print("")
+```
+
+### Outcome differences for sizes of hostels
+
+Note: Analysis not completed. Initial testing indicated categories of project sizes were not useful.
+OABs within projects appeared as separate projects, affecting the apparent sizes even after OABs
+were adjusted to be back within the project where they were situated.
+
+## Tables in an Excel file
+
+```{python}
+#| output: asis
+import os
+sheetname = "Sheet1"
+qmdfile = os.getenv("QUARTO_DOCUMENT_FILE")
+filename = assets_output + qmdfile[:-4]+".xlsx"
+with pd.ExcelWriter(filename) as writer:
+    next_row = 0
+    for k, v in excel_output.items():
+        pd.DataFrame([k]).to_excel(writer, sheet_name=sheetname, header=False, index=False, startrow=next_row)
+        next_row += 1
+        v.to_excel(writer, sheet_name=sheetname, startrow=next_row, float_format="%.1f")
+        next_row += (
+            (1 if not isinstance(v.columns, pd.MultiIndex) else 1 + len(v.columns.levels))
+            + len(v) + 1)
+print(f"[Excel file](./{filename})")
+```

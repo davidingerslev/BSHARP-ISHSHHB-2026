@@ -1,0 +1,171 @@
+---
+title: "05. Univariate analysis for independent variables"
+date: 2026-03-17
+warning: false
+---
+
+```{python}
+# Setup code
+import pandas as pd
+from python_scripts import setup
+from python_scripts import services
+from python_scripts import helper
+df, dffp = setup.setup(verbose=False)
+
+from python_scripts import distinct_pathways
+dpw_pls = distinct_pathways.get_distinct_pathways_routes(dffp)
+qrows = dpw_pls["rt_end_cat"] == "[Not ended or invalid end reason]"
+dpw_pls.loc[dpw_pls.pl_end_dt > distinct_pathways.dpw_end_dt, ["pl_end_dt", "pl_end_reason"]] = pd.NA
+dpw_pls.loc[qrows, "rt_end_cat"] = dpw_pls.loc[qrows, "pl_end_dt"].isna().map({True: "[Not ended]", False: "Missing data/error"})
+dpw_pls["rt_end_cat"] = dpw_pls["rt_end_cat"].str.replace("To care/hosp.", "To care/hospital")
+dpw_rt_starts = dpw_pls.groupby("route_id").head(1)
+dpw_rt_ends = dpw_pls.groupby("route_id").tail(1)
+dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1)  # 1 duplicate client but first entry has more detailed answers
+
+import matplotlib
+import matplotlib.pyplot as plt
+matplotlib.rcParams.update({
+    'figure.figsize': (6.2, 4.1),
+    'font.size': 12,
+    'figure.constrained_layout.use': True
+})
+
+asset_themes = {"opaque": "assets_output/",
+                "transparent_lightbg": "assets_transparent_lightbg/",
+                "transparent_darkbg": "assets_transparent_darkbg/"}
+assets_output = asset_themes["opaque"]
+output_dir = assets_output
+transparent = False
+excel_output = {}
+
+
+def get_frequencies(series, sort=True, dropna=True, dropna_pct=True):
+    n = series.value_counts(sort=sort, dropna=dropna).rename("n")
+    pct = 100 * series.value_counts(sort=sort, dropna=(dropna or dropna_pct), normalize=True).rename("pct")
+    fq_tbl = pd.concat([n, pct], axis=1)
+    return fq_tbl
+
+
+dpw_pls_orig = dpw_pls
+```
+
+## TODO:
+
+[ ] Multiple disadvantage
+[ ] Project level
+[ ] Project pathway
+[ ] Categorise referral agencies (avoiding names)
+[ ] Floating support service alongside exit?
+
+## Generate tables for each characteristic of interest
+```{python}
+from collections import defaultdict
+dpw_pls = dpw_pls_orig
+# Age category at year of first route during studied period
+dpw_pls["gender"] = dpw_pls["gender"].map({
+    "Male": "Male", "Female": "Female", "Don't Know": "_Unknown",
+    "Prefer not to say": "_Unknown", "Transgender": "Non-Binary",
+    "Non-Binary": "Non-Binary"
+})
+dpw_pls["age_cat"] = helper.age_cats(dpw_pls["pl_start_dt"].dt.year - dpw_pls["yob"])
+dpw_pls["global_majority"] = dpw_pls["ethnicity"].map(defaultdict(
+    lambda: "Yes",
+    {
+      "English/Welsh/Scottish/Northern Irish/British": "No", "White British": "No",
+      "White Other Origin": "No", "Any other White background": "No", "White European": "No",
+      "Eastern European": "No", "Turkish": "No", "White Irish": "No", "Irish": "No",
+      "White Gypsy/Irish Traveller": "No", "Gypsy (inc English, Scottish or Roma Gypsy) or Irish Traveller": "No",
+      "Don't know": "_Unknown", "Prefer not to say": "_Unknown", "Refused to answer question": "_Unknown"
+    }))
+dpw_pls["lgbtq_plus"] = dpw_pls["sexual_orientation"].map({
+    "Bi-sexual": "Yes", "Gay/Lesbian": "Yes", "other": "Yes", "Lesbian": "Yes",
+    "Heterosexual": "No", "Don't Know": "_Unknown", "Rather not state": "_Unknown",
+})
+dpw_pls["uk_immigration_status"] = dpw_pls["uk_immigration_status"].map({
+    "Other Protection Leave to Remain": "Non-EEA National",
+    "Indefinite Leave to Remain": "Non-EEA National",
+    "Other Non-EEA National": "Non-EEA National",
+    "Limited Leave to Remain": "Non-EEA National",
+    "EEA National": "EEA National",
+    "UK/Irish National": "UK/Irish National",
+})
+ref_cats = dpw_pls["ref_agency"].cat.categories
+ref_cat_map = {
+    "B.C.C. Homelessness Prevention Team": ["B.C.C. Homelessness Prevention Team"],
+    "Other B.C.C.": list(ref_cats[ref_cats.str.startswith(("B.C.C", "Bcc"))
+                                  & (ref_cats != "B.C.C. Homelessness Prevention Team")]),
+    "St. Mungo's": ["St. Mungo's", "St Mungo's", "Outreach"],
+    "A.R.A.": ["A.R.A"],
+    "Other BAHSA providers": ["E.C.H.G. Riverside", "Elim", "Livewest", "Missing Link", "Places For People",
+                              "Salvation Army", "Second Step", "Self Help"]
+}
+ref_cat_map["Others"] = ref_cats[~ref_cats.isin(sum(list(ref_cat_map.values()), []))]
+ref_agency_mapper = {k: v for v, k in pd.Series(ref_cat_map).explode().items()}
+dpw_pls["referral_agency"] = dpw_pls["ref_agency"].map(ref_agency_mapper)
+support_need_cols = {
+    "hsn_prison_leaveron_probationrisk_of_offending": "offending",
+    "hsn_physical_health": "physical_health",
+    "hsn_mental_health": "mental_health",
+    "hsn_rough_sleeper": "rough_sleeping",
+}
+for hsn, ch_str in support_need_cols.items():
+    dpw_pls[ch_str] = dpw_pls[hsn]
+gendered_support_need_cols = {
+    "hsn_sex_working": "sex_working",  # only women recorded as sex working
+    "hsn_risk_of_violenceabuse_victim": "risk_violence_abuse",
+    "hsn_risk_of_exploitation": "risk_exploitation",
+}
+for hsn, ch_str in gendered_support_need_cols.items():
+    dpw_pls[f"women_{ch_str}"] = dpw_pls[hsn].where(dpw_pls["gender"] == "Female")
+    dpw_pls[f"men_{ch_str}"] = dpw_pls[hsn].where(dpw_pls["gender"] == "Male")
+dpw_rt_starts = dpw_pls.groupby("route_id").head(1)
+dpw_rt_ends = dpw_pls.groupby("route_id").tail(1)
+dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1)  # 1 duplicate client but first entry has more detailed answers
+for ch in [
+    "gender",
+    "global_majority",
+    "age_cat",
+    "lgbtq_plus",
+    "offending",
+    "physical_health",
+    "mental_health",
+    "rough_sleeping",
+    "women_sex_working",
+    "women_risk_violence_abuse",
+    "men_risk_violence_abuse",
+    "women_risk_exploitation",
+    "men_risk_exploitation",
+    "uk_immigration_status",
+    "english_2nd_language",
+    "referral_agency"
+]:
+    tbl_desc = f"Frequencies for {ch}"
+    tbl = get_frequencies(dpw_clis[ch], sort=False, dropna=False)
+    excel_output[tbl_desc] = tbl
+    if ch != "age_cat":
+        tbl = tbl.sort_index()
+    print(tbl_desc)
+    with pd.option_context("display.float_format", '{:,.1f}'.format):
+        display(tbl)
+    print("")
+```
+
+## Tables in an Excel file
+
+```{python}
+#| output: asis
+import os
+sheetname = "Sheet1"
+qmdfile = os.getenv("QUARTO_DOCUMENT_FILE")
+filename = assets_output + qmdfile[:-4]+".xlsx"
+with pd.ExcelWriter(filename) as writer:
+    next_row = 0
+    for k, v in excel_output.items():
+        pd.DataFrame([k]).to_excel(writer, sheet_name=sheetname, header=False, index=False, startrow=next_row)
+        next_row += 1
+        v.to_excel(writer, sheet_name=sheetname, startrow=next_row, float_format="%.1f")
+        next_row += (
+            (1 if not isinstance(v.columns, pd.MultiIndex) else 1 + len(v.columns.levels))
+            + len(v) + 1)
+print(f"[Excel file](./{filename})")
+```

@@ -2,7 +2,9 @@
   {
     "listing": "/index.html",
     "items": [
-      "/01_social_housing_returns.html"
+      "/01_social_housing_returns.html",
+      "/02_measures_over_time.html",
+      "/03_DV_construction.html"
     ]
   }
 ]

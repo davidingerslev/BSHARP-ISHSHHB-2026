@@ -15,6 +15,7 @@ df, dffp = setup.setup(verbose=False)
 from python_scripts import distinct_pathways
 dpw_pls = distinct_pathways.get_distinct_pathways_routes(dffp)
 qrows = dpw_pls["rt_end_cat"] == "[Not ended or invalid end reason]"
+dpw_pls.loc[dpw_pls.pl_end_dt > distinct_pathways.dpw_end_dt, ["pl_end_dt", "pl_end_reason"]] = pd.NA
 dpw_pls.loc[qrows, "rt_end_cat"] = dpw_pls.loc[qrows, "pl_end_dt"].isna().map({True: "[Not ended]", False: "Missing data/error"})
 dpw_pls["rt_end_cat"] = dpw_pls["rt_end_cat"].str.replace("To care/hosp.", "To care/hospital")
 dpw_rt_starts = dpw_pls.groupby("route_id").head(1)

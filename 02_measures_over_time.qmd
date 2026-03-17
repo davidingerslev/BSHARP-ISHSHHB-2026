@@ -15,6 +15,7 @@ df, dffp = setup.setup(verbose=False)
 from python_scripts import distinct_pathways
 dpw_pls = distinct_pathways.get_distinct_pathways_routes(dffp)
 qrows = dpw_pls["rt_end_cat"] == "[Not ended or invalid end reason]"
+dpw_pls.loc[dpw_pls.pl_end_dt > distinct_pathways.dpw_end_dt, ["pl_end_dt", "pl_end_reason"]] = pd.NA
 dpw_pls.loc[qrows, "rt_end_cat"] = dpw_pls.loc[qrows, "pl_end_dt"].isna().map({True: "[Not ended]", False: "Missing data/error"})
 dpw_pls["rt_end_cat"] = dpw_pls["rt_end_cat"].str.replace("To care/hosp.", "To care/hospital")
 dpw_rt_starts = dpw_pls.groupby("route_id").head(1)
@@ -43,6 +44,7 @@ excel_output = {}
 ```{python}
 # Generate Table
 t1_1_data = dpw_rt_ends.copy()
+t1_1_data = t1_1_data[t1_1_data["pl_end_dt"].notna()]
 t1_1_data["rt_end_yr"] = t1_1_data["pl_end_dt"].dt.year.astype("Int64")
 t1_1_data["rt_end_qtr"] = t1_1_data["pl_end_dt"].dt.quarter.astype("Int64")
 t1_1 = t1_1_data[["rt_end_yr", "rt_end_qtr", "rt_end_cat"]].value_counts(dropna=False).rename("").unstack("rt_end_cat")
@@ -56,10 +58,28 @@ with pd.option_context("display.precision", 3):
     display(t1_1)
 ```
 
+### But 2025 Q2 had 28% errors / missing data and 2025 Q4 should not have an exit as it was way after the period
+
+So `pl_end_dt` was set to `<NA>` for all dates > `distinct_pathways.dpw_end_dt` (end of studied period).
+
+Remaining errors relate to:
+```{python}
+errors_2025 = t1_1_data.loc[(t1_1_data["rt_end_yr"] == 2025)
+                            & (t1_1_data["rt_end_qtr"] > 0)
+                            & (t1_1_data["rt_end_cat"] == "Missing data/error"),
+                            "pl_end_reason"]
+display(errors_2025.astype("string").value_counts())
+qcols = ['svc_type_short_padded', 'pathway_level', 'svc_id', 'gap', 'pl_start_dt', 'pl_end_dt', 'dur',
+         'pl_end_reason', 'ref_agency']
+dpw_pls[dpw_pls.route_id.isin(t1_1_data.loc[errors_2025.index, "route_id"])].set_index(["o_cli_id", "route_id"])[qcols]
+```
+
 ## End reason proportions per year
+
 ```{python}
 # Generate Table
 t1_2_data = dpw_rt_ends.copy()
+t1_2_data = t1_2_data[t1_2_data["pl_end_dt"].notna()]
 t1_2_data["rt_end_yr"] = t1_2_data["pl_end_dt"].dt.year.astype("Int64")
 t1_2 = t1_2_data[["rt_end_yr", "rt_end_cat"]].value_counts(dropna=False).rename("").unstack("rt_end_cat")
 t1_2 = pd.concat([t1_2], keys=["End reasons"], axis=1)
@@ -70,7 +90,6 @@ t1_2 = t1_2.rename(columns={"End reasons": "End reasons %"})
 excel_output["Table 1.2: Route end reasons per year"] = t1_2
 with pd.option_context("display.precision", 3):
     display(t1_2)
-
 ```
 
 ## Tables in an Excel file

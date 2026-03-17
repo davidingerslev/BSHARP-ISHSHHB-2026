@@ -324,7 +324,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div id="cf8367c3" class="cell" data-execution_count="1">
+<div id="a6124865" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup code</span></span>
@@ -337,38 +337,39 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> python_scripts <span class="im">import</span> distinct_pathways</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>dpw_pls <span class="op">=</span> distinct_pathways.get_distinct_pathways_routes(dffp)</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>qrows <span class="op">=</span> dpw_pls[<span class="st">"rt_end_cat"</span>] <span class="op">==</span> <span class="st">"[Not ended or invalid end reason]"</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>dpw_pls.loc[qrows, <span class="st">"rt_end_cat"</span>] <span class="op">=</span> dpw_pls.loc[qrows, <span class="st">"pl_end_dt"</span>].isna().<span class="bu">map</span>({<span class="va">True</span>: <span class="st">"[Not ended]"</span>, <span class="va">False</span>: <span class="st">"Missing data/error"</span>})</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">"rt_end_cat"</span>] <span class="op">=</span> dpw_pls[<span class="st">"rt_end_cat"</span>].<span class="bu">str</span>.replace(<span class="st">"To care/hosp."</span>, <span class="st">"To care/hospital"</span>)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>dpw_rt_starts <span class="op">=</span> dpw_pls.groupby(<span class="st">"route_id"</span>).head(<span class="dv">1</span>)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>dpw_rt_ends <span class="op">=</span> dpw_pls.groupby(<span class="st">"route_id"</span>).tail(<span class="dv">1</span>)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>dpw_clis <span class="op">=</span> dpw_pls.groupby([<span class="st">"o_cli_id"</span>]).head(<span class="dv">1</span>)  <span class="co"># 1 duplicate client but first entry has more detailed answers</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>matplotlib.rcParams.update({</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">'figure.figsize'</span>: (<span class="fl">6.2</span>, <span class="fl">4.1</span>),</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">'font.size'</span>: <span class="dv">12</span>,</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="st">'figure.constrained_layout.use'</span>: <span class="va">True</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>asset_themes <span class="op">=</span> {<span class="st">"opaque"</span>: <span class="st">"assets_output/"</span>,</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>                <span class="st">"transparent_lightbg"</span>: <span class="st">"assets_transparent_lightbg/"</span>,</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>                <span class="st">"transparent_darkbg"</span>: <span class="st">"assets_transparent_darkbg/"</span>}</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>assets_output <span class="op">=</span> asset_themes[<span class="st">"opaque"</span>]</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>output_dir <span class="op">=</span> assets_output</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>transparent <span class="op">=</span> <span class="va">False</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>excel_output <span class="op">=</span> {}</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>dpw_pls.loc[dpw_pls.pl_end_dt <span class="op">&gt;</span> distinct_pathways.dpw_end_dt, [<span class="st">"pl_end_dt"</span>, <span class="st">"pl_end_reason"</span>]] <span class="op">=</span> pd.NA</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>dpw_pls.loc[qrows, <span class="st">"rt_end_cat"</span>] <span class="op">=</span> dpw_pls.loc[qrows, <span class="st">"pl_end_dt"</span>].isna().<span class="bu">map</span>({<span class="va">True</span>: <span class="st">"[Not ended]"</span>, <span class="va">False</span>: <span class="st">"Missing data/error"</span>})</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">"rt_end_cat"</span>] <span class="op">=</span> dpw_pls[<span class="st">"rt_end_cat"</span>].<span class="bu">str</span>.replace(<span class="st">"To care/hosp."</span>, <span class="st">"To care/hospital"</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>dpw_rt_starts <span class="op">=</span> dpw_pls.groupby(<span class="st">"route_id"</span>).head(<span class="dv">1</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>dpw_rt_ends <span class="op">=</span> dpw_pls.groupby(<span class="st">"route_id"</span>).tail(<span class="dv">1</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>dpw_clis <span class="op">=</span> dpw_pls.groupby([<span class="st">"o_cli_id"</span>]).head(<span class="dv">1</span>)  <span class="co"># 1 duplicate client but first entry has more detailed answers</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>matplotlib.rcParams.update({</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">'figure.figsize'</span>: (<span class="fl">6.2</span>, <span class="fl">4.1</span>),</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="st">'font.size'</span>: <span class="dv">12</span>,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="st">'figure.constrained_layout.use'</span>: <span class="va">True</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>asset_themes <span class="op">=</span> {<span class="st">"opaque"</span>: <span class="st">"assets_output/"</span>,</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>                <span class="st">"transparent_lightbg"</span>: <span class="st">"assets_transparent_lightbg/"</span>,</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>                <span class="st">"transparent_darkbg"</span>: <span class="st">"assets_transparent_darkbg/"</span>}</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>assets_output <span class="op">=</span> asset_themes[<span class="st">"opaque"</span>]</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>output_dir <span class="op">=</span> assets_output</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>transparent <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>excel_output <span class="op">=</span> {}</span>
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_frequencies(series, sort<span class="op">=</span><span class="va">True</span>):</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> series.value_counts(sort<span class="op">=</span>sort).rename(<span class="st">"n"</span>)</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    pct <span class="op">=</span> <span class="dv">100</span> <span class="op">*</span> series.value_counts(sort<span class="op">=</span>sort, normalize<span class="op">=</span><span class="va">True</span>).rename(<span class="st">"pct"</span>)</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pd.concat([n, pct], axis<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_frequencies(series, sort<span class="op">=</span><span class="va">True</span>):</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> series.value_counts(sort<span class="op">=</span>sort).rename(<span class="st">"n"</span>)</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    pct <span class="op">=</span> <span class="dv">100</span> <span class="op">*</span> series.value_counts(sort<span class="op">=</span>sort, normalize<span class="op">=</span><span class="va">True</span>).rename(<span class="st">"pct"</span>)</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pd.concat([n, pct], axis<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <section id="outcomes-at-a-period-of-time-after-a-route-started" class="level2">
 <h2 class="anchored" data-anchor-id="outcomes-at-a-period-of-time-after-a-route-started">Outcomes at a period of time after a route started</h2>
-<div id="d5436a36" class="cell" data-execution_count="2">
+<div id="716bdb2e" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>periodMult <span class="op">=</span> {<span class="st">"d"</span>: <span class="dv">1</span>, <span class="st">"m"</span>: <span class="fl">365.25</span><span class="op">/</span><span class="dv">12</span>, <span class="st">"y"</span>: <span class="fl">365.25</span>}</span>
@@ -476,7 +477,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="outcomes-at-a-period-of-time-after-a-persons-first-route-started" class="level2">
 <h2 class="anchored" data-anchor-id="outcomes-at-a-period-of-time-after-a-persons-first-route-started">Outcomes at a period of time after a person’s first route started</h2>
-<div id="50a51f54" class="cell" data-execution_count="3">
+<div id="d0364f93" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Testing -- doesn't quite work... why would you use the same time measure for people?</span></span>
@@ -568,7 +569,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="returning-to-use-services-multiple-times" class="level2">
 <h2 class="anchored" data-anchor-id="returning-to-use-services-multiple-times">Returning to use services multiple times</h2>
-<div id="89dcbb49" class="cell" data-execution_count="4">
+<div id="b0b61d12" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>dpw_clis <span class="op">=</span> dpw_pls.groupby([<span class="st">"o_cli_id"</span>]).head(<span class="dv">1</span>).set_index(<span class="st">"o_cli_id"</span>)</span>
@@ -619,7 +620,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="using-services-longer-term" class="level2">
 <h2 class="anchored" data-anchor-id="using-services-longer-term">Using services longer-term</h2>
-<div id="4cd6b6ff" class="cell" data-execution_count="5">
+<div id="b21556b1" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>durations <span class="op">=</span> dpw_pls.set_index([<span class="st">"o_cli_id"</span>, <span class="st">"route_id"</span>])[[<span class="st">"dur"</span>, <span class="st">"pl_start_dt"</span>]]</span>
@@ -677,7 +678,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="returns-within-2-years-after-moving-to-independent-accommodation" class="level2">
 <h2 class="anchored" data-anchor-id="returns-within-2-years-after-moving-to-independent-accommodation">Returns within 2 years after moving to independent accommodation</h2>
-<div id="6b5383df" class="cell" data-execution_count="6">
+<div id="ae912453" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># time_measure options: ['90d', '6m', '15m', '18m', '2y', '5y']</span></span>
@@ -734,7 +735,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="outcomes-from-individual-placements" class="level2">
 <h2 class="anchored" data-anchor-id="outcomes-from-individual-placements">Outcomes from individual placements</h2>
-<div id="4f9182a6" class="cell" data-execution_count="7">
+<div id="b3838105" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -771,7 +772,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>pl_outcomes.loc[pl_outcomes[<span class="st">"level_diff"</span>].notna(), <span class="st">"pl_end_cat"</span>] <span class="op">=</span> (</span>
 <span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Internal move: "</span> <span class="op">+</span> np.sign(pl_outcomes.level_diff).<span class="bu">map</span>({<span class="op">-</span><span class="dv">1</span>: <span class="st">"backwards"</span>, <span class="dv">0</span>: <span class="st">"sideways"</span>, <span class="dv">1</span>: <span class="st">"forwards"</span>})</span>
 <span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>display(get_frequencies(pl_outcomes.loc[pl_outcomes[<span class="st">"pl_end_cat"</span>] <span class="op">!=</span> <span class="st">"Internal move: same service"</span>, <span class="st">"pl_end_cat"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Exclude 42 0-day placements</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>pl_outcomes <span class="op">=</span> pl_outcomes[pl_outcomes[<span class="st">"dur"</span>] <span class="op">&gt;</span> pd.Timedelta(days<span class="op">=</span><span class="dv">0</span>)]</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>pl_outcomes_map <span class="op">=</span> {</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Independent accommodation'</span>: [<span class="st">'To social housing'</span>, <span class="st">'To private rented'</span>],</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Insecure outcome'</span>: [<span class="st">'To friends/family'</span>, <span class="st">'Custody'</span>, <span class="st">'[Not ended]'</span>, <span class="st">'To care/hospital'</span>, <span class="st">'To external supported'</span>],</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Returned to homelessness'</span>: [<span class="st">'Evicted'</span>, <span class="st">'Abandoned'</span>],</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Died'</span>: [<span class="st">'Died'</span>],</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>    <span class="co"># '_excluded': ['Other', 'Missing data/error']</span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>pl_end_cat_map <span class="op">=</span> {cat: outcome <span class="cf">for</span> outcome <span class="kw">in</span> pl_outcomes_map.keys() <span class="cf">for</span> cat <span class="kw">in</span> pl_outcomes_map[outcome]}</span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>pl_outcomes[<span class="st">"pl_outcome"</span>] <span class="op">=</span> pl_outcomes[<span class="st">"pl_end_cat"</span>].<span class="bu">map</span>(pl_end_cat_map)</span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>pl_outcomes.loc[pl_outcomes[<span class="st">"pl_end_cat"</span>].fillna(<span class="st">""</span>).<span class="bu">str</span>.startswith(<span class="st">"Internal move"</span>), <span class="st">"pl_outcome"</span>] <span class="op">=</span> pl_outcomes[<span class="st">"pl_end_cat"</span>]</span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>display(get_frequencies(pl_outcomes.loc[pl_outcomes[<span class="st">"pl_end_cat"</span>] <span class="op">!=</span> <span class="st">"Internal move: same service"</span>, <span class="st">"pl_outcome"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -828,7 +841,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <th data-quarto-table-cell-role="th">pct</th>
 </tr>
 <tr class="even">
-<th data-quarto-table-cell-role="th">pl_end_cat</th>
+<th data-quarto-table-cell-role="th">pl_outcome</th>
 <th data-quarto-table-cell-role="th"></th>
 <th data-quarto-table-cell-role="th"></th>
 </tr>
@@ -836,73 +849,38 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Internal move: forwards</td>
-<td>1566</td>
-<td>24.438202</td>
+<td>1562</td>
+<td>25.593970</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">Internal move: sideways</td>
-<td>1175</td>
-<td>18.336454</td>
+<td data-quarto-table-cell-role="th">Independent accommodation</td>
+<td>1225</td>
+<td>20.072096</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">To social housing</td>
-<td>978</td>
-<td>15.262172</td>
+<td data-quarto-table-cell-role="th">Internal move: sideways</td>
+<td>1164</td>
+<td>19.072587</td>
 </tr>
 <tr class="even">
+<td data-quarto-table-cell-role="th">Returned to homelessness</td>
+<td>744</td>
+<td>12.190726</td>
+</tr>
+<tr class="odd">
 <td data-quarto-table-cell-role="th">Internal move: backwards</td>
 <td>653</td>
-<td>10.190387</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">Evicted</td>
-<td>415</td>
-<td>6.476280</td>
+<td>10.699656</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">Abandoned</td>
-<td>339</td>
-<td>5.290262</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">To friends/family</td>
-<td>281</td>
-<td>4.385144</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">To private rented</td>
-<td>249</td>
-<td>3.885768</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">Other</td>
-<td>204</td>
-<td>3.183521</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">Custody</td>
-<td>148</td>
-<td>2.309613</td>
+<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td>638</td>
+<td>10.453875</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Died</td>
 <td>117</td>
-<td>1.825843</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">To external supported</td>
-<td>113</td>
-<td>1.763421</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">To care/hospital</td>
-<td>102</td>
-<td>1.591760</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">Missing data/error</td>
-<td>68</td>
-<td>1.061174</td>
+<td>1.917090</td>
 </tr>
 </tbody>
 </table>

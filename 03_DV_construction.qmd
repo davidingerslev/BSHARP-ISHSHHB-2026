@@ -15,6 +15,7 @@ df, dffp = setup.setup(verbose=False)
 from python_scripts import distinct_pathways
 dpw_pls = distinct_pathways.get_distinct_pathways_routes(dffp)
 qrows = dpw_pls["rt_end_cat"] == "[Not ended or invalid end reason]"
+dpw_pls.loc[dpw_pls.pl_end_dt > distinct_pathways.dpw_end_dt, ["pl_end_dt", "pl_end_reason"]] = pd.NA
 dpw_pls.loc[qrows, "rt_end_cat"] = dpw_pls.loc[qrows, "pl_end_dt"].isna().map({True: "[Not ended]", False: "Missing data/error"})
 dpw_pls["rt_end_cat"] = dpw_pls["rt_end_cat"].str.replace("To care/hosp.", "To care/hospital")
 dpw_rt_starts = dpw_pls.groupby("route_id").head(1)
@@ -246,7 +247,19 @@ pl_outcomes = pl_outcomes.join((level_diff[["next_pathway_level", "level_diff"]]
 pl_outcomes.loc[pl_outcomes["level_diff"].notna(), "pl_end_cat"] = (
     "Internal move: " + np.sign(pl_outcomes.level_diff).map({-1: "backwards", 0: "sideways", 1: "forwards"})
 )
-display(get_frequencies(pl_outcomes.loc[pl_outcomes["pl_end_cat"] != "Internal move: same service", "pl_end_cat"]))
+# Exclude 42 0-day placements
+pl_outcomes = pl_outcomes[pl_outcomes["dur"] > pd.Timedelta(days=0)]
+pl_outcomes_map = {
+    'Independent accommodation': ['To social housing', 'To private rented'],
+    'Insecure outcome': ['To friends/family', 'Custody', '[Not ended]', 'To care/hospital', 'To external supported'],
+    'Returned to homelessness': ['Evicted', 'Abandoned'],
+    'Died': ['Died'],
+    # '_excluded': ['Other', 'Missing data/error']
+}
+pl_end_cat_map = {cat: outcome for outcome in pl_outcomes_map.keys() for cat in pl_outcomes_map[outcome]}
+pl_outcomes["pl_outcome"] = pl_outcomes["pl_end_cat"].map(pl_end_cat_map)
+pl_outcomes.loc[pl_outcomes["pl_end_cat"].fillna("").str.startswith("Internal move"), "pl_outcome"] = pl_outcomes["pl_end_cat"]
+display(get_frequencies(pl_outcomes.loc[pl_outcomes["pl_end_cat"] != "Internal move: same service", "pl_outcome"]))
 ```
 
 ## Tables in an Excel file

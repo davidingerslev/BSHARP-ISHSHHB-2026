@@ -324,7 +324,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div id="bcb1d574" class="cell" data-execution_count="1">
+<div id="cf8367c3" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup code</span></span>
@@ -357,12 +357,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>assets_output <span class="op">=</span> asset_themes[<span class="st">"opaque"</span>]</span>
 <span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>output_dir <span class="op">=</span> assets_output</span>
 <span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>transparent <span class="op">=</span> <span class="va">False</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>excel_output <span class="op">=</span> {}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>excel_output <span class="op">=</span> {}</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_frequencies(series, sort<span class="op">=</span><span class="va">True</span>):</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> series.value_counts(sort<span class="op">=</span>sort).rename(<span class="st">"n"</span>)</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    pct <span class="op">=</span> <span class="dv">100</span> <span class="op">*</span> series.value_counts(sort<span class="op">=</span>sort, normalize<span class="op">=</span><span class="va">True</span>).rename(<span class="st">"pct"</span>)</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pd.concat([n, pct], axis<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <section id="outcomes-at-a-period-of-time-after-a-route-started" class="level2">
 <h2 class="anchored" data-anchor-id="outcomes-at-a-period-of-time-after-a-route-started">Outcomes at a period of time after a route started</h2>
-<div id="6bd28ce6" class="cell" data-execution_count="2">
+<div id="d5436a36" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>periodMult <span class="op">=</span> {<span class="st">"d"</span>: <span class="dv">1</span>, <span class="st">"m"</span>: <span class="fl">365.25</span><span class="op">/</span><span class="dv">12</span>, <span class="st">"y"</span>: <span class="fl">365.25</span>}</span>
@@ -470,7 +476,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="outcomes-at-a-period-of-time-after-a-persons-first-route-started" class="level2">
 <h2 class="anchored" data-anchor-id="outcomes-at-a-period-of-time-after-a-persons-first-route-started">Outcomes at a period of time after a person’s first route started</h2>
-<div id="1d1da297" class="cell" data-execution_count="3">
+<div id="50a51f54" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Testing -- doesn't quite work... why would you use the same time measure for people?</span></span>
@@ -562,7 +568,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="returning-to-use-services-multiple-times" class="level2">
 <h2 class="anchored" data-anchor-id="returning-to-use-services-multiple-times">Returning to use services multiple times</h2>
-<div id="9e75b391" class="cell" data-execution_count="4">
+<div id="89dcbb49" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>dpw_clis <span class="op">=</span> dpw_pls.groupby([<span class="st">"o_cli_id"</span>]).head(<span class="dv">1</span>).set_index(<span class="st">"o_cli_id"</span>)</span>
@@ -613,7 +619,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="using-services-longer-term" class="level2">
 <h2 class="anchored" data-anchor-id="using-services-longer-term">Using services longer-term</h2>
-<div id="89b3b70a" class="cell" data-execution_count="5">
+<div id="4cd6b6ff" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>durations <span class="op">=</span> dpw_pls.set_index([<span class="st">"o_cli_id"</span>, <span class="st">"route_id"</span>])[[<span class="st">"dur"</span>, <span class="st">"pl_start_dt"</span>]]</span>
@@ -671,7 +677,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="returns-within-2-years-after-moving-to-independent-accommodation" class="level2">
 <h2 class="anchored" data-anchor-id="returns-within-2-years-after-moving-to-independent-accommodation">Returns within 2 years after moving to independent accommodation</h2>
-<div id="0eeef0ad" class="cell" data-execution_count="6">
+<div id="6b5383df" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># time_measure options: ['90d', '6m', '15m', '18m', '2y', '5y']</span></span>
@@ -726,24 +732,203 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
+<section id="outcomes-from-individual-placements" class="level2">
+<h2 class="anchored" data-anchor-id="outcomes-from-individual-placements">Outcomes from individual placements</h2>
+<div id="4f9182a6" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> python_scripts <span class="im">import</span> routes</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>pl_end_cat_map <span class="op">=</span> routes.get_end_cats_map()</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># internal_move_reasons = [</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">#     'Moved within Supported Housing (Same Pathway)', 'INTERNAL TRANSFER',</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">#     'Moved within Supported Housing (Different Pathway)', 'Moved into HSR Accom _ Lower level (Planned)',</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#     'Moved into HSR Accom _ High level (Planned)', 'Moved into HSR Accom _ Same level (Planned)',</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#     'Moved to Substance Misuse Pathway (Planned)', '(Pathway 4 Only) Moved to Level 4 Supported Housing (Planned)',</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">#     '(Pathway 4 Only) Moved to Level 1, 2 or 3 Supported Housing (Planned)',</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">#     'Moved into HSR Accom _ High level (Unplanned)', 'Moved into HSR Accom _ Same level (Unplanned)']</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># for k in pl_end_cat_map.keys():</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">#     if k in internal_move_reasons:</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">#         pl_end_cat_map[k] = "Internal move"</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>pl_outcomes <span class="op">=</span> dpw_pls.set_index(<span class="st">"vac_id"</span>)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>pl_outcomes[<span class="st">"pl_end_cat"</span>] <span class="op">=</span> pl_outcomes[<span class="st">"pl_end_reason"</span>].<span class="bu">map</span>(pl_end_cat_map)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>next_pls <span class="op">=</span> (dpw_pls.loc[dpw_pls[<span class="st">"prev_vac_id"</span>].notna()]</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>            .rename(columns<span class="op">=</span>{<span class="st">"vac_id"</span>: <span class="st">"next_vac_id"</span>, <span class="st">"prev_vac_id"</span>: <span class="st">"vac_id"</span>, <span class="st">"svc_type_short"</span>: <span class="st">"pathway"</span>})</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>            .set_index(<span class="st">"vac_id"</span>))</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>pl_outcomes.loc[next_pls.index, <span class="st">"pl_end_cat"</span>] <span class="op">=</span> <span class="st">"Internal move"</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>pl_outcomes.loc[dpw_pls.loc[dpw_pls[<span class="st">"prev_svc_id"</span>] <span class="op">==</span> dpw_pls[<span class="st">"svc_id"</span>], <span class="st">"prev_vac_id"</span>].values, <span class="st">"pl_end_cat"</span>] <span class="op">=</span> <span class="st">"Internal move: same service"</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>pl_outcomes[<span class="st">"pathway"</span>] <span class="op">=</span> pl_outcomes[<span class="st">"svc_type_short"</span>]</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>display(get_frequencies(pl_outcomes[<span class="st">"pathway_level"</span>], sort<span class="op">=</span><span class="va">False</span>))</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>level_diff <span class="op">=</span> (pl_outcomes.loc[pl_outcomes[<span class="st">"pl_end_cat"</span>] <span class="op">==</span> <span class="st">"Internal move"</span>, [<span class="st">"pathway"</span>, <span class="st">"pathway_level"</span>]]</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>              .join(next_pls[[<span class="st">"pathway"</span>, <span class="st">"pathway_level"</span>]].add_prefix(<span class="st">"next_"</span>))</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>              .assign(level_diff<span class="op">=</span><span class="kw">lambda</span> df: df[[<span class="st">"pathway_level"</span>, <span class="st">"next_pathway_level"</span>]]</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>              .astype(<span class="st">"Int64"</span>).diff(axis<span class="op">=</span><span class="dv">1</span>).iloc[:, <span class="op">-</span><span class="dv">1</span>]))</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Difference in level is meaningful except that moves to/from SU pathway are different..</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>pl_outcomes <span class="op">=</span> pl_outcomes.join((level_diff[[<span class="st">"next_pathway_level"</span>, <span class="st">"level_diff"</span>]]</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>                                .where((level_diff[<span class="st">"pathway"</span>] <span class="op">==</span> level_diff[<span class="st">"next_pathway"</span>])</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>                                       <span class="op">|</span> (level_diff[<span class="st">"pathway"</span>] <span class="op">!=</span> <span class="st">"Substance Misuse Pathway"</span>)</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>                                       <span class="op">|</span> (level_diff[<span class="st">"next_pathway"</span>] <span class="op">!=</span> <span class="st">"Substance Misuse Pathway"</span>))))</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>pl_outcomes.loc[pl_outcomes[<span class="st">"level_diff"</span>].notna(), <span class="st">"pl_end_cat"</span>] <span class="op">=</span> (</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Internal move: "</span> <span class="op">+</span> np.sign(pl_outcomes.level_diff).<span class="bu">map</span>({<span class="op">-</span><span class="dv">1</span>: <span class="st">"backwards"</span>, <span class="dv">0</span>: <span class="st">"sideways"</span>, <span class="dv">1</span>: <span class="st">"forwards"</span>})</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>display(get_frequencies(pl_outcomes.loc[pl_outcomes[<span class="st">"pl_end_cat"</span>] <span class="op">!=</span> <span class="st">"Internal move: same service"</span>, <span class="st">"pl_end_cat"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">n</th>
+<th data-quarto-table-cell-role="th">pct</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">pathway_level</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1</td>
+<td>4614</td>
+<td>54.474616</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2</td>
+<td>1553</td>
+<td>18.335301</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3</td>
+<td>596</td>
+<td>7.036600</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4</td>
+<td>1707</td>
+<td>20.153483</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">n</th>
+<th data-quarto-table-cell-role="th">pct</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">pl_end_cat</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Internal move: forwards</td>
+<td>1566</td>
+<td>24.438202</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Internal move: sideways</td>
+<td>1175</td>
+<td>18.336454</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">To social housing</td>
+<td>978</td>
+<td>15.262172</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Internal move: backwards</td>
+<td>653</td>
+<td>10.190387</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Evicted</td>
+<td>415</td>
+<td>6.476280</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Abandoned</td>
+<td>339</td>
+<td>5.290262</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">To friends/family</td>
+<td>281</td>
+<td>4.385144</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">To private rented</td>
+<td>249</td>
+<td>3.885768</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Other</td>
+<td>204</td>
+<td>3.183521</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Custody</td>
+<td>148</td>
+<td>2.309613</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Died</td>
+<td>117</td>
+<td>1.825843</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">To external supported</td>
+<td>113</td>
+<td>1.763421</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">To care/hospital</td>
+<td>102</td>
+<td>1.591760</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Missing data/error</td>
+<td>68</td>
+<td>1.061174</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
 <section id="tables-in-an-excel-file" class="level2">
 <h2 class="anchored" data-anchor-id="tables-in-an-excel-file">Tables in an Excel file</h2>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>sheetname <span class="op">=</span> <span class="st">"Sheet1"</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>qmdfile <span class="op">=</span> os.getenv(<span class="st">"QUARTO_DOCUMENT_FILE"</span>)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>filename <span class="op">=</span> assets_output <span class="op">+</span> qmdfile[:<span class="op">-</span><span class="dv">4</span>]<span class="op">+</span><span class="st">".xlsx"</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.ExcelWriter(filename) <span class="im">as</span> writer:</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    next_row <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k, v <span class="kw">in</span> excel_output.items():</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        pd.DataFrame([k]).to_excel(writer, sheet_name<span class="op">=</span>sheetname, header<span class="op">=</span><span class="va">False</span>, index<span class="op">=</span><span class="va">False</span>, startrow<span class="op">=</span>next_row)</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        next_row <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        v.to_excel(writer, sheet_name<span class="op">=</span>sheetname, startrow<span class="op">=</span>next_row, float_format<span class="op">=</span><span class="st">"</span><span class="sc">%.1f</span><span class="st">"</span>)</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        next_row <span class="op">+=</span> (</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>            (<span class="dv">1</span> <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(v.columns, pd.MultiIndex) <span class="cf">else</span> <span class="dv">1</span> <span class="op">+</span> <span class="bu">len</span>(v.columns.levels))</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">+</span> <span class="bu">len</span>(v) <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"[Excel file](./</span><span class="sc">{</span>filename<span class="sc">}</span><span class="ss">)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>sheetname <span class="op">=</span> <span class="st">"Sheet1"</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>qmdfile <span class="op">=</span> os.getenv(<span class="st">"QUARTO_DOCUMENT_FILE"</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>filename <span class="op">=</span> assets_output <span class="op">+</span> qmdfile[:<span class="op">-</span><span class="dv">4</span>]<span class="op">+</span><span class="st">".xlsx"</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.ExcelWriter(filename) <span class="im">as</span> writer:</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    next_row <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k, v <span class="kw">in</span> excel_output.items():</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        pd.DataFrame([k]).to_excel(writer, sheet_name<span class="op">=</span>sheetname, header<span class="op">=</span><span class="va">False</span>, index<span class="op">=</span><span class="va">False</span>, startrow<span class="op">=</span>next_row)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        next_row <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        v.to_excel(writer, sheet_name<span class="op">=</span>sheetname, startrow<span class="op">=</span>next_row, float_format<span class="op">=</span><span class="st">"</span><span class="sc">%.1f</span><span class="st">"</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        next_row <span class="op">+=</span> (</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>            (<span class="dv">1</span> <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(v.columns, pd.MultiIndex) <span class="cf">else</span> <span class="dv">1</span> <span class="op">+</span> <span class="bu">len</span>(v.columns.levels))</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">+</span> <span class="bu">len</span>(v) <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"[Excel file](./</span><span class="sc">{</span>filename<span class="sc">}</span><span class="ss">)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <p><a href="./assets_output/03_DV_construction.xlsx">Excel file</a></p>
 

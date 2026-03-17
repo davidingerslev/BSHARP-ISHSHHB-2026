@@ -36,6 +36,12 @@ assets_output = asset_themes["opaque"]
 output_dir = assets_output
 transparent = False
 excel_output = {}
+
+
+def get_frequencies(series, sort=True):
+    n = series.value_counts(sort=sort).rename("n")
+    pct = 100 * series.value_counts(sort=sort, normalize=True).rename("pct")
+    return pd.concat([n, pct], axis=1)
 ```
 
 ## Outcomes at a period of time after a route started
@@ -201,6 +207,46 @@ tbl.index = tbl.index.rename("Returned within 2y")
 excel_output[f"Table 3.4: Returns within 2 years after moving to independent accommodation"] = tbl
 with pd.option_context("display.precision", 1):
     display(tbl)
+```
+
+## Outcomes from individual placements
+
+```{python}
+import numpy as np
+from python_scripts import routes
+pl_end_cat_map = routes.get_end_cats_map()
+# internal_move_reasons = [
+#     'Moved within Supported Housing (Same Pathway)', 'INTERNAL TRANSFER',
+#     'Moved within Supported Housing (Different Pathway)', 'Moved into HSR Accom _ Lower level (Planned)',
+#     'Moved into HSR Accom _ High level (Planned)', 'Moved into HSR Accom _ Same level (Planned)',
+#     'Moved to Substance Misuse Pathway (Planned)', '(Pathway 4 Only) Moved to Level 4 Supported Housing (Planned)',
+#     '(Pathway 4 Only) Moved to Level 1, 2 or 3 Supported Housing (Planned)',
+#     'Moved into HSR Accom _ High level (Unplanned)', 'Moved into HSR Accom _ Same level (Unplanned)']
+# for k in pl_end_cat_map.keys():
+#     if k in internal_move_reasons:
+#         pl_end_cat_map[k] = "Internal move"
+pl_outcomes = dpw_pls.set_index("vac_id")
+pl_outcomes["pl_end_cat"] = pl_outcomes["pl_end_reason"].map(pl_end_cat_map)
+next_pls = (dpw_pls.loc[dpw_pls["prev_vac_id"].notna()]
+            .rename(columns={"vac_id": "next_vac_id", "prev_vac_id": "vac_id", "svc_type_short": "pathway"})
+            .set_index("vac_id"))
+pl_outcomes.loc[next_pls.index, "pl_end_cat"] = "Internal move"
+pl_outcomes.loc[dpw_pls.loc[dpw_pls["prev_svc_id"] == dpw_pls["svc_id"], "prev_vac_id"].values, "pl_end_cat"] = "Internal move: same service"
+pl_outcomes["pathway"] = pl_outcomes["svc_type_short"]
+display(get_frequencies(pl_outcomes["pathway_level"], sort=False))
+level_diff = (pl_outcomes.loc[pl_outcomes["pl_end_cat"] == "Internal move", ["pathway", "pathway_level"]]
+              .join(next_pls[["pathway", "pathway_level"]].add_prefix("next_"))
+              .assign(level_diff=lambda df: df[["pathway_level", "next_pathway_level"]]
+              .astype("Int64").diff(axis=1).iloc[:, -1]))
+# Difference in level is meaningful except that moves to/from SU pathway are different..
+pl_outcomes = pl_outcomes.join((level_diff[["next_pathway_level", "level_diff"]]
+                                .where((level_diff["pathway"] == level_diff["next_pathway"])
+                                       | (level_diff["pathway"] != "Substance Misuse Pathway")
+                                       | (level_diff["next_pathway"] != "Substance Misuse Pathway"))))
+pl_outcomes.loc[pl_outcomes["level_diff"].notna(), "pl_end_cat"] = (
+    "Internal move: " + np.sign(pl_outcomes.level_diff).map({-1: "backwards", 0: "sideways", 1: "forwards"})
+)
+display(get_frequencies(pl_outcomes.loc[pl_outcomes["pl_end_cat"] != "Internal move: same service", "pl_end_cat"]))
 ```
 
 ## Tables in an Excel file

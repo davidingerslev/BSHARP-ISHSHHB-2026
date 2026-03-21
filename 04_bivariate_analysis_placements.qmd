@@ -40,10 +40,11 @@ transparent = False
 excel_output = {}
 
 
-def get_frequencies(series, sort=True):
-    n = series.value_counts(sort=sort).rename("n")
-    pct = 100 * series.value_counts(sort=sort, normalize=True).rename("pct")
-    return pd.concat([n, pct], axis=1)
+def get_frequencies(series, sort=True, dropna=True, dropna_pct=True):
+    n = series.value_counts(sort=sort, dropna=dropna).rename("n")
+    pct = 100 * series.value_counts(sort=sort, dropna=(dropna or dropna_pct), normalize=True).rename("pct")
+    fq_tbl = pd.concat([n, pct], axis=1)
+    return fq_tbl
 ```
 
 ## Outcomes from individual placements

@@ -51,14 +51,19 @@ dpw_pls_orig = dpw_pls
 
 ## TODO:
 
-[ ] Multiple disadvantage
-[ ] Project level
-[ ] Project pathway
-[ ] Categorise referral agencies (avoiding names)
+[x] Multiple disadvantage
+
+[x] Project level - on other page
+
+[x] Project pathway - on other page
+
+[x] Categorise referral agencies (avoiding names)
+
 [ ] Floating support service alongside exit?
 
-## Generate tables for each characteristic of interest
+## Generated tables for each characteristic of interest
 ```{python}
+#| output: asis
 from collections import defaultdict
 dpw_pls = dpw_pls_orig
 # Age category at year of first route during studied period
@@ -91,17 +96,18 @@ dpw_pls["uk_immigration_status"] = dpw_pls["uk_immigration_status"].map({
 })
 ref_cats = dpw_pls["ref_agency"].cat.categories
 ref_cat_map = {
-    "B.C.C. Homelessness Prevention Team": ["B.C.C. Homelessness Prevention Team"],
-    "Other B.C.C.": list(ref_cats[ref_cats.str.startswith(("B.C.C", "Bcc"))
-                                  & (ref_cats != "B.C.C. Homelessness Prevention Team")]),
-    "St. Mungo's": ["St. Mungo's", "St Mungo's", "Outreach"],
-    "A.R.A.": ["A.R.A"],
-    "Other BAHSA providers": ["E.C.H.G. Riverside", "Elim", "Livewest", "Missing Link", "Places For People",
-                              "Salvation Army", "Second Step", "Self Help"]
+    "Local authority (Housing Options)": ["B.C.C. Homelessness Prevention Team"],
+    "Local authority (_other)": list(ref_cats[ref_cats.str.startswith(("B.C.C", "Bcc"))
+                                    & (ref_cats != "B.C.C. Homelessness Prevention Team")]),
+    "Service provider (rough sleeping and SH)": ["St. Mungo's", "St Mungo's", "Outreach"],
+    "Service provider (prison resettlement and SH)": ["A.R.A"],
+    "Service provider (_other SH)": ["E.C.H.G. Riverside", "Elim", "Livewest", "Missing Link", "Places For People",
+                                    "Salvation Army", "Second Step", "Self Help"]
 }
-ref_cat_map["Others"] = ref_cats[~ref_cats.isin(sum(list(ref_cat_map.values()), []))]
+ref_cat_map["_Others"] = ref_cats[~ref_cats.isin(sum(list(ref_cat_map.values()), []))]
 ref_agency_mapper = {k: v for v, k in pd.Series(ref_cat_map).explode().items()}
-dpw_pls["referral_agency"] = dpw_pls["ref_agency"].map(ref_agency_mapper)
+dpw_pls["referral_agency"] = (dpw_pls["ref_agency"].map(ref_agency_mapper)
+                              .fillna("_[Missing data]"))
 support_need_cols = {
     "hsn_prison_leaveron_probationrisk_of_offending": "offending",
     "hsn_physical_health": "physical_health",
@@ -109,7 +115,7 @@ support_need_cols = {
     "hsn_rough_sleeper": "rough_sleeping",
 }
 for hsn, ch_str in support_need_cols.items():
-    dpw_pls[ch_str] = dpw_pls[hsn]
+    dpw_pls[ch_str] = dpw_pls[hsn].astype("boolean")
 gendered_support_need_cols = {
     "hsn_sex_working": "sex_working",  # only women recorded as sex working
     "hsn_risk_of_violenceabuse_victim": "risk_violence_abuse",
@@ -118,6 +124,17 @@ gendered_support_need_cols = {
 for hsn, ch_str in gendered_support_need_cols.items():
     dpw_pls[f"women_{ch_str}"] = dpw_pls[hsn].where(dpw_pls["gender"] == "Female")
     dpw_pls[f"men_{ch_str}"] = dpw_pls[hsn].where(dpw_pls["gender"] == "Male")
+    dpw_pls[ch_str] = dpw_pls[hsn]
+dpw_pls["hsn_drug_or_alcohol_use"] = (dpw_pls["hsn_drug_use"].astype("boolean")
+                                      | dpw_pls["hsn_alcohol_use"].astype("boolean"))
+dpw_pls["multiple_disadvantage"] = (  # Current support needs for 3 out of 5 SMD dimensions
+  dpw_pls[["hsn_prison_leaveron_probationrisk_of_offending",
+           "hsn_drug_or_alcohol_use",
+           "hsn_risk_of_violenceabuse_victim",
+           "hsn_mental_health"
+           ]].assign(hsn_homelessness=True).astype("boolean").sum(axis=1, skipna=False) >= 3
+  )
+dpw_pls["substance_use"] = dpw_pls["hsn_drug_or_alcohol_use"]
 dpw_rt_starts = dpw_pls.groupby("route_id").head(1)
 dpw_rt_ends = dpw_pls.groupby("route_id").tail(1)
 dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1)  # 1 duplicate client but first entry has more detailed answers
@@ -129,10 +146,16 @@ for ch in [
     "offending",
     "physical_health",
     "mental_health",
+    "substance_use",
+    "multiple_disadvantage",
     "rough_sleeping",
+    "sex_working",
     "women_sex_working",
+    "men_sex_working",
+    "risk_violence_abuse",
     "women_risk_violence_abuse",
     "men_risk_violence_abuse",
+    "risk_exploitation",
     "women_risk_exploitation",
     "men_risk_exploitation",
     "uk_immigration_status",
@@ -144,7 +167,8 @@ for ch in [
     excel_output[tbl_desc] = tbl
     if ch != "age_cat":
         tbl = tbl.sort_index()
-    print(tbl_desc)
+    tbl.index = tbl.index.astype("object").fillna("<NA>")
+    print("### " + tbl_desc)
     with pd.option_context("display.float_format", '{:,.1f}'.format):
         display(tbl)
     print("")

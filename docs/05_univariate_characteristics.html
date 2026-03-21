@@ -324,7 +324,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div id="67bf09dc" class="cell" data-execution_count="1">
+<div id="59baa858" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup code</span></span>
@@ -373,11 +373,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="todo" class="level2">
 <h2 class="anchored" data-anchor-id="todo">TODO:</h2>
-<p>[ ] Multiple disadvantage [ ] Project level [ ] Project pathway [ ] Categorise referral agencies (avoiding names) [ ] Floating support service alongside exit?</p>
+<p>[x] Multiple disadvantage</p>
+<p>[x] Project level - on other page</p>
+<p>[x] Project pathway - on other page</p>
+<p>[x] Categorise referral agencies (avoiding names)</p>
+<p>[ ] Floating support service alongside exit?</p>
 </section>
-<section id="generate-tables-for-each-characteristic-of-interest" class="level2">
-<h2 class="anchored" data-anchor-id="generate-tables-for-each-characteristic-of-interest">Generate tables for each characteristic of interest</h2>
-<div id="34284dbf" class="cell" data-execution_count="2">
+<section id="generated-tables-for-each-characteristic-of-interest" class="level2">
+<h2 class="anchored" data-anchor-id="generated-tables-for-each-characteristic-of-interest">Generated tables for each characteristic of interest</h2>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> defaultdict</span>
@@ -412,68 +415,85 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>})</span>
 <span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>ref_cats <span class="op">=</span> dpw_pls[<span class="st">"ref_agency"</span>].cat.categories</span>
 <span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>ref_cat_map <span class="op">=</span> {</span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">"B.C.C. Homelessness Prevention Team"</span>: [<span class="st">"B.C.C. Homelessness Prevention Team"</span>],</span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Other B.C.C."</span>: <span class="bu">list</span>(ref_cats[ref_cats.<span class="bu">str</span>.startswith((<span class="st">"B.C.C"</span>, <span class="st">"Bcc"</span>))</span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>                                  <span class="op">&amp;</span> (ref_cats <span class="op">!=</span> <span class="st">"B.C.C. Homelessness Prevention Team"</span>)]),</span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"St. Mungo's"</span>: [<span class="st">"St. Mungo's"</span>, <span class="st">"St Mungo's"</span>, <span class="st">"Outreach"</span>],</span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">"A.R.A."</span>: [<span class="st">"A.R.A"</span>],</span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Other BAHSA providers"</span>: [<span class="st">"E.C.H.G. Riverside"</span>, <span class="st">"Elim"</span>, <span class="st">"Livewest"</span>, <span class="st">"Missing Link"</span>, <span class="st">"Places For People"</span>,</span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>                              <span class="st">"Salvation Army"</span>, <span class="st">"Second Step"</span>, <span class="st">"Self Help"</span>]</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Local authority (Housing Options)"</span>: [<span class="st">"B.C.C. Homelessness Prevention Team"</span>],</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Local authority (_other)"</span>: <span class="bu">list</span>(ref_cats[ref_cats.<span class="bu">str</span>.startswith((<span class="st">"B.C.C"</span>, <span class="st">"Bcc"</span>))</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>                                    <span class="op">&amp;</span> (ref_cats <span class="op">!=</span> <span class="st">"B.C.C. Homelessness Prevention Team"</span>)]),</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Service provider (rough sleeping and SH)"</span>: [<span class="st">"St. Mungo's"</span>, <span class="st">"St Mungo's"</span>, <span class="st">"Outreach"</span>],</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Service provider (prison resettlement and SH)"</span>: [<span class="st">"A.R.A"</span>],</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Service provider (_other SH)"</span>: [<span class="st">"E.C.H.G. Riverside"</span>, <span class="st">"Elim"</span>, <span class="st">"Livewest"</span>, <span class="st">"Missing Link"</span>, <span class="st">"Places For People"</span>,</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>                                    <span class="st">"Salvation Army"</span>, <span class="st">"Second Step"</span>, <span class="st">"Self Help"</span>]</span>
 <span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>ref_cat_map[<span class="st">"Others"</span>] <span class="op">=</span> ref_cats[<span class="op">~</span>ref_cats.isin(<span class="bu">sum</span>(<span class="bu">list</span>(ref_cat_map.values()), []))]</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>ref_cat_map[<span class="st">"_Others"</span>] <span class="op">=</span> ref_cats[<span class="op">~</span>ref_cats.isin(<span class="bu">sum</span>(<span class="bu">list</span>(ref_cat_map.values()), []))]</span>
 <span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>ref_agency_mapper <span class="op">=</span> {k: v <span class="cf">for</span> v, k <span class="kw">in</span> pd.Series(ref_cat_map).explode().items()}</span>
-<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">"referral_agency"</span>] <span class="op">=</span> dpw_pls[<span class="st">"ref_agency"</span>].<span class="bu">map</span>(ref_agency_mapper)</span>
-<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>support_need_cols <span class="op">=</span> {</span>
-<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsn_prison_leaveron_probationrisk_of_offending"</span>: <span class="st">"offending"</span>,</span>
-<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsn_physical_health"</span>: <span class="st">"physical_health"</span>,</span>
-<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsn_mental_health"</span>: <span class="st">"mental_health"</span>,</span>
-<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsn_rough_sleeper"</span>: <span class="st">"rough_sleeping"</span>,</span>
-<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> hsn, ch_str <span class="kw">in</span> support_need_cols.items():</span>
-<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>    dpw_pls[ch_str] <span class="op">=</span> dpw_pls[hsn]</span>
-<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>gendered_support_need_cols <span class="op">=</span> {</span>
-<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsn_sex_working"</span>: <span class="st">"sex_working"</span>,  <span class="co"># only women recorded as sex working</span></span>
-<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsn_risk_of_violenceabuse_victim"</span>: <span class="st">"risk_violence_abuse"</span>,</span>
-<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsn_risk_of_exploitation"</span>: <span class="st">"risk_exploitation"</span>,</span>
-<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> hsn, ch_str <span class="kw">in</span> gendered_support_need_cols.items():</span>
-<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>    dpw_pls[<span class="ss">f"women_</span><span class="sc">{</span>ch_str<span class="sc">}</span><span class="ss">"</span>] <span class="op">=</span> dpw_pls[hsn].where(dpw_pls[<span class="st">"gender"</span>] <span class="op">==</span> <span class="st">"Female"</span>)</span>
-<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>    dpw_pls[<span class="ss">f"men_</span><span class="sc">{</span>ch_str<span class="sc">}</span><span class="ss">"</span>] <span class="op">=</span> dpw_pls[hsn].where(dpw_pls[<span class="st">"gender"</span>] <span class="op">==</span> <span class="st">"Male"</span>)</span>
-<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>dpw_rt_starts <span class="op">=</span> dpw_pls.groupby(<span class="st">"route_id"</span>).head(<span class="dv">1</span>)</span>
-<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>dpw_rt_ends <span class="op">=</span> dpw_pls.groupby(<span class="st">"route_id"</span>).tail(<span class="dv">1</span>)</span>
-<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>dpw_clis <span class="op">=</span> dpw_pls.groupby([<span class="st">"o_cli_id"</span>]).head(<span class="dv">1</span>)  <span class="co"># 1 duplicate client but first entry has more detailed answers</span></span>
-<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ch <span class="kw">in</span> [</span>
-<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>    <span class="st">"gender"</span>,</span>
-<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>    <span class="st">"global_majority"</span>,</span>
-<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>    <span class="st">"age_cat"</span>,</span>
-<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>    <span class="st">"lgbtq_plus"</span>,</span>
-<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>    <span class="st">"offending"</span>,</span>
-<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>    <span class="st">"physical_health"</span>,</span>
-<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>    <span class="st">"mental_health"</span>,</span>
-<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>    <span class="st">"rough_sleeping"</span>,</span>
-<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>    <span class="st">"women_sex_working"</span>,</span>
-<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>    <span class="st">"women_risk_violence_abuse"</span>,</span>
-<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>    <span class="st">"men_risk_violence_abuse"</span>,</span>
-<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>    <span class="st">"women_risk_exploitation"</span>,</span>
-<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>    <span class="st">"men_risk_exploitation"</span>,</span>
-<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>    <span class="st">"uk_immigration_status"</span>,</span>
-<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>    <span class="st">"english_2nd_language"</span>,</span>
-<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>    <span class="st">"referral_agency"</span></span>
-<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>]:</span>
-<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>    tbl_desc <span class="op">=</span> <span class="ss">f"Frequencies for </span><span class="sc">{</span>ch<span class="sc">}</span><span class="ss">"</span></span>
-<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>    tbl <span class="op">=</span> get_frequencies(dpw_clis[ch], sort<span class="op">=</span><span class="va">False</span>, dropna<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>    excel_output[tbl_desc] <span class="op">=</span> tbl</span>
-<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> ch <span class="op">!=</span> <span class="st">"age_cat"</span>:</span>
-<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>        tbl <span class="op">=</span> tbl.sort_index()</span>
-<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(tbl_desc)</span>
-<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> pd.option_context(<span class="st">"display.float_format"</span>, <span class="st">'</span><span class="sc">{:,.1f}</span><span class="st">'</span>.<span class="bu">format</span>):</span>
-<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>        display(tbl)</span>
-<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">"referral_agency"</span>] <span class="op">=</span> (dpw_pls[<span class="st">"ref_agency"</span>].<span class="bu">map</span>(ref_agency_mapper)</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>                              .fillna(<span class="st">"_[Missing data]"</span>))</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>support_need_cols <span class="op">=</span> {</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsn_prison_leaveron_probationrisk_of_offending"</span>: <span class="st">"offending"</span>,</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsn_physical_health"</span>: <span class="st">"physical_health"</span>,</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsn_mental_health"</span>: <span class="st">"mental_health"</span>,</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsn_rough_sleeper"</span>: <span class="st">"rough_sleeping"</span>,</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> hsn, ch_str <span class="kw">in</span> support_need_cols.items():</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>    dpw_pls[ch_str] <span class="op">=</span> dpw_pls[hsn].astype(<span class="st">"boolean"</span>)</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>gendered_support_need_cols <span class="op">=</span> {</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsn_sex_working"</span>: <span class="st">"sex_working"</span>,  <span class="co"># only women recorded as sex working</span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsn_risk_of_violenceabuse_victim"</span>: <span class="st">"risk_violence_abuse"</span>,</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hsn_risk_of_exploitation"</span>: <span class="st">"risk_exploitation"</span>,</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> hsn, ch_str <span class="kw">in</span> gendered_support_need_cols.items():</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>    dpw_pls[<span class="ss">f"women_</span><span class="sc">{</span>ch_str<span class="sc">}</span><span class="ss">"</span>] <span class="op">=</span> dpw_pls[hsn].where(dpw_pls[<span class="st">"gender"</span>] <span class="op">==</span> <span class="st">"Female"</span>)</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>    dpw_pls[<span class="ss">f"men_</span><span class="sc">{</span>ch_str<span class="sc">}</span><span class="ss">"</span>] <span class="op">=</span> dpw_pls[hsn].where(dpw_pls[<span class="st">"gender"</span>] <span class="op">==</span> <span class="st">"Male"</span>)</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>    dpw_pls[ch_str] <span class="op">=</span> dpw_pls[hsn]</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">"hsn_drug_or_alcohol_use"</span>] <span class="op">=</span> (dpw_pls[<span class="st">"hsn_drug_use"</span>].astype(<span class="st">"boolean"</span>)</span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>                                      <span class="op">|</span> dpw_pls[<span class="st">"hsn_alcohol_use"</span>].astype(<span class="st">"boolean"</span>))</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">"multiple_disadvantage"</span>] <span class="op">=</span> (  <span class="co"># Current support needs for 3 out of 5 SMD dimensions</span></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>  dpw_pls[[<span class="st">"hsn_prison_leaveron_probationrisk_of_offending"</span>,</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>           <span class="st">"hsn_drug_or_alcohol_use"</span>,</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>           <span class="st">"hsn_risk_of_violenceabuse_victim"</span>,</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>           <span class="st">"hsn_mental_health"</span></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>           ]].assign(hsn_homelessness<span class="op">=</span><span class="va">True</span>).astype(<span class="st">"boolean"</span>).<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>, skipna<span class="op">=</span><span class="va">False</span>) <span class="op">&gt;=</span> <span class="dv">3</span></span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">"substance_use"</span>] <span class="op">=</span> dpw_pls[<span class="st">"hsn_drug_or_alcohol_use"</span>]</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>dpw_rt_starts <span class="op">=</span> dpw_pls.groupby(<span class="st">"route_id"</span>).head(<span class="dv">1</span>)</span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>dpw_rt_ends <span class="op">=</span> dpw_pls.groupby(<span class="st">"route_id"</span>).tail(<span class="dv">1</span>)</span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>dpw_clis <span class="op">=</span> dpw_pls.groupby([<span class="st">"o_cli_id"</span>]).head(<span class="dv">1</span>)  <span class="co"># 1 duplicate client but first entry has more detailed answers</span></span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ch <span class="kw">in</span> [</span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>    <span class="st">"gender"</span>,</span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>    <span class="st">"global_majority"</span>,</span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>    <span class="st">"age_cat"</span>,</span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>    <span class="st">"lgbtq_plus"</span>,</span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>    <span class="st">"offending"</span>,</span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>    <span class="st">"physical_health"</span>,</span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>    <span class="st">"mental_health"</span>,</span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>    <span class="st">"substance_use"</span>,</span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>    <span class="st">"multiple_disadvantage"</span>,</span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>    <span class="st">"rough_sleeping"</span>,</span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>    <span class="st">"sex_working"</span>,</span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>    <span class="st">"women_sex_working"</span>,</span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>    <span class="st">"men_sex_working"</span>,</span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>    <span class="st">"risk_violence_abuse"</span>,</span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>    <span class="st">"women_risk_violence_abuse"</span>,</span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>    <span class="st">"men_risk_violence_abuse"</span>,</span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>    <span class="st">"risk_exploitation"</span>,</span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>    <span class="st">"women_risk_exploitation"</span>,</span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>    <span class="st">"men_risk_exploitation"</span>,</span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>    <span class="st">"uk_immigration_status"</span>,</span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>    <span class="st">"english_2nd_language"</span>,</span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>    <span class="st">"referral_agency"</span></span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>]:</span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>    tbl_desc <span class="op">=</span> <span class="ss">f"Frequencies for </span><span class="sc">{</span>ch<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>    tbl <span class="op">=</span> get_frequencies(dpw_clis[ch], sort<span class="op">=</span><span class="va">False</span>, dropna<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a>    excel_output[tbl_desc] <span class="op">=</span> tbl</span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> ch <span class="op">!=</span> <span class="st">"age_cat"</span>:</span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a>        tbl <span class="op">=</span> tbl.sort_index()</span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a>    tbl.index <span class="op">=</span> tbl.index.astype(<span class="st">"object"</span>).fillna(<span class="st">"&lt;NA&gt;"</span>)</span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"### "</span> <span class="op">+</span> tbl_desc)</span>
+<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> pd.option_context(<span class="st">"display.float_format"</span>, <span class="st">'</span><span class="sc">{:,.1f}</span><span class="st">'</span>.<span class="bu">format</span>):</span>
+<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a>        display(tbl)</span>
+<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Frequencies for gender</code></pre>
-</div>
-<div class="cell-output cell-output-display">
+<section id="frequencies-for-gender" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-gender">Frequencies for gender</h3>
 <div>
 
 
@@ -512,7 +532,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>1.8</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">NaN</td>
+<td data-quarto-table-cell-role="th">&lt;NA&gt;</td>
 <td>1</td>
 <td>NaN</td>
 </tr>
@@ -520,12 +540,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 
 </div>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Frequencies for global_majority</code></pre>
-</div>
-<div class="cell-output cell-output-display">
+</section>
+<section id="frequencies-for-global_majority" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-global_majority">Frequencies for global_majority</h3>
 <div>
 
 
@@ -559,7 +576,7 @@ Frequencies for global_majority</code></pre>
 <td>5.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">NaN</td>
+<td data-quarto-table-cell-role="th">&lt;NA&gt;</td>
 <td>1</td>
 <td>NaN</td>
 </tr>
@@ -567,12 +584,9 @@ Frequencies for global_majority</code></pre>
 </table>
 
 </div>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Frequencies for age_cat</code></pre>
-</div>
-<div class="cell-output cell-output-display">
+</section>
+<section id="frequencies-for-age_cat" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-age_cat">Frequencies for age_cat</h3>
 <div>
 
 
@@ -629,12 +643,9 @@ Frequencies for age_cat</code></pre>
 </table>
 
 </div>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Frequencies for lgbtq_plus</code></pre>
-</div>
-<div class="cell-output cell-output-display">
+</section>
+<section id="frequencies-for-lgbtq_plus" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-lgbtq_plus">Frequencies for lgbtq_plus</h3>
 <div>
 
 
@@ -668,7 +679,7 @@ Frequencies for lgbtq_plus</code></pre>
 <td>23.4</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">NaN</td>
+<td data-quarto-table-cell-role="th">&lt;NA&gt;</td>
 <td>1</td>
 <td>NaN</td>
 </tr>
@@ -676,12 +687,9 @@ Frequencies for lgbtq_plus</code></pre>
 </table>
 
 </div>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Frequencies for offending</code></pre>
-</div>
-<div class="cell-output cell-output-display">
+</section>
+<section id="frequencies-for-offending" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-offending">Frequencies for offending</h3>
 <div>
 
 
@@ -710,20 +718,17 @@ Frequencies for offending</code></pre>
 <td>17.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">NaN</td>
+<td data-quarto-table-cell-role="th">&lt;NA&gt;</td>
 <td>661</td>
-<td>NaN</td>
+<td>&lt;NA&gt;</td>
 </tr>
 </tbody>
 </table>
 
 </div>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Frequencies for physical_health</code></pre>
-</div>
-<div class="cell-output cell-output-display">
+</section>
+<section id="frequencies-for-physical_health" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-physical_health">Frequencies for physical_health</h3>
 <div>
 
 
@@ -752,20 +757,17 @@ Frequencies for physical_health</code></pre>
 <td>36.8</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">NaN</td>
+<td data-quarto-table-cell-role="th">&lt;NA&gt;</td>
 <td>661</td>
-<td>NaN</td>
+<td>&lt;NA&gt;</td>
 </tr>
 </tbody>
 </table>
 
 </div>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Frequencies for mental_health</code></pre>
-</div>
-<div class="cell-output cell-output-display">
+</section>
+<section id="frequencies-for-mental_health" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-mental_health">Frequencies for mental_health</h3>
 <div>
 
 
@@ -794,20 +796,95 @@ Frequencies for mental_health</code></pre>
 <td>70.5</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">NaN</td>
+<td data-quarto-table-cell-role="th">&lt;NA&gt;</td>
 <td>661</td>
-<td>NaN</td>
+<td>&lt;NA&gt;</td>
 </tr>
 </tbody>
 </table>
 
 </div>
+</section>
+<section id="frequencies-for-substance_use" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-substance_use">Frequencies for substance_use</h3>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">n</th>
+<th data-quarto-table-cell-role="th">pct</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">substance_use</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">False</td>
+<td>1489</td>
+<td>48.1</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">True</td>
+<td>1605</td>
+<td>51.9</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">&lt;NA&gt;</td>
+<td>661</td>
+<td>&lt;NA&gt;</td>
+</tr>
+</tbody>
+</table>
+
 </div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Frequencies for rough_sleeping</code></pre>
+</section>
+<section id="frequencies-for-multiple_disadvantage" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-multiple_disadvantage">Frequencies for multiple_disadvantage</h3>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">n</th>
+<th data-quarto-table-cell-role="th">pct</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">multiple_disadvantage</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">False</td>
+<td>1458</td>
+<td>47.1</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">True</td>
+<td>1636</td>
+<td>52.9</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">&lt;NA&gt;</td>
+<td>661</td>
+<td>&lt;NA&gt;</td>
+</tr>
+</tbody>
+</table>
+
 </div>
-<div class="cell-output cell-output-display">
+</section>
+<section id="frequencies-for-rough_sleeping" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-rough_sleeping">Frequencies for rough_sleeping</h3>
 <div>
 
 
@@ -836,7 +913,46 @@ Frequencies for rough_sleeping</code></pre>
 <td>20.7</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">NaN</td>
+<td data-quarto-table-cell-role="th">&lt;NA&gt;</td>
+<td>661</td>
+<td>&lt;NA&gt;</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</section>
+<section id="frequencies-for-sex_working" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-sex_working">Frequencies for sex_working</h3>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">n</th>
+<th data-quarto-table-cell-role="th">pct</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">sex_working</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">False</td>
+<td>3038</td>
+<td>98.2</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">True</td>
+<td>56</td>
+<td>1.8</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">&lt;NA&gt;</td>
 <td>661</td>
 <td>NaN</td>
 </tr>
@@ -844,12 +960,9 @@ Frequencies for rough_sleeping</code></pre>
 </table>
 
 </div>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Frequencies for women_sex_working</code></pre>
-</div>
-<div class="cell-output cell-output-display">
+</section>
+<section id="frequencies-for-women_sex_working" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-women_sex_working">Frequencies for women_sex_working</h3>
 <div>
 
 
@@ -878,7 +991,7 @@ Frequencies for women_sex_working</code></pre>
 <td>6.5</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">NaN</td>
+<td data-quarto-table-cell-role="th">&lt;NA&gt;</td>
 <td>2921</td>
 <td>NaN</td>
 </tr>
@@ -886,12 +999,82 @@ Frequencies for women_sex_working</code></pre>
 </table>
 
 </div>
+</section>
+<section id="frequencies-for-men_sex_working" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-men_sex_working">Frequencies for men_sex_working</h3>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">n</th>
+<th data-quarto-table-cell-role="th">pct</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">men_sex_working</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">False</td>
+<td>2181</td>
+<td>100.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">&lt;NA&gt;</td>
+<td>1574</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table>
+
 </div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Frequencies for women_risk_violence_abuse</code></pre>
+</section>
+<section id="frequencies-for-risk_violence_abuse" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-risk_violence_abuse">Frequencies for risk_violence_abuse</h3>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">n</th>
+<th data-quarto-table-cell-role="th">pct</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">risk_violence_abuse</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">False</td>
+<td>2546</td>
+<td>82.3</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">True</td>
+<td>548</td>
+<td>17.7</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">&lt;NA&gt;</td>
+<td>661</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table>
+
 </div>
-<div class="cell-output cell-output-display">
+</section>
+<section id="frequencies-for-women_risk_violence_abuse" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-women_risk_violence_abuse">Frequencies for women_risk_violence_abuse</h3>
 <div>
 
 
@@ -920,7 +1103,7 @@ Frequencies for women_risk_violence_abuse</code></pre>
 <td>39.1</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">NaN</td>
+<td data-quarto-table-cell-role="th">&lt;NA&gt;</td>
 <td>2921</td>
 <td>NaN</td>
 </tr>
@@ -928,12 +1111,9 @@ Frequencies for women_risk_violence_abuse</code></pre>
 </table>
 
 </div>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Frequencies for men_risk_violence_abuse</code></pre>
-</div>
-<div class="cell-output cell-output-display">
+</section>
+<section id="frequencies-for-men_risk_violence_abuse" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-men_risk_violence_abuse">Frequencies for men_risk_violence_abuse</h3>
 <div>
 
 
@@ -962,7 +1142,7 @@ Frequencies for men_risk_violence_abuse</code></pre>
 <td>9.3</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">NaN</td>
+<td data-quarto-table-cell-role="th">&lt;NA&gt;</td>
 <td>1574</td>
 <td>NaN</td>
 </tr>
@@ -970,12 +1150,48 @@ Frequencies for men_risk_violence_abuse</code></pre>
 </table>
 
 </div>
+</section>
+<section id="frequencies-for-risk_exploitation" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-risk_exploitation">Frequencies for risk_exploitation</h3>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">n</th>
+<th data-quarto-table-cell-role="th">pct</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">risk_exploitation</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">False</td>
+<td>2846</td>
+<td>92.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">True</td>
+<td>248</td>
+<td>8.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">&lt;NA&gt;</td>
+<td>661</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table>
+
 </div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Frequencies for women_risk_exploitation</code></pre>
-</div>
-<div class="cell-output cell-output-display">
+</section>
+<section id="frequencies-for-women_risk_exploitation" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-women_risk_exploitation">Frequencies for women_risk_exploitation</h3>
 <div>
 
 
@@ -1004,7 +1220,7 @@ Frequencies for women_risk_exploitation</code></pre>
 <td>13.7</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">NaN</td>
+<td data-quarto-table-cell-role="th">&lt;NA&gt;</td>
 <td>2921</td>
 <td>NaN</td>
 </tr>
@@ -1012,12 +1228,9 @@ Frequencies for women_risk_exploitation</code></pre>
 </table>
 
 </div>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Frequencies for men_risk_exploitation</code></pre>
-</div>
-<div class="cell-output cell-output-display">
+</section>
+<section id="frequencies-for-men_risk_exploitation" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-men_risk_exploitation">Frequencies for men_risk_exploitation</h3>
 <div>
 
 
@@ -1046,7 +1259,7 @@ Frequencies for men_risk_exploitation</code></pre>
 <td>5.9</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">NaN</td>
+<td data-quarto-table-cell-role="th">&lt;NA&gt;</td>
 <td>1574</td>
 <td>NaN</td>
 </tr>
@@ -1054,12 +1267,9 @@ Frequencies for men_risk_exploitation</code></pre>
 </table>
 
 </div>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Frequencies for uk_immigration_status</code></pre>
-</div>
-<div class="cell-output cell-output-display">
+</section>
+<section id="frequencies-for-uk_immigration_status" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-uk_immigration_status">Frequencies for uk_immigration_status</h3>
 <div>
 
 
@@ -1093,7 +1303,7 @@ Frequencies for uk_immigration_status</code></pre>
 <td>86.3</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">NaN</td>
+<td data-quarto-table-cell-role="th">&lt;NA&gt;</td>
 <td>601</td>
 <td>NaN</td>
 </tr>
@@ -1101,12 +1311,9 @@ Frequencies for uk_immigration_status</code></pre>
 </table>
 
 </div>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Frequencies for english_2nd_language</code></pre>
-</div>
-<div class="cell-output cell-output-display">
+</section>
+<section id="frequencies-for-english_2nd_language" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-english_2nd_language">Frequencies for english_2nd_language</h3>
 <div>
 
 
@@ -1138,12 +1345,9 @@ Frequencies for english_2nd_language</code></pre>
 </table>
 
 </div>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Frequencies for referral_agency</code></pre>
-</div>
-<div class="cell-output cell-output-display">
+</section>
+<section id="frequencies-for-referral_agency" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-referral_agency">Frequencies for referral_agency</h3>
 <div>
 
 
@@ -1162,68 +1366,64 @@ Frequencies for referral_agency</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">A.R.A.</td>
-<td>618</td>
-<td>17.5</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">B.C.C. Homelessness Prevention Team</td>
+<td data-quarto-table-cell-role="th">Local authority (Housing Options)</td>
 <td>1600</td>
-<td>45.3</td>
+<td>42.6</td>
 </tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">Other B.C.C.</td>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Local authority (_other)</td>
 <td>111</td>
-<td>3.1</td>
+<td>3.0</td>
 </tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">Other BAHSA providers</td>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Service provider (_other SH)</td>
 <td>289</td>
-<td>8.2</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">Others</td>
-<td>148</td>
-<td>4.2</td>
+<td>7.7</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">St. Mungo's</td>
-<td>763</td>
-<td>21.6</td>
+<td data-quarto-table-cell-role="th">Service provider (prison resettlement and SH)</td>
+<td>618</td>
+<td>16.5</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">NaN</td>
+<td data-quarto-table-cell-role="th">Service provider (rough sleeping and SH)</td>
+<td>763</td>
+<td>20.3</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">_Others</td>
+<td>148</td>
+<td>3.9</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">_[Missing data]</td>
 <td>226</td>
-<td>NaN</td>
+<td>6.0</td>
 </tr>
 </tbody>
 </table>
 
 </div>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code></code></pre>
-</div>
-</div>
+</section>
 </section>
 <section id="tables-in-an-excel-file" class="level2">
 <h2 class="anchored" data-anchor-id="tables-in-an-excel-file">Tables in an Excel file</h2>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>sheetname <span class="op">=</span> <span class="st">"Sheet1"</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>qmdfile <span class="op">=</span> os.getenv(<span class="st">"QUARTO_DOCUMENT_FILE"</span>)</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>filename <span class="op">=</span> assets_output <span class="op">+</span> qmdfile[:<span class="op">-</span><span class="dv">4</span>]<span class="op">+</span><span class="st">".xlsx"</span></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.ExcelWriter(filename) <span class="im">as</span> writer:</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    next_row <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k, v <span class="kw">in</span> excel_output.items():</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>        pd.DataFrame([k]).to_excel(writer, sheet_name<span class="op">=</span>sheetname, header<span class="op">=</span><span class="va">False</span>, index<span class="op">=</span><span class="va">False</span>, startrow<span class="op">=</span>next_row)</span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>        next_row <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>        v.to_excel(writer, sheet_name<span class="op">=</span>sheetname, startrow<span class="op">=</span>next_row, float_format<span class="op">=</span><span class="st">"</span><span class="sc">%.1f</span><span class="st">"</span>)</span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>        next_row <span class="op">+=</span> (</span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>            (<span class="dv">1</span> <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(v.columns, pd.MultiIndex) <span class="cf">else</span> <span class="dv">1</span> <span class="op">+</span> <span class="bu">len</span>(v.columns.levels))</span>
-<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">+</span> <span class="bu">len</span>(v) <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"[Excel file](./</span><span class="sc">{</span>filename<span class="sc">}</span><span class="ss">)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>sheetname <span class="op">=</span> <span class="st">"Sheet1"</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>qmdfile <span class="op">=</span> os.getenv(<span class="st">"QUARTO_DOCUMENT_FILE"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>filename <span class="op">=</span> assets_output <span class="op">+</span> qmdfile[:<span class="op">-</span><span class="dv">4</span>]<span class="op">+</span><span class="st">".xlsx"</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.ExcelWriter(filename) <span class="im">as</span> writer:</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    next_row <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k, v <span class="kw">in</span> excel_output.items():</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        pd.DataFrame([k]).to_excel(writer, sheet_name<span class="op">=</span>sheetname, header<span class="op">=</span><span class="va">False</span>, index<span class="op">=</span><span class="va">False</span>, startrow<span class="op">=</span>next_row)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        next_row <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        v.to_excel(writer, sheet_name<span class="op">=</span>sheetname, startrow<span class="op">=</span>next_row, float_format<span class="op">=</span><span class="st">"</span><span class="sc">%.1f</span><span class="st">"</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        next_row <span class="op">+=</span> (</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>            (<span class="dv">1</span> <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(v.columns, pd.MultiIndex) <span class="cf">else</span> <span class="dv">1</span> <span class="op">+</span> <span class="bu">len</span>(v.columns.levels))</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">+</span> <span class="bu">len</span>(v) <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"[Excel file](./</span><span class="sc">{</span>filename<span class="sc">}</span><span class="ss">)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <p><a href="./assets_output/05_univariate_characteristics.xlsx">Excel file</a></p>
 

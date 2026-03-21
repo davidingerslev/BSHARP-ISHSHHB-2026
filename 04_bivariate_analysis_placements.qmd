@@ -2,6 +2,7 @@
 title: "04. Bivariate analysis for placement outcomes"
 date: 2026-03-17
 warning: false
+toc: true
 ---
 
 ```{python}
@@ -48,8 +49,10 @@ def get_frequencies(series, sort=True):
 ## Outcomes from individual placements
 
 ```{python}
+#| output: asis
 import numpy as np
 from python_scripts import routes
+pl_excluded = {}
 pl_end_cat_map = routes.get_end_cats_map()
 pl_outcomes = dpw_pls.set_index("vac_id")
 pl_outcomes["pl_end_cat"] = pl_outcomes["pl_end_reason"].map(pl_end_cat_map)
@@ -61,10 +64,11 @@ pl_outcomes.loc[next_pls.index, "pl_end_cat"] = "Internal move"
 pl_outcomes.loc[dpw_pls.loc[dpw_pls["prev_svc_id"] == dpw_pls["svc_id"], "prev_vac_id"].values, "pl_end_cat"] = "Internal move: same service"
 pl_outcomes["pathway"] = pl_outcomes["svc_type_short"].cat.remove_unused_categories()
 pl_outcomes["pathway_type"] = (pl_outcomes["pathway"] == "Substance Misuse Pathway").map({True: "Substance Misuse", False: "Homelessness"})
-tbl = get_frequencies(pl_outcomes[["pathway_type", "pathway_level"]], sort=False)
+pl_outcomes["ended"] = pl_outcomes["pl_end_dt"].isna().map({True: "Current", False: "Ended"})
+tbl = get_frequencies(pl_outcomes[["ended", "pathway_type", "pathway_level"]], sort=False, dropna=False)
 tbl_desc = "Table 4.1: Placements in different pathway levels"
 excel_output[tbl_desc] = tbl
-print(tbl_desc)
+print("### " + tbl_desc)
 display(tbl)
 print("")
 level_diff = (pl_outcomes.loc[pl_outcomes["pl_end_cat"] == "Internal move", ["pathway", "pathway_level"]]
@@ -80,6 +84,7 @@ pl_outcomes.loc[pl_outcomes["level_diff"].notna(), "pl_end_cat"] = (
     "Internal move: " + np.sign(pl_outcomes.level_diff).map({-1: "backwards", 0: "sideways", 1: "forwards"})
 )
 # Exclude 42 0-day placements
+pl_excluded["Zero-day placements"] = pl_outcomes[pl_outcomes["dur"] == pd.Timedelta(days=0)]
 pl_outcomes = pl_outcomes[pl_outcomes["dur"] > pd.Timedelta(days=0)]
 pl_outcomes_map = {
     'Independent accommodation': ['To social housing', 'To private rented'],
@@ -93,16 +98,17 @@ pl_outcomes["pl_outcome"] = pl_outcomes["pl_end_cat"].map(pl_end_cat_map)
 pl_outcomes.loc[
     pl_outcomes["pl_end_cat"].fillna("").str.startswith("Internal move"),
     "pl_outcome"] = pl_outcomes["pl_end_cat"]
+pl_excluded["Moves within same service"] = pl_outcomes[pl_outcomes["pl_end_cat"] == "Internal move: same service"]
 pl_outcomes_excl_same_svc = pl_outcomes[pl_outcomes["pl_end_cat"] != "Internal move: same service"]
-tbl = get_frequencies(pl_outcomes_excl_same_svc["pl_outcome"])
+tbl = get_frequencies(pl_outcomes_excl_same_svc["pl_outcome"], dropna=False)
 tbl_desc = "Table 4.2: Placement outcomes"
 excel_output[tbl_desc] = tbl
-print(tbl_desc)
+print("### " + tbl_desc)
 display(tbl)
 print("")
 tbl_n = pl_outcomes_excl_same_svc.reset_index().pivot_table(
           values="vac_id", index="pl_outcome", columns=["pathway_type", "pathway_level"],
-          aggfunc="count", margins=True)
+          aggfunc="count", margins=True, dropna=False)
 tbl_n = pd.concat([tbl_n.iloc[:-1, :].sort_values(by="All", ascending=False),  tbl_n.iloc[[-1], :]])
 tbl_n_desc = "Table 4.3: Placement outcomes by pathway type and level"
 excel_output[tbl_n_desc] = tbl_n
@@ -110,17 +116,18 @@ tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :])
 tbl_pct_desc = "Table 4.4: Placement outcomes (as row percentages) by pathway type and level"
 excel_output[tbl_pct_desc] = tbl_pct
 with pd.option_context("display.precision", 1):
-    print(tbl_n_desc)
+    print("### " + tbl_n_desc)
     display(tbl_n)
     print("")
-    print(tbl_pct_desc)
+    print("### " + tbl_pct_desc)
     display(tbl_pct)
     print("")
 ```
 
-### Placement outcomes by calendar year
+## Placement outcomes by calendar year
 
 ```{python}
+#| output: asis
 tbl_n = pl_outcomes_excl_same_svc.assign(end_year=pl_outcomes_excl_same_svc["pl_end_dt"].dt.year.astype("Int64")).reset_index().pivot_table(
           values="vac_id", index="pl_outcome", columns=["end_year"],
           aggfunc="count", margins=True)
@@ -131,17 +138,18 @@ tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :])
 tbl_pct_desc = "Table 4.6: Placement outcomes (as row percentages) by calendar year"
 excel_output[tbl_pct_desc] = tbl_pct
 with pd.option_context("display.precision", 1):
-    print(tbl_n_desc)
+    print("### " + tbl_n_desc)
     display(tbl_n)
     print("")
-    print(tbl_pct_desc)
+    print("### " + tbl_pct_desc)
     display(tbl_pct)
     print("")
 ```
 
-### Placement outcomes by level and pathway
+## Placement outcomes by level and pathway
 
 ```{python}
+#| output: asis
 pl_outcomes_excl_same_svc["pathway_short"] = pl_outcomes_excl_same_svc["pathway"].map({
     "Female Only Pathway": "F",
     "Mixed Pathway": "M/F",
@@ -157,17 +165,18 @@ tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :])
 tbl_pct_desc = "Table 4.8: Placement outcomes (as row percentages) by level and pathway"
 excel_output[tbl_pct_desc] = tbl_pct
 with pd.option_context("display.precision", 1):
-    print(tbl_n_desc)
+    print("### " + tbl_n_desc)
     display(tbl_n)
     print("")
-    print(tbl_pct_desc)
+    print("### " + tbl_pct_desc)
     display(tbl_pct)
     print("")
 ```
 
-### Placement outcomes from L3-4 by shared vs. self-contained
+## Placement outcomes from L3-4 by shared vs. self-contained
 
 ```{python}
+#| output: asis
 l3_l4_outcomes = pl_outcomes_excl_same_svc[pl_outcomes_excl_same_svc["pathway_level"].isin(["3", "4"])]
 l3_l4_outcomes["pathway_short"] = l3_l4_outcomes["pathway_short"].cat.remove_unused_categories()
 l3_l4_outcomes["shared"] = l3_l4_outcomes["shared"].map({"Yes": "Shared", "No": "Self-contained"})
@@ -181,17 +190,18 @@ tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :]).add_suffix(" %")
 tbl_pct_desc = "Table 4.10: Placement outcomes (as row percentages) from level 3-4 by shared vs. self-contained"
 excel_output[tbl_pct_desc] = tbl_pct
 with pd.option_context("display.precision", 1):
-    print(tbl_n_desc)
+    print("### " + tbl_n_desc)
     display(tbl_n)
     print("")
-    print(tbl_pct_desc)
+    print("### " + tbl_pct_desc)
     display(tbl_pct)
     print("")
 ```
 
-### Placement outcomes from L3-4 by shared vs. self-contained and pathway
+## Placement outcomes from L3-4 by shared vs. self-contained and pathway
 
 ```{python}
+#| output: asis
 l3_l4_outcomes = pl_outcomes_excl_same_svc[pl_outcomes_excl_same_svc["pathway_level"].isin(["3", "4"])]
 l3_l4_outcomes["pathway_short"] = l3_l4_outcomes["pathway_short"].cat.remove_unused_categories()
 l3_l4_outcomes["shared"] = l3_l4_outcomes["shared"].map({"Yes": "Shared", "No": "Self-contained"})
@@ -205,19 +215,42 @@ tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :]).add_suffix(" %")
 tbl_pct_desc = "Table 4.10: Placement outcomes (as row percentages) from level 3-4 by shared vs. self-contained"
 excel_output[tbl_pct_desc] = tbl_pct
 with pd.option_context("display.precision", 1):
-    print(tbl_n_desc)
+    print("### " + tbl_n_desc)
     display(tbl_n)
     print("")
-    print(tbl_pct_desc)
+    print("### " + tbl_pct_desc)
     display(tbl_pct)
     print("")
 ```
 
-### Outcome differences for sizes of hostels
+## Outcome differences for sizes of hostels
 
 Note: Analysis not completed. Initial testing indicated categories of project sizes were not useful.
 OABs within projects appeared as separate projects, affecting the apparent sizes even after OABs
 were adjusted to be back within the project where they were situated.
+
+Idea: Could estimate project sizes by concurrent number of placements at same address...
+```{python}
+#| eval: false
+#| echo: false
+import random
+days_range = (distinct_pathways.dpw_end_dt - distinct_pathways.dpw_start_dt).days
+rand_date = distinct_pathways.dpw_start_dt + pd.Timedelta(days=random.randrange(0, days_range))
+dpw_pls["pathway"] = dpw_pls["svc_type_short"]
+dpw_pls["pathway_type"] = (dpw_pls["pathway"] == "Substance Misuse Pathway").map({True: "Substance Misuse", False: "Homelessness"})
+svc_placements = []
+svc_ids = pd.Index(sorted(dpw_pls["svc_id"].unique()))
+dpw_pls["svc_id"] = dpw_pls["svc_id"].astype("category")
+for day in range(0, days_range + 1):
+    date = distinct_pathways.dpw_start_dt + pd.Timedelta(days=day)
+    counts = (dpw_pls[(dpw_pls.pl_start_dt <= date)
+                       & (dpw_pls.pl_end_dt.isna() | (dpw_pls.pl_end_dt > date))]
+              .groupby(["svc_id"], sort=False, observed=False).size())
+    svc_placements.append(counts)
+svc_placements_df = pd.concat(svc_placements).groupby("svc_id").describe()
+svc_placements_df.join(df.svc.set_index("svc_id"))
+#TODO: Work in progress!
+```
 
 ## Tables in an Excel file
 

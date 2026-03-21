@@ -45,6 +45,20 @@ def get_frequencies(series, sort=True):
     return pd.concat([n, pct], axis=1)
 ```
 
+## Entry point into BAHSA: pathway type and level
+```{python}
+rt_entries = dpw_rt_starts.copy()
+rt_entries["pathway"] = rt_entries["svc_type_short"]
+rt_entries["pathway_type"] = (rt_entries["pathway"] == "Substance Misuse Pathway").map({True: "Substance Misuse", False: "Homelessness"})
+# Create univariate table for new DV, rt_entries[["pathway_type", "pathway_level"]]
+n = rt_entries[["pathway_type", "pathway_level"]].value_counts(dropna=False).rename("n")
+pct = (100 * rt_entries[["pathway_type", "pathway_level"]].value_counts(dropna=False, normalize=True)).rename("pct")
+tbl = pd.concat([n, pct], axis=1).sort_index()
+excel_output["Table 3.1: Route outcomes after 3.08 years"] = tbl
+with pd.option_context("display.precision", 1):
+    display(tbl)
+```
+
 ## Outcomes at a period of time after a route started
 ```{python}
 periodMult = {"d": 1, "m": 365.25/12, "y": 365.25}
@@ -234,7 +248,6 @@ next_pls = (dpw_pls.loc[dpw_pls["prev_vac_id"].notna()]
 pl_outcomes.loc[next_pls.index, "pl_end_cat"] = "Internal move"
 pl_outcomes.loc[dpw_pls.loc[dpw_pls["prev_svc_id"] == dpw_pls["svc_id"], "prev_vac_id"].values, "pl_end_cat"] = "Internal move: same service"
 pl_outcomes["pathway"] = pl_outcomes["svc_type_short"]
-display(get_frequencies(pl_outcomes["pathway_level"], sort=False))
 level_diff = (pl_outcomes.loc[pl_outcomes["pl_end_cat"] == "Internal move", ["pathway", "pathway_level"]]
               .join(next_pls[["pathway", "pathway_level"]].add_prefix("next_"))
               .assign(level_diff=lambda df: df[["pathway_level", "next_pathway_level"]]

@@ -16,7 +16,7 @@ df, dffp = setup.setup(verbose=False)
 from python_scripts import distinct_pathways
 dpw_pls = distinct_pathways.get_distinct_pathways_routes(dffp)
 qrows = dpw_pls["rt_end_cat"] == "[Not ended or invalid end reason]"
-dpw_pls.loc[dpw_pls.pl_end_dt > distinct_pathways.dpw_end_dt, ["pl_end_dt", "pl_end_reason"]] = pd.NA
+dpw_pls.loc[dpw_pls.pl_end_dt > distinct_pathways.dpw_end_dt, ["pl_end_dt", "pl_end_reason", "dur"]] = pd.NA
 dpw_pls.loc[qrows, "rt_end_cat"] = dpw_pls.loc[qrows, "pl_end_dt"].isna().map({True: "[Not ended]", False: "Missing data/error"})
 dpw_pls["rt_end_cat"] = dpw_pls["rt_end_cat"].str.replace("To care/hosp.", "To care/hospital")
 dpw_rt_starts = dpw_pls.groupby("route_id").head(1)
@@ -67,6 +67,8 @@ pl_outcomes["pathway"] = pl_outcomes["svc_type_short"].cat.remove_unused_categor
 pl_outcomes["pathway_type"] = (pl_outcomes["pathway"] == "Substance Misuse Pathway").map({True: "Substance Misuse", False: "Homelessness"})
 pl_outcomes["ended"] = pl_outcomes["pl_end_dt"].isna().map({True: "Current", False: "Ended"})
 tbl = get_frequencies(pl_outcomes[["ended", "pathway_type", "pathway_level"]], sort=False, dropna=False)
+tbl.loc[tuple(["All"] * len(tbl.index.levels)), :] = tbl.sum()
+tbl = tbl.convert_dtypes()
 tbl_desc = "Table 4.1: Placements in different pathway levels"
 excel_output[tbl_desc] = tbl
 print("### " + tbl_desc)
@@ -84,6 +86,9 @@ pl_outcomes = pl_outcomes.join((level_diff[["next_pathway_level", "level_diff"]]
 pl_outcomes.loc[pl_outcomes["level_diff"].notna(), "pl_end_cat"] = (
     "Internal move: " + np.sign(pl_outcomes.level_diff).map({-1: "backwards", 0: "sideways", 1: "forwards"})
 )
+# Exclude 738 placements that have not ended
+pl_excluded["Not-ended placements"] = pl_outcomes[pl_outcomes["dur"].isna()]
+pl_outcomes = pl_outcomes[pl_outcomes["dur"].notna()]
 # Exclude 42 0-day placements
 pl_excluded["Zero-day placements"] = pl_outcomes[pl_outcomes["dur"] == pd.Timedelta(days=0)]
 pl_outcomes = pl_outcomes[pl_outcomes["dur"] > pd.Timedelta(days=0)]
@@ -92,6 +97,7 @@ pl_outcomes_map = {
     'Insecure outcome': ['To friends/family', 'Custody', '[Not ended]', 'To care/hospital', 'To external supported'],
     'Returned to homelessness': ['Evicted', 'Abandoned'],
     'Died': ['Died'],
+    'Other': ['Other'],
     # '_excluded': ['Other', 'Missing data/error']
 }
 pl_end_cat_map = {cat: outcome for outcome in pl_outcomes_map.keys() for cat in pl_outcomes_map[outcome]}
@@ -99,9 +105,22 @@ pl_outcomes["pl_outcome"] = pl_outcomes["pl_end_cat"].map(pl_end_cat_map)
 pl_outcomes.loc[
     pl_outcomes["pl_end_cat"].fillna("").str.startswith("Internal move"),
     "pl_outcome"] = pl_outcomes["pl_end_cat"]
+# Exclude 1,310 moves within the same service
 pl_excluded["Moves within same service"] = pl_outcomes[pl_outcomes["pl_end_cat"] == "Internal move: same service"]
 pl_outcomes_excl_same_svc = pl_outcomes[pl_outcomes["pl_end_cat"] != "Internal move: same service"]
+# Exclude 277 moves due to end reasons: 53 missing reaons, 200 "Other"
+# TODO: Should "Other" really be excluded?
+### In [310]: pl_outcomes.set_index("pl_outcome").loc["Other"].pl_end_reason.astype("string").value_counts()
+### Out[310]: 
+### pl_end_reason
+### Other (Planned)                                           141
+### Other (Unplanned)                                          58
+### (SSTS) BCC Emergency Accommodation (FOR SSTS USE ONLY)      1
+### Name: count, dtype: Int64
+pl_excluded["Unclear end categories"] = pl_outcomes[pl_outcomes["pl_outcome"].isna()]
 tbl = get_frequencies(pl_outcomes_excl_same_svc["pl_outcome"], dropna=False)
+tbl.loc["All", :] = tbl.sum()
+tbl = tbl.convert_dtypes()
 tbl_desc = "Table 4.2: Placement outcomes"
 excel_output[tbl_desc] = tbl
 print("### " + tbl_desc)
@@ -109,7 +128,7 @@ display(tbl)
 print("")
 tbl_n = pl_outcomes_excl_same_svc.reset_index().pivot_table(
           values="vac_id", index="pl_outcome", columns=["pathway_type", "pathway_level"],
-          aggfunc="count", margins=True, dropna=False)
+          aggfunc="count", margins=True, dropna=True)
 tbl_n = pd.concat([tbl_n.iloc[:-1, :].sort_values(by="All", ascending=False),  tbl_n.iloc[[-1], :]])
 tbl_n_desc = "Table 4.3: Placement outcomes by pathway type and level"
 excel_output[tbl_n_desc] = tbl_n

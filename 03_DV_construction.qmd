@@ -15,7 +15,7 @@ df, dffp = setup.setup(verbose=False)
 from python_scripts import distinct_pathways
 dpw_pls = distinct_pathways.get_distinct_pathways_routes(dffp)
 qrows = dpw_pls["rt_end_cat"] == "[Not ended or invalid end reason]"
-dpw_pls.loc[dpw_pls.pl_end_dt > distinct_pathways.dpw_end_dt, ["pl_end_dt", "pl_end_reason"]] = pd.NA
+dpw_pls.loc[dpw_pls.pl_end_dt > distinct_pathways.dpw_end_dt, ["pl_end_dt", "pl_end_reason", "dur"]] = pd.NA
 dpw_pls.loc[qrows, "rt_end_cat"] = dpw_pls.loc[qrows, "pl_end_dt"].isna().map({True: "[Not ended]", False: "Missing data/error"})
 dpw_pls["rt_end_cat"] = dpw_pls["rt_end_cat"].str.replace("To care/hosp.", "To care/hospital")
 dpw_rt_starts = dpw_pls.groupby("route_id").head(1)
@@ -38,33 +38,47 @@ output_dir = assets_output
 transparent = False
 excel_output = {}
 
-
-def get_frequencies(series, sort=True):
-    n = series.value_counts(sort=sort).rename("n")
-    pct = 100 * series.value_counts(sort=sort, normalize=True).rename("pct")
-    return pd.concat([n, pct], axis=1)
+def get_frequencies(series, sort=True, dropna=True, dropna_pct=True):
+    n = series.value_counts(sort=sort, dropna=dropna).rename("n")
+    pct = 100 * series.value_counts(sort=sort, dropna=(dropna or dropna_pct), normalize=True).rename("pct")
+    fq_tbl = pd.concat([n, pct], axis=1)
+    return fq_tbl
 ```
 
-## Entry point into BAHSA: pathway type and level
+## 3.1 Entry point into BAHSA: pathway type and level
+
+DV: `rt_entries[["pathway_type", "pathway_level"]]`
+
 ```{python}
+#| output: asis
 rt_entries = dpw_rt_starts.copy()
+print(f"Routes: {len(rt_entries):,}")
 rt_entries["pathway"] = rt_entries["svc_type_short"]
 rt_entries["pathway_type"] = (rt_entries["pathway"] == "Substance Misuse Pathway").map({True: "Substance Misuse", False: "Homelessness"})
 # Create univariate table for new DV, rt_entries[["pathway_type", "pathway_level"]]
-n = rt_entries[["pathway_type", "pathway_level"]].value_counts(dropna=False).rename("n")
+n = rt_entries[["pathway_type", "pathway_level"]].value_counts(dropna=False).rename("n").astype("Int64")
 pct = (100 * rt_entries[["pathway_type", "pathway_level"]].value_counts(dropna=False, normalize=True)).rename("pct")
 tbl = pd.concat([n, pct], axis=1).sort_index()
-excel_output["Table 3.1: Route outcomes after 3.08 years"] = tbl
+tbl.loc[("All", "All"),:] = tbl.sum()
+excel_output["Table 3.1: Entry point into BAHSA services"] = tbl
 with pd.option_context("display.precision", 1):
     display(tbl)
 ```
 
-## Outcomes at a period of time after a route started
+## 3.2 Outcomes at a period of time after a route started
+
+Period: 3.08 years
+
+DV: `dpw_rt_outcomes["rt_outcome"]`
+
 ```{python}
+#| output: asis
 periodMult = {"d": 1, "m": 365.25/12, "y": 365.25}
 years = periodMult["y"]
 time_measure = pd.Timedelta(days=(3.08 * years))
 dpw_rt_ends = dpw_pls.groupby("route_id").tail(1)
+print(f"Routes: {len(dpw_rt_ends):,}")
+print("")
 dpw_rt_ends = dpw_rt_ends.set_index("route_id", drop=False)
 end_cols_to_drop = dpw_rt_ends.columns[
     (
@@ -85,6 +99,16 @@ rt_outcomes_map = {
     # '_excluded': ['Other', 'Missing data/error']
 }
 rt_end_cat_map = {cat: outcome for outcome in rt_outcomes_map.keys() for cat in rt_outcomes_map[outcome]}
+rts_excluded = {
+    f"Routes started within 3.08 yrs of end ({distinct_pathways.dpw_end_dt.strftime("%d/%m/%Y")})":
+        (dpw_routes["rt_start_dt"] > distinct_pathways.dpw_end_dt - time_measure).sum(),
+    "Routes with outcome: " + ", ".join(cat for cat in dpw_routes["rt_end_cat"].unique() if cat not in rt_end_cat_map):
+        ((dpw_routes["rt_start_dt"] <= distinct_pathways.dpw_end_dt - time_measure)
+         & ~(dpw_routes["rt_end_cat"].isin(rt_end_cat_map.keys()))).sum()
+}
+excluded_df = pd.DataFrame(data=rts_excluded.values(), columns=["n"], index=rts_excluded.keys())
+excluded_df.index = excluded_df.index.rename("Excluded routes")
+display(excluded_df)
 dpw_rt_outcomes = dpw_routes[
     # Only include routes where there has been long enough for the outcome to happen
     (dpw_routes["rt_start_dt"] <= distinct_pathways.dpw_end_dt - time_measure)
@@ -111,19 +135,26 @@ dpw_rt_outcomes.loc[
     & (rt_pls_at_timemeasures["shared"] == "No"),
     "rt_outcome"] = "Independent accommodation"
 # Create univariate table for new DV, dpw_rt_outcomes["rt_outcome"]
-n = dpw_rt_outcomes["rt_outcome"].value_counts(dropna=False).rename("n")
+n = dpw_rt_outcomes["rt_outcome"].value_counts(dropna=False).rename("n").astype("Int64")
 pct = (100 * dpw_rt_outcomes["rt_outcome"].value_counts(dropna=False, normalize=True)).rename("pct")
 tbl = pd.concat([n, pct], axis=1)
 tbl.index = tbl.index.rename("Route outcome")
-excel_output["Table 3.1: Route outcomes after 3.08 years"] = tbl
+tbl.loc["All", :] = tbl.sum()
+excel_output["Table 3.2: Route outcomes after 3.08 years"] = tbl
 with pd.option_context("display.precision", 1):
     display(tbl)
 ```
 
-## Outcomes at a period of time after a person's first route started
+## 3.3 Outcomes at a period of time after a person's first route started
+
+Period: 3.08 years
+
+DV: `dpw_cli_outcomes["cli_outcome"]`
 
 ```{python}
-# Testing -- doesn't quite work... why would you use the same time measure for people?
+#| output: asis
+print(f"Potentially relevant route outcomes (from 3.2): {len(dpw_rt_outcomes):,}")
+print("")
 # dpw_cli_outcomes is the dpw_rt_outcome that is active after the measured time since the person's first route started
 time_measure = pd.Timedelta(days=(3.08 * years))
 # Relevant date for each client is their first route start date plus the time measure period
@@ -134,6 +165,13 @@ dpw_cli_timemeasure_dt = (dpw_rt_outcomes
                           ["rt_start_dt"]
                           + time_measure).rename("cli_timemeasure_dt")
 dpw_cli_outcomes = dpw_rt_outcomes.join(dpw_cli_timemeasure_dt, on="o_cli_id").set_index("o_cli_id")
+rts_excluded = {
+    "Additional routes for the same person":
+        (dpw_rt_outcomes.groupby("o_cli_id").size() - 1).sum(),
+}
+excluded_df = pd.DataFrame(data=rts_excluded.values(), columns=["n"], index=rts_excluded.keys())
+excluded_df.index = excluded_df.index.rename("Excluded routes")
+display(excluded_df)
 # Select the latest route that started before the outcome date
 dpw_cli_outcomes = ((dpw_cli_outcomes[dpw_cli_outcomes["rt_start_dt"] <= dpw_cli_outcomes["cli_timemeasure_dt"]])
                     .groupby("o_cli_id").tail(1)).rename(columns={"rt_outcome": "cli_outcome"})
@@ -157,33 +195,49 @@ dpw_cli_outcomes["cli_start_dt"] = (dpw_rt_starts.set_index("o_cli_id")
 dpw_cli_outcomes["cli_end_dt"] = (dpw_rt_ends.set_index("o_cli_id")
                                   .groupby("o_cli_id").tail(1)["pl_end_dt"])
 # Create univariate table for new DV, dpw_cli_outcomes["cli_outcome"]
-n = dpw_cli_outcomes["cli_outcome"].value_counts(dropna=False).rename("n")
+n = dpw_cli_outcomes["cli_outcome"].value_counts(dropna=False).rename("n").astype("Int64")
 pct = (100 * dpw_cli_outcomes["cli_outcome"].value_counts(dropna=False, normalize=True)).rename("pct")
 tbl = pd.concat([n, pct], axis=1)
+tbl.loc["All", :] = tbl.sum()
 tbl.index = tbl.index.rename("Route outcome")
-excel_output[f"Table 3.1: Route outcomes after 3.08 years"] = tbl
+excel_output[f"Table 3.3: Route outcomes after 3.08 years"] = tbl
 with pd.option_context("display.precision", 1):
     display(tbl)
 ```
 
-## Returning to use services multiple times
+## 3.4 Returning to use services multiple times
+
+3+ routes during the period, i.e. 2 or more returns in 7.5 years.
+
+DV: `dpw_clis["multiple_returns"]`
 
 ```{python}
+#| output: asis
 dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1).set_index("o_cli_id")
+print(f"People: {len(dpw_clis):,}")
+print("")
 dpw_clis["multiple_returns"] = (dpw_rt_starts.groupby(['o_cli_id']).size() >= 3).rename("multiple_returns")
 # Create univariate table for new DV, dpw_clis["multiple_returns"]
-n = dpw_clis["multiple_returns"].value_counts(dropna=False).rename("n")
+n = dpw_clis["multiple_returns"].value_counts(dropna=False).rename("n").astype("Int64")
 pct = (100 * dpw_clis["multiple_returns"].value_counts(dropna=False, normalize=True)).rename("pct")
 tbl = pd.concat([n, pct], axis=1)
+tbl.loc["All", :] = tbl.sum()
 tbl.index = tbl.index.rename("Multiple returns")
-excel_output[f"Table 3.2: People with multiple returns during 7.5 yrs"] = tbl
+excel_output[f"Table 3.4: People with multiple returns during 7.5 yrs"] = tbl
 with pd.option_context("display.precision", 1):
     display(tbl)
 ```
 
-## Using services longer-term
+## 3.5 Using services longer-term
+
+Has had a route in the top 10% of route durations.
+
+DV: `dpw_clis["has_longer_term_rt"]`
 
 ```{python}
+#| output: asis
+print(f"People: {len(dpw_clis):,}")
+print("")
 durations = dpw_pls.set_index(["o_cli_id", "route_id"])[["dur", "pl_start_dt"]]
 durations["dur_days"] = durations["dur"].dt.days
 durations["dur_days"] = durations["dur_days"].fillna(1 + (distinct_pathways.dpw_end_dt - durations.pl_start_dt).dt.days)
@@ -194,18 +248,20 @@ dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1).set_index("o_cli_id")
 dpw_clis["has_longer_term_rt"] = ((durations > longer_term_threshold_days)
                                   .groupby("o_cli_id").any())
 # Create univariate table for new DV, dpw_clis["has_longer_term_rt"]
-n = dpw_clis["has_longer_term_rt"].value_counts(dropna=False).rename("n")
+n = dpw_clis["has_longer_term_rt"].value_counts(dropna=False).rename("n").astype("Int64")
 pct = (100 * dpw_clis["has_longer_term_rt"].value_counts(dropna=False, normalize=True)).rename("pct")
 tbl = pd.concat([n, pct], axis=1)
+tbl.loc["All", :] = tbl.sum()
 tbl.index = tbl.index.rename("Had a longer-term route")
-excel_output[f"Table 3.3: People with a route in top 10% of route durations"] = tbl
+excel_output[f"Table 3.5: People with a route in top 10% of route durations"] = tbl
 with pd.option_context("display.precision", 1):
     display(tbl)
 ```
 
-## Returns within 2 years after moving to independent accommodation
+## 3.6 Returns within 2 years after moving to independent accommodation
 
 ```{python}
+#| output: asis
 # time_measure options: ['90d', '6m', '15m', '18m', '2y', '5y']
 time_measure = "2y"
 time_offset = distinct_pathways.stable_offsets[time_measure]
@@ -215,39 +271,49 @@ eligible_route_ends = dpw_rt_ends[
     dpw_rt_ends["rt_end_cat"].isin(["To social housing", "To private rented"])
     # Only include routes where there has been long enough for the outcome to happen
     & (dpw_rt_ends["pl_end_dt"] < distinct_pathways.dpw_end_dt - time_offset)]
+# Create univariate table for new DV, dpw_clis["has_longer_term_rt"]
+print(f"DV: `eligible_route_ends[\"{return_col}\"]`")
+print("")
 n = eligible_route_ends[return_col].value_counts(dropna=False).rename("n")
 pct = (100 * eligible_route_ends[return_col].value_counts(dropna=False, normalize=True)).rename("pct")
 tbl = pd.concat([n, pct], axis=1)
 tbl.index = tbl.index.rename("Returned within 2y")
-excel_output[f"Table 3.4: Returns within 2 years after moving to independent accommodation"] = tbl
+excel_output[f"Table 3.6: Returns within 2 years after moving to independent accommodation"] = tbl
 with pd.option_context("display.precision", 1):
     display(tbl)
 ```
 
-## Outcomes from individual placements
+Note: Not enough returns after moves to independent accommodation to analyse much further.
+
+## 3.7 Outcomes from individual placements
+
+DV: `pl_outcomes_excl_same_svc["pl_outcome"]`
 
 ```{python}
+#| output: asis
 import numpy as np
 from python_scripts import routes
+pl_excluded = {}
 pl_end_cat_map = routes.get_end_cats_map()
-# internal_move_reasons = [
-#     'Moved within Supported Housing (Same Pathway)', 'INTERNAL TRANSFER',
-#     'Moved within Supported Housing (Different Pathway)', 'Moved into HSR Accom _ Lower level (Planned)',
-#     'Moved into HSR Accom _ High level (Planned)', 'Moved into HSR Accom _ Same level (Planned)',
-#     'Moved to Substance Misuse Pathway (Planned)', '(Pathway 4 Only) Moved to Level 4 Supported Housing (Planned)',
-#     '(Pathway 4 Only) Moved to Level 1, 2 or 3 Supported Housing (Planned)',
-#     'Moved into HSR Accom _ High level (Unplanned)', 'Moved into HSR Accom _ Same level (Unplanned)']
-# for k in pl_end_cat_map.keys():
-#     if k in internal_move_reasons:
-#         pl_end_cat_map[k] = "Internal move"
 pl_outcomes = dpw_pls.set_index("vac_id")
 pl_outcomes["pl_end_cat"] = pl_outcomes["pl_end_reason"].map(pl_end_cat_map)
 next_pls = (dpw_pls.loc[dpw_pls["prev_vac_id"].notna()]
             .rename(columns={"vac_id": "next_vac_id", "prev_vac_id": "vac_id", "svc_type_short": "pathway"})
             .set_index("vac_id"))
+next_pls["pathway"] = next_pls["pathway"].cat.remove_unused_categories()
 pl_outcomes.loc[next_pls.index, "pl_end_cat"] = "Internal move"
 pl_outcomes.loc[dpw_pls.loc[dpw_pls["prev_svc_id"] == dpw_pls["svc_id"], "prev_vac_id"].values, "pl_end_cat"] = "Internal move: same service"
-pl_outcomes["pathway"] = pl_outcomes["svc_type_short"]
+pl_outcomes["pathway"] = pl_outcomes["svc_type_short"].cat.remove_unused_categories()
+pl_outcomes["pathway_type"] = (pl_outcomes["pathway"] == "Substance Misuse Pathway").map({True: "Substance Misuse", False: "Homelessness"})
+pl_outcomes["ended"] = pl_outcomes["pl_end_dt"].isna().map({True: "Current", False: "Ended"})
+tbl = get_frequencies(pl_outcomes[["ended"]], sort=False, dropna=False)
+tbl.loc[tuple(["All"] * len(tbl.index.levels)), :] = tbl.sum()
+tbl = tbl.convert_dtypes()
+tbl_desc = "Table 3.7.1: All placements"
+excel_output[tbl_desc] = tbl
+print("### " + tbl_desc)
+display(tbl)
+print("")
 level_diff = (pl_outcomes.loc[pl_outcomes["pl_end_cat"] == "Internal move", ["pathway", "pathway_level"]]
               .join(next_pls[["pathway", "pathway_level"]].add_prefix("next_"))
               .assign(level_diff=lambda df: df[["pathway_level", "next_pathway_level"]]
@@ -260,7 +326,11 @@ pl_outcomes = pl_outcomes.join((level_diff[["next_pathway_level", "level_diff"]]
 pl_outcomes.loc[pl_outcomes["level_diff"].notna(), "pl_end_cat"] = (
     "Internal move: " + np.sign(pl_outcomes.level_diff).map({-1: "backwards", 0: "sideways", 1: "forwards"})
 )
+# Exclude 738 placements that have not ended
+pl_excluded["Not-ended placements"] = pl_outcomes[pl_outcomes["dur"].isna()]
+pl_outcomes = pl_outcomes[pl_outcomes["dur"].notna()]
 # Exclude 42 0-day placements
+pl_excluded["Zero-day placements"] = pl_outcomes[pl_outcomes["dur"] == pd.Timedelta(days=0)]
 pl_outcomes = pl_outcomes[pl_outcomes["dur"] > pd.Timedelta(days=0)]
 pl_outcomes_map = {
     'Independent accommodation': ['To social housing', 'To private rented'],
@@ -271,8 +341,37 @@ pl_outcomes_map = {
 }
 pl_end_cat_map = {cat: outcome for outcome in pl_outcomes_map.keys() for cat in pl_outcomes_map[outcome]}
 pl_outcomes["pl_outcome"] = pl_outcomes["pl_end_cat"].map(pl_end_cat_map)
-pl_outcomes.loc[pl_outcomes["pl_end_cat"].fillna("").str.startswith("Internal move"), "pl_outcome"] = pl_outcomes["pl_end_cat"]
-display(get_frequencies(pl_outcomes.loc[pl_outcomes["pl_end_cat"] != "Internal move: same service", "pl_outcome"]))
+pl_outcomes.loc[
+    pl_outcomes["pl_end_cat"].fillna("").str.startswith("Internal move"),
+    "pl_outcome"] = pl_outcomes["pl_end_cat"]
+# Exclude 1,310 moves within the same service
+pl_excluded["Moves within same service"] = pl_outcomes[pl_outcomes["pl_end_cat"] == "Internal move: same service"]
+pl_outcomes_excl_same_svc = pl_outcomes[pl_outcomes["pl_end_cat"] != "Internal move: same service"]
+# Exclude 277 moves due to end reasons: 53 missing reaons, 200 "Other"
+# TODO: Should "Other" really be excluded?
+### In [310]: pl_outcomes.set_index("pl_outcome").loc["Other"].pl_end_reason.astype("string").value_counts()
+### Out[310]: 
+### pl_end_reason
+### Other (Planned)                                           141
+### Other (Unplanned)                                          58
+### (SSTS) BCC Emergency Accommodation (FOR SSTS USE ONLY)      1
+### Name: count, dtype: Int64
+pl_excluded["Unclear end categories"] = pl_outcomes[pl_outcomes["pl_outcome"].isna()]
+tbl_desc = "Table 3.7.2: Placements excluded from placement outcome DV construction"
+tbl = pd.DataFrame([len(pls) for pls in pl_excluded.values()], index=pl_excluded.keys(), columns=["n"])
+tbl.loc["All"] = tbl.sum()
+print("### " + tbl_desc)
+display(tbl)
+print("")
+# Output univariate table for DV: pl_outcomes_excl_same_svc["pl_outcome"]
+tbl = get_frequencies(pl_outcomes_excl_same_svc["pl_outcome"], dropna=True)
+tbl.loc["All", :] = tbl.sum()
+tbl = tbl.convert_dtypes()
+tbl_desc = "Table 3.7.3: Placement outcomes"
+excel_output[tbl_desc] = tbl
+print("### " + tbl_desc)
+display(tbl)
+print("")
 ```
 
 ## Tables in an Excel file

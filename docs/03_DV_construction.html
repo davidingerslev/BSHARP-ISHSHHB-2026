@@ -324,7 +324,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div id="b9be4b38" class="cell" data-execution_count="1">
+<div id="4288df0f" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup code</span></span>
@@ -337,7 +337,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> python_scripts <span class="im">import</span> distinct_pathways</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>dpw_pls <span class="op">=</span> distinct_pathways.get_distinct_pathways_routes(dffp)</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>qrows <span class="op">=</span> dpw_pls[<span class="st">"rt_end_cat"</span>] <span class="op">==</span> <span class="st">"[Not ended or invalid end reason]"</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>dpw_pls.loc[dpw_pls.pl_end_dt <span class="op">&gt;</span> distinct_pathways.dpw_end_dt, [<span class="st">"pl_end_dt"</span>, <span class="st">"pl_end_reason"</span>]] <span class="op">=</span> pd.NA</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>dpw_pls.loc[dpw_pls.pl_end_dt <span class="op">&gt;</span> distinct_pathways.dpw_end_dt, [<span class="st">"pl_end_dt"</span>, <span class="st">"pl_end_reason"</span>, <span class="st">"dur"</span>]] <span class="op">=</span> pd.NA</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>dpw_pls.loc[qrows, <span class="st">"rt_end_cat"</span>] <span class="op">=</span> dpw_pls.loc[qrows, <span class="st">"pl_end_dt"</span>].isna().<span class="bu">map</span>({<span class="va">True</span>: <span class="st">"[Not ended]"</span>, <span class="va">False</span>: <span class="st">"Missing data/error"</span>})</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">"rt_end_cat"</span>] <span class="op">=</span> dpw_pls[<span class="st">"rt_end_cat"</span>].<span class="bu">str</span>.replace(<span class="st">"To care/hosp."</span>, <span class="st">"To care/hospital"</span>)</span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>dpw_rt_starts <span class="op">=</span> dpw_pls.groupby(<span class="st">"route_id"</span>).head(<span class="dv">1</span>)</span>
@@ -360,30 +360,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>transparent <span class="op">=</span> <span class="va">False</span></span>
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>excel_output <span class="op">=</span> {}</span>
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_frequencies(series, sort<span class="op">=</span><span class="va">True</span>):</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> series.value_counts(sort<span class="op">=</span>sort).rename(<span class="st">"n"</span>)</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    pct <span class="op">=</span> <span class="dv">100</span> <span class="op">*</span> series.value_counts(sort<span class="op">=</span>sort, normalize<span class="op">=</span><span class="va">True</span>).rename(<span class="st">"pct"</span>)</span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pd.concat([n, pct], axis<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_frequencies(series, sort<span class="op">=</span><span class="va">True</span>, dropna<span class="op">=</span><span class="va">True</span>, dropna_pct<span class="op">=</span><span class="va">True</span>):</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> series.value_counts(sort<span class="op">=</span>sort, dropna<span class="op">=</span>dropna).rename(<span class="st">"n"</span>)</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    pct <span class="op">=</span> <span class="dv">100</span> <span class="op">*</span> series.value_counts(sort<span class="op">=</span>sort, dropna<span class="op">=</span>(dropna <span class="kw">or</span> dropna_pct), normalize<span class="op">=</span><span class="va">True</span>).rename(<span class="st">"pct"</span>)</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    fq_tbl <span class="op">=</span> pd.concat([n, pct], axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> fq_tbl</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <section id="entry-point-into-bahsa-pathway-type-and-level" class="level2">
-<h2 class="anchored" data-anchor-id="entry-point-into-bahsa-pathway-type-and-level">Entry point into BAHSA: pathway type and level</h2>
-<div id="125fb7b3" class="cell" data-execution_count="2">
+<h2 class="anchored" data-anchor-id="entry-point-into-bahsa-pathway-type-and-level">3.1 Entry point into BAHSA: pathway type and level</h2>
+<p>DV: <code>rt_entries[["pathway_type", "pathway_level"]]</code></p>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>rt_entries <span class="op">=</span> dpw_rt_starts.copy()</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>rt_entries[<span class="st">"pathway"</span>] <span class="op">=</span> rt_entries[<span class="st">"svc_type_short"</span>]</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>rt_entries[<span class="st">"pathway_type"</span>] <span class="op">=</span> (rt_entries[<span class="st">"pathway"</span>] <span class="op">==</span> <span class="st">"Substance Misuse Pathway"</span>).<span class="bu">map</span>({<span class="va">True</span>: <span class="st">"Substance Misuse"</span>, <span class="va">False</span>: <span class="st">"Homelessness"</span>})</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create univariate table for new DV, rt_entries[["pathway_type", "pathway_level"]]</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> rt_entries[[<span class="st">"pathway_type"</span>, <span class="st">"pathway_level"</span>]].value_counts(dropna<span class="op">=</span><span class="va">False</span>).rename(<span class="st">"n"</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>pct <span class="op">=</span> (<span class="dv">100</span> <span class="op">*</span> rt_entries[[<span class="st">"pathway_type"</span>, <span class="st">"pathway_level"</span>]].value_counts(dropna<span class="op">=</span><span class="va">False</span>, normalize<span class="op">=</span><span class="va">True</span>)).rename(<span class="st">"pct"</span>)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> pd.concat([n, pct], axis<span class="op">=</span><span class="dv">1</span>).sort_index()</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>excel_output[<span class="st">"Table 3.1: Route outcomes after 3.08 years"</span>] <span class="op">=</span> tbl</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">"display.precision"</span>, <span class="dv">1</span>):</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    display(tbl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Routes: </span><span class="sc">{</span><span class="bu">len</span>(rt_entries)<span class="sc">:,}</span><span class="ss">"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>rt_entries[<span class="st">"pathway"</span>] <span class="op">=</span> rt_entries[<span class="st">"svc_type_short"</span>]</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>rt_entries[<span class="st">"pathway_type"</span>] <span class="op">=</span> (rt_entries[<span class="st">"pathway"</span>] <span class="op">==</span> <span class="st">"Substance Misuse Pathway"</span>).<span class="bu">map</span>({<span class="va">True</span>: <span class="st">"Substance Misuse"</span>, <span class="va">False</span>: <span class="st">"Homelessness"</span>})</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Create univariate table for new DV, rt_entries[["pathway_type", "pathway_level"]]</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> rt_entries[[<span class="st">"pathway_type"</span>, <span class="st">"pathway_level"</span>]].value_counts(dropna<span class="op">=</span><span class="va">False</span>).rename(<span class="st">"n"</span>).astype(<span class="st">"Int64"</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>pct <span class="op">=</span> (<span class="dv">100</span> <span class="op">*</span> rt_entries[[<span class="st">"pathway_type"</span>, <span class="st">"pathway_level"</span>]].value_counts(dropna<span class="op">=</span><span class="va">False</span>, normalize<span class="op">=</span><span class="va">True</span>)).rename(<span class="st">"pct"</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> pd.concat([n, pct], axis<span class="op">=</span><span class="dv">1</span>).sort_index()</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>tbl.loc[(<span class="st">"All"</span>, <span class="st">"All"</span>),:] <span class="op">=</span> tbl.<span class="bu">sum</span>()</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>excel_output[<span class="st">"Table 3.1: Entry point into BAHSA services"</span>] <span class="op">=</span> tbl</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">"display.precision"</span>, <span class="dv">1</span>):</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    display(tbl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display">
+<p>Routes: 5,072</p>
 <div>
 
 
@@ -435,77 +437,122 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>235</td>
 <td>4.6</td>
 </tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td data-quarto-table-cell-role="th">All</td>
+<td>5072</td>
+<td>100.0</td>
+</tr>
 </tbody>
 </table>
 
 </div>
-</div>
-</div>
 </section>
 <section id="outcomes-at-a-period-of-time-after-a-route-started" class="level2">
-<h2 class="anchored" data-anchor-id="outcomes-at-a-period-of-time-after-a-route-started">Outcomes at a period of time after a route started</h2>
-<div id="8b8f7fa5" class="cell" data-execution_count="3">
+<h2 class="anchored" data-anchor-id="outcomes-at-a-period-of-time-after-a-route-started">3.2 Outcomes at a period of time after a route started</h2>
+<p>Period: 3.08 years</p>
+<p>DV: <code>dpw_rt_outcomes["rt_outcome"]</code></p>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>periodMult <span class="op">=</span> {<span class="st">"d"</span>: <span class="dv">1</span>, <span class="st">"m"</span>: <span class="fl">365.25</span><span class="op">/</span><span class="dv">12</span>, <span class="st">"y"</span>: <span class="fl">365.25</span>}</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>years <span class="op">=</span> periodMult[<span class="st">"y"</span>]</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>time_measure <span class="op">=</span> pd.Timedelta(days<span class="op">=</span>(<span class="fl">3.08</span> <span class="op">*</span> years))</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>dpw_rt_ends <span class="op">=</span> dpw_pls.groupby(<span class="st">"route_id"</span>).tail(<span class="dv">1</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>dpw_rt_ends <span class="op">=</span> dpw_rt_ends.set_index(<span class="st">"route_id"</span>, drop<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>end_cols_to_drop <span class="op">=</span> dpw_rt_ends.columns[</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    (</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        dpw_rt_ends.columns.isin([<span class="st">"gap"</span>, <span class="st">"dur"</span>])</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> dpw_rt_ends.columns.<span class="bu">str</span>.startswith(<span class="st">"prev_"</span>)</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> dpw_rt_ends.columns.<span class="bu">str</span>.startswith(<span class="st">"vac_"</span>)</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> dpw_rt_ends.columns.<span class="bu">str</span>.startswith(<span class="st">"pl_"</span>)</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    )]</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>dpw_routes <span class="op">=</span> dpw_rt_ends.drop(columns<span class="op">=</span>end_cols_to_drop)</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>dpw_routes[<span class="st">"rt_start_dt"</span>] <span class="op">=</span> dpw_rt_starts.set_index(<span class="st">"route_id"</span>)[<span class="st">"pl_start_dt"</span>].rename(<span class="st">"rt_start_dt"</span>)</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>dpw_routes[<span class="st">"rt_end_dt"</span>] <span class="op">=</span> dpw_rt_ends[<span class="st">"pl_end_dt"</span>].rename(<span class="st">"rt_end_dt"</span>)</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Set up map from categories to outcomes</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>rt_outcomes_map <span class="op">=</span> {</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Independent accommodation'</span>: [<span class="st">'To social housing'</span>, <span class="st">'To private rented'</span>],</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Insecure outcome'</span>: [<span class="st">'To friends/family'</span>, <span class="st">'Custody'</span>, <span class="st">'[Not ended]'</span>, <span class="st">'To care/hospital'</span>, <span class="st">'To external supported'</span>],</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Returned to homelessness'</span>: [<span class="st">'Evicted'</span>, <span class="st">'Abandoned'</span>],</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Died'</span>: [<span class="st">'Died'</span>],</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># '_excluded': ['Other', 'Missing data/error']</span></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>rt_end_cat_map <span class="op">=</span> {cat: outcome <span class="cf">for</span> outcome <span class="kw">in</span> rt_outcomes_map.keys() <span class="cf">for</span> cat <span class="kw">in</span> rt_outcomes_map[outcome]}</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>dpw_rt_outcomes <span class="op">=</span> dpw_routes[</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Only include routes where there has been long enough for the outcome to happen</span></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    (dpw_routes[<span class="st">"rt_start_dt"</span>] <span class="op">&lt;=</span> distinct_pathways.dpw_end_dt <span class="op">-</span> time_measure)</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Only include routes that have a rt_end_cat that corresponds to an outcome</span></span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (dpw_routes[<span class="st">"rt_end_cat"</span>].isin(rt_end_cat_map.keys()))]</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>dpw_rt_outcomes[<span class="st">"rt_outcome"</span>] <span class="op">=</span> dpw_rt_outcomes[<span class="st">"rt_end_cat"</span>].<span class="bu">map</span>(rt_end_cat_map)</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Still being in supported accommodation is generally an insecure outcome</span></span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>dpw_rt_outcomes.loc[</span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    (dpw_rt_outcomes[<span class="st">"rt_end_dt"</span>] <span class="op">&gt;</span> (dpw_rt_outcomes[<span class="st">"rt_start_dt"</span>] <span class="op">+</span> time_measure)),</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">"rt_outcome"</span>] <span class="op">=</span> <span class="st">"Insecure outcome"</span></span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="co"># But being in level 3 or 4 of the homelessness pathways in self-contained (not shared)</span></span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="co"># means having your own flat with support staff occasionally visiting, i.e. similar</span></span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="co"># to independent accommdoation</span></span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>dpw_rt_timemeasure_dt <span class="op">=</span> (dpw_rt_outcomes[<span class="st">"rt_start_dt"</span>] <span class="op">+</span> time_measure).rename(<span class="st">"rt_timemeasure_dt"</span>)</span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>rt_pls <span class="op">=</span> dpw_pls.join(dpw_rt_timemeasure_dt, on<span class="op">=</span><span class="st">"route_id"</span>, how<span class="op">=</span><span class="st">"inner"</span>)</span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>rt_pls_at_timemeasures <span class="op">=</span> rt_pls[(rt_pls[<span class="st">"pl_start_dt"</span>] <span class="op">&lt;</span> rt_pls[<span class="st">"rt_timemeasure_dt"</span>])</span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>                                <span class="op">&amp;</span> (</span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>                                    rt_pls[<span class="st">"pl_end_dt"</span>].isna()</span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>                                    <span class="op">|</span> (rt_pls[<span class="st">"pl_end_dt"</span>] <span class="op">&gt;</span> rt_pls[<span class="st">"rt_timemeasure_dt"</span>])</span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>                                )].set_index(<span class="st">"route_id"</span>)</span>
-<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>dpw_rt_outcomes.loc[</span>
-<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    (dpw_rt_outcomes[<span class="st">"rt_end_dt"</span>] <span class="op">&gt;</span> (dpw_rt_outcomes[<span class="st">"rt_start_dt"</span>] <span class="op">+</span> time_measure))</span>
-<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (rt_pls_at_timemeasures[<span class="st">"pathway_level"</span>].isin([<span class="st">"3"</span>, <span class="st">"4"</span>]))</span>
-<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (rt_pls_at_timemeasures[<span class="st">"shared"</span>] <span class="op">==</span> <span class="st">"No"</span>),</span>
-<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>    <span class="st">"rt_outcome"</span>] <span class="op">=</span> <span class="st">"Independent accommodation"</span></span>
-<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a><span class="co"># Create univariate table for new DV, dpw_rt_outcomes["rt_outcome"]</span></span>
-<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> dpw_rt_outcomes[<span class="st">"rt_outcome"</span>].value_counts(dropna<span class="op">=</span><span class="va">False</span>).rename(<span class="st">"n"</span>)</span>
-<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>pct <span class="op">=</span> (<span class="dv">100</span> <span class="op">*</span> dpw_rt_outcomes[<span class="st">"rt_outcome"</span>].value_counts(dropna<span class="op">=</span><span class="va">False</span>, normalize<span class="op">=</span><span class="va">True</span>)).rename(<span class="st">"pct"</span>)</span>
-<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> pd.concat([n, pct], axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>tbl.index <span class="op">=</span> tbl.index.rename(<span class="st">"Route outcome"</span>)</span>
-<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>excel_output[<span class="st">"Table 3.1: Route outcomes after 3.08 years"</span>] <span class="op">=</span> tbl</span>
-<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">"display.precision"</span>, <span class="dv">1</span>):</span>
-<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>    display(tbl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Routes: </span><span class="sc">{</span><span class="bu">len</span>(dpw_rt_ends)<span class="sc">:,}</span><span class="ss">"</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">""</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>dpw_rt_ends <span class="op">=</span> dpw_rt_ends.set_index(<span class="st">"route_id"</span>, drop<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>end_cols_to_drop <span class="op">=</span> dpw_rt_ends.columns[</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    (</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        dpw_rt_ends.columns.isin([<span class="st">"gap"</span>, <span class="st">"dur"</span>])</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> dpw_rt_ends.columns.<span class="bu">str</span>.startswith(<span class="st">"prev_"</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> dpw_rt_ends.columns.<span class="bu">str</span>.startswith(<span class="st">"vac_"</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> dpw_rt_ends.columns.<span class="bu">str</span>.startswith(<span class="st">"pl_"</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    )]</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>dpw_routes <span class="op">=</span> dpw_rt_ends.drop(columns<span class="op">=</span>end_cols_to_drop)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>dpw_routes[<span class="st">"rt_start_dt"</span>] <span class="op">=</span> dpw_rt_starts.set_index(<span class="st">"route_id"</span>)[<span class="st">"pl_start_dt"</span>].rename(<span class="st">"rt_start_dt"</span>)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>dpw_routes[<span class="st">"rt_end_dt"</span>] <span class="op">=</span> dpw_rt_ends[<span class="st">"pl_end_dt"</span>].rename(<span class="st">"rt_end_dt"</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Set up map from categories to outcomes</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>rt_outcomes_map <span class="op">=</span> {</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Independent accommodation'</span>: [<span class="st">'To social housing'</span>, <span class="st">'To private rented'</span>],</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Insecure outcome'</span>: [<span class="st">'To friends/family'</span>, <span class="st">'Custody'</span>, <span class="st">'[Not ended]'</span>, <span class="st">'To care/hospital'</span>, <span class="st">'To external supported'</span>],</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Returned to homelessness'</span>: [<span class="st">'Evicted'</span>, <span class="st">'Abandoned'</span>],</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Died'</span>: [<span class="st">'Died'</span>],</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># '_excluded': ['Other', 'Missing data/error']</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>rt_end_cat_map <span class="op">=</span> {cat: outcome <span class="cf">for</span> outcome <span class="kw">in</span> rt_outcomes_map.keys() <span class="cf">for</span> cat <span class="kw">in</span> rt_outcomes_map[outcome]}</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>rts_excluded <span class="op">=</span> {</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"Routes started within 3.08 yrs of end (</span><span class="sc">{</span>distinct_pathways<span class="sc">.</span>dpw_end_dt<span class="sc">.</span>strftime(<span class="st">"</span><span class="sc">%d</span><span class="st">/%m/%Y"</span>)<span class="sc">}</span><span class="ss">)"</span>:</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        (dpw_routes[<span class="st">"rt_start_dt"</span>] <span class="op">&gt;</span> distinct_pathways.dpw_end_dt <span class="op">-</span> time_measure).<span class="bu">sum</span>(),</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Routes with outcome: "</span> <span class="op">+</span> <span class="st">", "</span>.join(cat <span class="cf">for</span> cat <span class="kw">in</span> dpw_routes[<span class="st">"rt_end_cat"</span>].unique() <span class="cf">if</span> cat <span class="kw">not</span> <span class="kw">in</span> rt_end_cat_map):</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>        ((dpw_routes[<span class="st">"rt_start_dt"</span>] <span class="op">&lt;=</span> distinct_pathways.dpw_end_dt <span class="op">-</span> time_measure)</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>         <span class="op">&amp;</span> <span class="op">~</span>(dpw_routes[<span class="st">"rt_end_cat"</span>].isin(rt_end_cat_map.keys()))).<span class="bu">sum</span>()</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>excluded_df <span class="op">=</span> pd.DataFrame(data<span class="op">=</span>rts_excluded.values(), columns<span class="op">=</span>[<span class="st">"n"</span>], index<span class="op">=</span>rts_excluded.keys())</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>excluded_df.index <span class="op">=</span> excluded_df.index.rename(<span class="st">"Excluded routes"</span>)</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>display(excluded_df)</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>dpw_rt_outcomes <span class="op">=</span> dpw_routes[</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Only include routes where there has been long enough for the outcome to happen</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    (dpw_routes[<span class="st">"rt_start_dt"</span>] <span class="op">&lt;=</span> distinct_pathways.dpw_end_dt <span class="op">-</span> time_measure)</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Only include routes that have a rt_end_cat that corresponds to an outcome</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (dpw_routes[<span class="st">"rt_end_cat"</span>].isin(rt_end_cat_map.keys()))]</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>dpw_rt_outcomes[<span class="st">"rt_outcome"</span>] <span class="op">=</span> dpw_rt_outcomes[<span class="st">"rt_end_cat"</span>].<span class="bu">map</span>(rt_end_cat_map)</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="co"># Still being in supported accommodation is generally an insecure outcome</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>dpw_rt_outcomes.loc[</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>    (dpw_rt_outcomes[<span class="st">"rt_end_dt"</span>] <span class="op">&gt;</span> (dpw_rt_outcomes[<span class="st">"rt_start_dt"</span>] <span class="op">+</span> time_measure)),</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    <span class="st">"rt_outcome"</span>] <span class="op">=</span> <span class="st">"Insecure outcome"</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a><span class="co"># But being in level 3 or 4 of the homelessness pathways in self-contained (not shared)</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a><span class="co"># means having your own flat with support staff occasionally visiting, i.e. similar</span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a><span class="co"># to independent accommdoation</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>dpw_rt_timemeasure_dt <span class="op">=</span> (dpw_rt_outcomes[<span class="st">"rt_start_dt"</span>] <span class="op">+</span> time_measure).rename(<span class="st">"rt_timemeasure_dt"</span>)</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>rt_pls <span class="op">=</span> dpw_pls.join(dpw_rt_timemeasure_dt, on<span class="op">=</span><span class="st">"route_id"</span>, how<span class="op">=</span><span class="st">"inner"</span>)</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>rt_pls_at_timemeasures <span class="op">=</span> rt_pls[(rt_pls[<span class="st">"pl_start_dt"</span>] <span class="op">&lt;</span> rt_pls[<span class="st">"rt_timemeasure_dt"</span>])</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>                                <span class="op">&amp;</span> (</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>                                    rt_pls[<span class="st">"pl_end_dt"</span>].isna()</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>                                    <span class="op">|</span> (rt_pls[<span class="st">"pl_end_dt"</span>] <span class="op">&gt;</span> rt_pls[<span class="st">"rt_timemeasure_dt"</span>])</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>                                )].set_index(<span class="st">"route_id"</span>)</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>dpw_rt_outcomes.loc[</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>    (dpw_rt_outcomes[<span class="st">"rt_end_dt"</span>] <span class="op">&gt;</span> (dpw_rt_outcomes[<span class="st">"rt_start_dt"</span>] <span class="op">+</span> time_measure))</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (rt_pls_at_timemeasures[<span class="st">"pathway_level"</span>].isin([<span class="st">"3"</span>, <span class="st">"4"</span>]))</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (rt_pls_at_timemeasures[<span class="st">"shared"</span>] <span class="op">==</span> <span class="st">"No"</span>),</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>    <span class="st">"rt_outcome"</span>] <span class="op">=</span> <span class="st">"Independent accommodation"</span></span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a><span class="co"># Create univariate table for new DV, dpw_rt_outcomes["rt_outcome"]</span></span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> dpw_rt_outcomes[<span class="st">"rt_outcome"</span>].value_counts(dropna<span class="op">=</span><span class="va">False</span>).rename(<span class="st">"n"</span>).astype(<span class="st">"Int64"</span>)</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>pct <span class="op">=</span> (<span class="dv">100</span> <span class="op">*</span> dpw_rt_outcomes[<span class="st">"rt_outcome"</span>].value_counts(dropna<span class="op">=</span><span class="va">False</span>, normalize<span class="op">=</span><span class="va">True</span>)).rename(<span class="st">"pct"</span>)</span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> pd.concat([n, pct], axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>tbl.index <span class="op">=</span> tbl.index.rename(<span class="st">"Route outcome"</span>)</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>tbl.loc[<span class="st">"All"</span>, :] <span class="op">=</span> tbl.<span class="bu">sum</span>()</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>excel_output[<span class="st">"Table 3.2: Route outcomes after 3.08 years"</span>] <span class="op">=</span> tbl</span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">"display.precision"</span>, <span class="dv">1</span>):</span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>    display(tbl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display">
+<p>Routes: 5,072</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">n</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">Excluded routes</th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Routes started within 3.08 yrs of end (30/04/2025)</td>
+<td>1465</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Routes with outcome: Missing data/error, Other</td>
+<td>274</td>
+</tr>
+</tbody>
+</table>
+
+</div>
 <div>
 
 
@@ -543,61 +590,97 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>80</td>
 <td>2.4</td>
 </tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>3333</td>
+<td>100.0</td>
+</tr>
 </tbody>
 </table>
 
 </div>
-</div>
-</div>
 </section>
 <section id="outcomes-at-a-period-of-time-after-a-persons-first-route-started" class="level2">
-<h2 class="anchored" data-anchor-id="outcomes-at-a-period-of-time-after-a-persons-first-route-started">Outcomes at a period of time after a person’s first route started</h2>
-<div id="d425bb03" class="cell" data-execution_count="4">
+<h2 class="anchored" data-anchor-id="outcomes-at-a-period-of-time-after-a-persons-first-route-started">3.3 Outcomes at a period of time after a person’s first route started</h2>
+<p>Period: 3.08 years</p>
+<p>DV: <code>dpw_cli_outcomes["cli_outcome"]</code></p>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Testing -- doesn't quite work... why would you use the same time measure for people?</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># dpw_cli_outcomes is the dpw_rt_outcome that is active after the measured time since the person's first route started</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>time_measure <span class="op">=</span> pd.Timedelta(days<span class="op">=</span>(<span class="fl">3.08</span> <span class="op">*</span> years))</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Relevant date for each client is their first route start date plus the time measure period</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>dpw_cli_timemeasure_dt <span class="op">=</span> (dpw_rt_outcomes</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>                          .set_index(<span class="st">"o_cli_id"</span>)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                          .groupby(<span class="st">"o_cli_id"</span>)</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                          .head(<span class="dv">1</span>)</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                          [<span class="st">"rt_start_dt"</span>]</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>                          <span class="op">+</span> time_measure).rename(<span class="st">"cli_timemeasure_dt"</span>)</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>dpw_cli_outcomes <span class="op">=</span> dpw_rt_outcomes.join(dpw_cli_timemeasure_dt, on<span class="op">=</span><span class="st">"o_cli_id"</span>).set_index(<span class="st">"o_cli_id"</span>)</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Select the latest route that started before the outcome date</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>dpw_cli_outcomes <span class="op">=</span> ((dpw_cli_outcomes[dpw_cli_outcomes[<span class="st">"rt_start_dt"</span>] <span class="op">&lt;=</span> dpw_cli_outcomes[<span class="st">"cli_timemeasure_dt"</span>]])</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>                    .groupby(<span class="st">"o_cli_id"</span>).tail(<span class="dv">1</span>)).rename(columns<span class="op">=</span>{<span class="st">"rt_outcome"</span>: <span class="st">"cli_outcome"</span>})</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>cli_pls <span class="op">=</span> dpw_pls.join(dpw_cli_timemeasure_dt, on<span class="op">=</span><span class="st">"o_cli_id"</span>)</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>cli_pls_at_timemeasures <span class="op">=</span> cli_pls[(cli_pls[<span class="st">"pl_start_dt"</span>] <span class="op">&lt;</span> cli_pls[<span class="st">"cli_timemeasure_dt"</span>])</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>                                  <span class="op">&amp;</span> (</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>                                      cli_pls[<span class="st">"pl_end_dt"</span>].isna()</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>                                      <span class="op">|</span> (cli_pls[<span class="st">"pl_end_dt"</span>] <span class="op">&gt;</span> cli_pls[<span class="st">"cli_timemeasure_dt"</span>])</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>                                  )].set_index(<span class="st">"o_cli_id"</span>)</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Still being in supported accommodation is generally an insecure outcome</span></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>dpw_cli_outcomes.loc[cli_pls_at_timemeasures.index, <span class="st">"cli_outcome"</span>] <span class="op">=</span> <span class="st">"Insecure outcome"</span></span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="co"># But being in level 3 or 4 of the homelessness pathways in self-contained (not shared)</span></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co"># means having your own flat with support staff occasionally visiting, i.e. similar</span></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="co"># to independent accommdoation</span></span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>equiv_ind_at_time <span class="op">=</span> cli_pls_at_timemeasures[</span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    (cli_pls_at_timemeasures[<span class="st">"shared"</span>] <span class="op">==</span> <span class="st">"No"</span>)</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> cli_pls_at_timemeasures[<span class="st">"pathway_level"</span>].isin([<span class="st">"3"</span>, <span class="st">"4"</span>])]</span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>dpw_cli_outcomes.loc[equiv_ind_at_time.index, <span class="st">"cli_outcome"</span>] <span class="op">=</span> <span class="st">"Independent accommodation"</span></span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>dpw_cli_outcomes[<span class="st">"cli_start_dt"</span>] <span class="op">=</span> (dpw_rt_starts.set_index(<span class="st">"o_cli_id"</span>)</span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>                                    .groupby(<span class="st">"o_cli_id"</span>).head(<span class="dv">1</span>)[<span class="st">"pl_start_dt"</span>])</span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>dpw_cli_outcomes[<span class="st">"cli_end_dt"</span>] <span class="op">=</span> (dpw_rt_ends.set_index(<span class="st">"o_cli_id"</span>)</span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>                                  .groupby(<span class="st">"o_cli_id"</span>).tail(<span class="dv">1</span>)[<span class="st">"pl_end_dt"</span>])</span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Create univariate table for new DV, dpw_cli_outcomes["cli_outcome"]</span></span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> dpw_cli_outcomes[<span class="st">"cli_outcome"</span>].value_counts(dropna<span class="op">=</span><span class="va">False</span>).rename(<span class="st">"n"</span>)</span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>pct <span class="op">=</span> (<span class="dv">100</span> <span class="op">*</span> dpw_cli_outcomes[<span class="st">"cli_outcome"</span>].value_counts(dropna<span class="op">=</span><span class="va">False</span>, normalize<span class="op">=</span><span class="va">True</span>)).rename(<span class="st">"pct"</span>)</span>
-<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> pd.concat([n, pct], axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>tbl.index <span class="op">=</span> tbl.index.rename(<span class="st">"Route outcome"</span>)</span>
-<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>excel_output[<span class="ss">f"Table 3.1: Route outcomes after 3.08 years"</span>] <span class="op">=</span> tbl</span>
-<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">"display.precision"</span>, <span class="dv">1</span>):</span>
-<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    display(tbl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Potentially relevant route outcomes (from 3.2): </span><span class="sc">{</span><span class="bu">len</span>(dpw_rt_outcomes)<span class="sc">:,}</span><span class="ss">"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">""</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># dpw_cli_outcomes is the dpw_rt_outcome that is active after the measured time since the person's first route started</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>time_measure <span class="op">=</span> pd.Timedelta(days<span class="op">=</span>(<span class="fl">3.08</span> <span class="op">*</span> years))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Relevant date for each client is their first route start date plus the time measure period</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>dpw_cli_timemeasure_dt <span class="op">=</span> (dpw_rt_outcomes</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                          .set_index(<span class="st">"o_cli_id"</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                          .groupby(<span class="st">"o_cli_id"</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                          .head(<span class="dv">1</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>                          [<span class="st">"rt_start_dt"</span>]</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                          <span class="op">+</span> time_measure).rename(<span class="st">"cli_timemeasure_dt"</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>dpw_cli_outcomes <span class="op">=</span> dpw_rt_outcomes.join(dpw_cli_timemeasure_dt, on<span class="op">=</span><span class="st">"o_cli_id"</span>).set_index(<span class="st">"o_cli_id"</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>rts_excluded <span class="op">=</span> {</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Additional routes for the same person"</span>:</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        (dpw_rt_outcomes.groupby(<span class="st">"o_cli_id"</span>).size() <span class="op">-</span> <span class="dv">1</span>).<span class="bu">sum</span>(),</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>excluded_df <span class="op">=</span> pd.DataFrame(data<span class="op">=</span>rts_excluded.values(), columns<span class="op">=</span>[<span class="st">"n"</span>], index<span class="op">=</span>rts_excluded.keys())</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>excluded_df.index <span class="op">=</span> excluded_df.index.rename(<span class="st">"Excluded routes"</span>)</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>display(excluded_df)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Select the latest route that started before the outcome date</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>dpw_cli_outcomes <span class="op">=</span> ((dpw_cli_outcomes[dpw_cli_outcomes[<span class="st">"rt_start_dt"</span>] <span class="op">&lt;=</span> dpw_cli_outcomes[<span class="st">"cli_timemeasure_dt"</span>]])</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>                    .groupby(<span class="st">"o_cli_id"</span>).tail(<span class="dv">1</span>)).rename(columns<span class="op">=</span>{<span class="st">"rt_outcome"</span>: <span class="st">"cli_outcome"</span>})</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>cli_pls <span class="op">=</span> dpw_pls.join(dpw_cli_timemeasure_dt, on<span class="op">=</span><span class="st">"o_cli_id"</span>)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>cli_pls_at_timemeasures <span class="op">=</span> cli_pls[(cli_pls[<span class="st">"pl_start_dt"</span>] <span class="op">&lt;</span> cli_pls[<span class="st">"cli_timemeasure_dt"</span>])</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>                                  <span class="op">&amp;</span> (</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>                                      cli_pls[<span class="st">"pl_end_dt"</span>].isna()</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>                                      <span class="op">|</span> (cli_pls[<span class="st">"pl_end_dt"</span>] <span class="op">&gt;</span> cli_pls[<span class="st">"cli_timemeasure_dt"</span>])</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>                                  )].set_index(<span class="st">"o_cli_id"</span>)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Still being in supported accommodation is generally an insecure outcome</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>dpw_cli_outcomes.loc[cli_pls_at_timemeasures.index, <span class="st">"cli_outcome"</span>] <span class="op">=</span> <span class="st">"Insecure outcome"</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="co"># But being in level 3 or 4 of the homelessness pathways in self-contained (not shared)</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="co"># means having your own flat with support staff occasionally visiting, i.e. similar</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="co"># to independent accommdoation</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>equiv_ind_at_time <span class="op">=</span> cli_pls_at_timemeasures[</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    (cli_pls_at_timemeasures[<span class="st">"shared"</span>] <span class="op">==</span> <span class="st">"No"</span>)</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> cli_pls_at_timemeasures[<span class="st">"pathway_level"</span>].isin([<span class="st">"3"</span>, <span class="st">"4"</span>])]</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>dpw_cli_outcomes.loc[equiv_ind_at_time.index, <span class="st">"cli_outcome"</span>] <span class="op">=</span> <span class="st">"Independent accommodation"</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>dpw_cli_outcomes[<span class="st">"cli_start_dt"</span>] <span class="op">=</span> (dpw_rt_starts.set_index(<span class="st">"o_cli_id"</span>)</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>                                    .groupby(<span class="st">"o_cli_id"</span>).head(<span class="dv">1</span>)[<span class="st">"pl_start_dt"</span>])</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>dpw_cli_outcomes[<span class="st">"cli_end_dt"</span>] <span class="op">=</span> (dpw_rt_ends.set_index(<span class="st">"o_cli_id"</span>)</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>                                  .groupby(<span class="st">"o_cli_id"</span>).tail(<span class="dv">1</span>)[<span class="st">"pl_end_dt"</span>])</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a><span class="co"># Create univariate table for new DV, dpw_cli_outcomes["cli_outcome"]</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> dpw_cli_outcomes[<span class="st">"cli_outcome"</span>].value_counts(dropna<span class="op">=</span><span class="va">False</span>).rename(<span class="st">"n"</span>).astype(<span class="st">"Int64"</span>)</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>pct <span class="op">=</span> (<span class="dv">100</span> <span class="op">*</span> dpw_cli_outcomes[<span class="st">"cli_outcome"</span>].value_counts(dropna<span class="op">=</span><span class="va">False</span>, normalize<span class="op">=</span><span class="va">True</span>)).rename(<span class="st">"pct"</span>)</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> pd.concat([n, pct], axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>tbl.loc[<span class="st">"All"</span>, :] <span class="op">=</span> tbl.<span class="bu">sum</span>()</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>tbl.index <span class="op">=</span> tbl.index.rename(<span class="st">"Route outcome"</span>)</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>excel_output[<span class="ss">f"Table 3.3: Route outcomes after 3.08 years"</span>] <span class="op">=</span> tbl</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">"display.precision"</span>, <span class="dv">1</span>):</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>    display(tbl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display">
+<p>Potentially relevant route outcomes (from 3.2): 3,333</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">n</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">Excluded routes</th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Additional routes for the same person</td>
+<td>701</td>
+</tr>
+</tbody>
+</table>
+
+</div>
 <div>
 
 
@@ -635,30 +718,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>66</td>
 <td>2.5</td>
 </tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>2632</td>
+<td>100.0</td>
+</tr>
 </tbody>
 </table>
 
 </div>
-</div>
-</div>
 </section>
 <section id="returning-to-use-services-multiple-times" class="level2">
-<h2 class="anchored" data-anchor-id="returning-to-use-services-multiple-times">Returning to use services multiple times</h2>
-<div id="9967a703" class="cell" data-execution_count="5">
+<h2 class="anchored" data-anchor-id="returning-to-use-services-multiple-times">3.4 Returning to use services multiple times</h2>
+<p>3+ routes during the period, i.e.&nbsp;2 or more returns in 7.5 years.</p>
+<p>DV: <code>dpw_clis["multiple_returns"]</code></p>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>dpw_clis <span class="op">=</span> dpw_pls.groupby([<span class="st">"o_cli_id"</span>]).head(<span class="dv">1</span>).set_index(<span class="st">"o_cli_id"</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>dpw_clis[<span class="st">"multiple_returns"</span>] <span class="op">=</span> (dpw_rt_starts.groupby([<span class="st">'o_cli_id'</span>]).size() <span class="op">&gt;=</span> <span class="dv">3</span>).rename(<span class="st">"multiple_returns"</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Create univariate table for new DV, dpw_clis["multiple_returns"]</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> dpw_clis[<span class="st">"multiple_returns"</span>].value_counts(dropna<span class="op">=</span><span class="va">False</span>).rename(<span class="st">"n"</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>pct <span class="op">=</span> (<span class="dv">100</span> <span class="op">*</span> dpw_clis[<span class="st">"multiple_returns"</span>].value_counts(dropna<span class="op">=</span><span class="va">False</span>, normalize<span class="op">=</span><span class="va">True</span>)).rename(<span class="st">"pct"</span>)</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> pd.concat([n, pct], axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>tbl.index <span class="op">=</span> tbl.index.rename(<span class="st">"Multiple returns"</span>)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>excel_output[<span class="ss">f"Table 3.2: People with multiple returns during 7.5 yrs"</span>] <span class="op">=</span> tbl</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">"display.precision"</span>, <span class="dv">1</span>):</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    display(tbl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"People: </span><span class="sc">{</span><span class="bu">len</span>(dpw_clis)<span class="sc">:,}</span><span class="ss">"</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">""</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>dpw_clis[<span class="st">"multiple_returns"</span>] <span class="op">=</span> (dpw_rt_starts.groupby([<span class="st">'o_cli_id'</span>]).size() <span class="op">&gt;=</span> <span class="dv">3</span>).rename(<span class="st">"multiple_returns"</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Create univariate table for new DV, dpw_clis["multiple_returns"]</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> dpw_clis[<span class="st">"multiple_returns"</span>].value_counts(dropna<span class="op">=</span><span class="va">False</span>).rename(<span class="st">"n"</span>).astype(<span class="st">"Int64"</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>pct <span class="op">=</span> (<span class="dv">100</span> <span class="op">*</span> dpw_clis[<span class="st">"multiple_returns"</span>].value_counts(dropna<span class="op">=</span><span class="va">False</span>, normalize<span class="op">=</span><span class="va">True</span>)).rename(<span class="st">"pct"</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> pd.concat([n, pct], axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>tbl.loc[<span class="st">"All"</span>, :] <span class="op">=</span> tbl.<span class="bu">sum</span>()</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>tbl.index <span class="op">=</span> tbl.index.rename(<span class="st">"Multiple returns"</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>excel_output[<span class="ss">f"Table 3.4: People with multiple returns during 7.5 yrs"</span>] <span class="op">=</span> tbl</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">"display.precision"</span>, <span class="dv">1</span>):</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    display(tbl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display">
+<p>People: 3,755</p>
 <div>
 
 
@@ -686,37 +776,44 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>295</td>
 <td>7.9</td>
 </tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>3755</td>
+<td>100.0</td>
+</tr>
 </tbody>
 </table>
 
 </div>
-</div>
-</div>
 </section>
 <section id="using-services-longer-term" class="level2">
-<h2 class="anchored" data-anchor-id="using-services-longer-term">Using services longer-term</h2>
-<div id="67b59c77" class="cell" data-execution_count="6">
+<h2 class="anchored" data-anchor-id="using-services-longer-term">3.5 Using services longer-term</h2>
+<p>Has had a route in the top 10% of route durations.</p>
+<p>DV: <code>dpw_clis["has_longer_term_rt"]</code></p>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>durations <span class="op">=</span> dpw_pls.set_index([<span class="st">"o_cli_id"</span>, <span class="st">"route_id"</span>])[[<span class="st">"dur"</span>, <span class="st">"pl_start_dt"</span>]]</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>durations[<span class="st">"dur_days"</span>] <span class="op">=</span> durations[<span class="st">"dur"</span>].dt.days</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>durations[<span class="st">"dur_days"</span>] <span class="op">=</span> durations[<span class="st">"dur_days"</span>].fillna(<span class="dv">1</span> <span class="op">+</span> (distinct_pathways.dpw_end_dt <span class="op">-</span> durations.pl_start_dt).dt.days)</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>durations <span class="op">=</span> durations.drop(columns<span class="op">=</span>[<span class="st">"dur"</span>, <span class="st">"pl_start_dt"</span>]).groupby([<span class="st">"o_cli_id"</span>, <span class="st">"route_id"</span>]).<span class="bu">sum</span>()</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Set threshold to top 10% of route durations</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>longer_term_threshold_days <span class="op">=</span> durations.quantile(<span class="fl">0.9</span>)</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>dpw_clis <span class="op">=</span> dpw_pls.groupby([<span class="st">"o_cli_id"</span>]).head(<span class="dv">1</span>).set_index(<span class="st">"o_cli_id"</span>)</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>dpw_clis[<span class="st">"has_longer_term_rt"</span>] <span class="op">=</span> ((durations <span class="op">&gt;</span> longer_term_threshold_days)</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>                                  .groupby(<span class="st">"o_cli_id"</span>).<span class="bu">any</span>())</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Create univariate table for new DV, dpw_clis["has_longer_term_rt"]</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> dpw_clis[<span class="st">"has_longer_term_rt"</span>].value_counts(dropna<span class="op">=</span><span class="va">False</span>).rename(<span class="st">"n"</span>)</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>pct <span class="op">=</span> (<span class="dv">100</span> <span class="op">*</span> dpw_clis[<span class="st">"has_longer_term_rt"</span>].value_counts(dropna<span class="op">=</span><span class="va">False</span>, normalize<span class="op">=</span><span class="va">True</span>)).rename(<span class="st">"pct"</span>)</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> pd.concat([n, pct], axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>tbl.index <span class="op">=</span> tbl.index.rename(<span class="st">"Had a longer-term route"</span>)</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>excel_output[<span class="ss">f"Table 3.3: People with a route in top 10% of route durations"</span>] <span class="op">=</span> tbl</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">"display.precision"</span>, <span class="dv">1</span>):</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    display(tbl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"People: </span><span class="sc">{</span><span class="bu">len</span>(dpw_clis)<span class="sc">:,}</span><span class="ss">"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">""</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>durations <span class="op">=</span> dpw_pls.set_index([<span class="st">"o_cli_id"</span>, <span class="st">"route_id"</span>])[[<span class="st">"dur"</span>, <span class="st">"pl_start_dt"</span>]]</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>durations[<span class="st">"dur_days"</span>] <span class="op">=</span> durations[<span class="st">"dur"</span>].dt.days</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>durations[<span class="st">"dur_days"</span>] <span class="op">=</span> durations[<span class="st">"dur_days"</span>].fillna(<span class="dv">1</span> <span class="op">+</span> (distinct_pathways.dpw_end_dt <span class="op">-</span> durations.pl_start_dt).dt.days)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>durations <span class="op">=</span> durations.drop(columns<span class="op">=</span>[<span class="st">"dur"</span>, <span class="st">"pl_start_dt"</span>]).groupby([<span class="st">"o_cli_id"</span>, <span class="st">"route_id"</span>]).<span class="bu">sum</span>()</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Set threshold to top 10% of route durations</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>longer_term_threshold_days <span class="op">=</span> durations.quantile(<span class="fl">0.9</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>dpw_clis <span class="op">=</span> dpw_pls.groupby([<span class="st">"o_cli_id"</span>]).head(<span class="dv">1</span>).set_index(<span class="st">"o_cli_id"</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>dpw_clis[<span class="st">"has_longer_term_rt"</span>] <span class="op">=</span> ((durations <span class="op">&gt;</span> longer_term_threshold_days)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>                                  .groupby(<span class="st">"o_cli_id"</span>).<span class="bu">any</span>())</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Create univariate table for new DV, dpw_clis["has_longer_term_rt"]</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> dpw_clis[<span class="st">"has_longer_term_rt"</span>].value_counts(dropna<span class="op">=</span><span class="va">False</span>).rename(<span class="st">"n"</span>).astype(<span class="st">"Int64"</span>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>pct <span class="op">=</span> (<span class="dv">100</span> <span class="op">*</span> dpw_clis[<span class="st">"has_longer_term_rt"</span>].value_counts(dropna<span class="op">=</span><span class="va">False</span>, normalize<span class="op">=</span><span class="va">True</span>)).rename(<span class="st">"pct"</span>)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> pd.concat([n, pct], axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>tbl.loc[<span class="st">"All"</span>, :] <span class="op">=</span> tbl.<span class="bu">sum</span>()</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>tbl.index <span class="op">=</span> tbl.index.rename(<span class="st">"Had a longer-term route"</span>)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>excel_output[<span class="ss">f"Table 3.5: People with a route in top 10% of route durations"</span>] <span class="op">=</span> tbl</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">"display.precision"</span>, <span class="dv">1</span>):</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    display(tbl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display">
+<p>People: 3,755</p>
 <div>
 
 
@@ -744,16 +841,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>505</td>
 <td>13.4</td>
 </tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>3755</td>
+<td>100.0</td>
+</tr>
 </tbody>
 </table>
 
 </div>
-</div>
-</div>
 </section>
 <section id="returns-within-2-years-after-moving-to-independent-accommodation" class="level2">
-<h2 class="anchored" data-anchor-id="returns-within-2-years-after-moving-to-independent-accommodation">Returns within 2 years after moving to independent accommodation</h2>
-<div id="aba830f1" class="cell" data-execution_count="7">
+<h2 class="anchored" data-anchor-id="returns-within-2-years-after-moving-to-independent-accommodation">3.6 Returns within 2 years after moving to independent accommodation</h2>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># time_measure options: ['90d', '6m', '15m', '18m', '2y', '5y']</span></span>
@@ -765,15 +864,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    dpw_rt_ends[<span class="st">"rt_end_cat"</span>].isin([<span class="st">"To social housing"</span>, <span class="st">"To private rented"</span>])</span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Only include routes where there has been long enough for the outcome to happen</span></span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (dpw_rt_ends[<span class="st">"pl_end_dt"</span>] <span class="op">&lt;</span> distinct_pathways.dpw_end_dt <span class="op">-</span> time_offset)]</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> eligible_route_ends[return_col].value_counts(dropna<span class="op">=</span><span class="va">False</span>).rename(<span class="st">"n"</span>)</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>pct <span class="op">=</span> (<span class="dv">100</span> <span class="op">*</span> eligible_route_ends[return_col].value_counts(dropna<span class="op">=</span><span class="va">False</span>, normalize<span class="op">=</span><span class="va">True</span>)).rename(<span class="st">"pct"</span>)</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> pd.concat([n, pct], axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>tbl.index <span class="op">=</span> tbl.index.rename(<span class="st">"Returned within 2y"</span>)</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>excel_output[<span class="ss">f"Table 3.4: Returns within 2 years after moving to independent accommodation"</span>] <span class="op">=</span> tbl</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">"display.precision"</span>, <span class="dv">1</span>):</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    display(tbl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Create univariate table for new DV, dpw_clis["has_longer_term_rt"]</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"DV: `eligible_route_ends[</span><span class="ch">\"</span><span class="sc">{</span>return_col<span class="sc">}</span><span class="ch">\"</span><span class="ss">]`"</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">""</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> eligible_route_ends[return_col].value_counts(dropna<span class="op">=</span><span class="va">False</span>).rename(<span class="st">"n"</span>)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>pct <span class="op">=</span> (<span class="dv">100</span> <span class="op">*</span> eligible_route_ends[return_col].value_counts(dropna<span class="op">=</span><span class="va">False</span>, normalize<span class="op">=</span><span class="va">True</span>)).rename(<span class="st">"pct"</span>)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> pd.concat([n, pct], axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>tbl.index <span class="op">=</span> tbl.index.rename(<span class="st">"Returned within 2y"</span>)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>excel_output[<span class="ss">f"Table 3.6: Returns within 2 years after moving to independent accommodation"</span>] <span class="op">=</span> tbl</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">"display.precision"</span>, <span class="dv">1</span>):</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    display(tbl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display">
+<p>DV: <code>eligible_route_ends["after_rt_ret_within_2y"]</code></p>
 <div>
 
 
@@ -805,62 +907,174 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 
 </div>
-</div>
-</div>
+<p>Note: Not enough returns after moves to independent accommodation to analyse much further.</p>
 </section>
 <section id="outcomes-from-individual-placements" class="level2">
-<h2 class="anchored" data-anchor-id="outcomes-from-individual-placements">Outcomes from individual placements</h2>
-<div id="30c7fd7f" class="cell" data-execution_count="8">
+<h2 class="anchored" data-anchor-id="outcomes-from-individual-placements">3.7 Outcomes from individual placements</h2>
+<p>DV: <code>pl_outcomes_excl_same_svc["pl_outcome"]</code></p>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> python_scripts <span class="im">import</span> routes</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>pl_end_cat_map <span class="op">=</span> routes.get_end_cats_map()</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># internal_move_reasons = [</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">#     'Moved within Supported Housing (Same Pathway)', 'INTERNAL TRANSFER',</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co">#     'Moved within Supported Housing (Different Pathway)', 'Moved into HSR Accom _ Lower level (Planned)',</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">#     'Moved into HSR Accom _ High level (Planned)', 'Moved into HSR Accom _ Same level (Planned)',</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">#     'Moved to Substance Misuse Pathway (Planned)', '(Pathway 4 Only) Moved to Level 4 Supported Housing (Planned)',</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">#     '(Pathway 4 Only) Moved to Level 1, 2 or 3 Supported Housing (Planned)',</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">#     'Moved into HSR Accom _ High level (Unplanned)', 'Moved into HSR Accom _ Same level (Unplanned)']</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co"># for k in pl_end_cat_map.keys():</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">#     if k in internal_move_reasons:</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">#         pl_end_cat_map[k] = "Internal move"</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>pl_outcomes <span class="op">=</span> dpw_pls.set_index(<span class="st">"vac_id"</span>)</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>pl_outcomes[<span class="st">"pl_end_cat"</span>] <span class="op">=</span> pl_outcomes[<span class="st">"pl_end_reason"</span>].<span class="bu">map</span>(pl_end_cat_map)</span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>next_pls <span class="op">=</span> (dpw_pls.loc[dpw_pls[<span class="st">"prev_vac_id"</span>].notna()]</span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>            .rename(columns<span class="op">=</span>{<span class="st">"vac_id"</span>: <span class="st">"next_vac_id"</span>, <span class="st">"prev_vac_id"</span>: <span class="st">"vac_id"</span>, <span class="st">"svc_type_short"</span>: <span class="st">"pathway"</span>})</span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>            .set_index(<span class="st">"vac_id"</span>))</span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>pl_outcomes.loc[next_pls.index, <span class="st">"pl_end_cat"</span>] <span class="op">=</span> <span class="st">"Internal move"</span></span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>pl_outcomes.loc[dpw_pls.loc[dpw_pls[<span class="st">"prev_svc_id"</span>] <span class="op">==</span> dpw_pls[<span class="st">"svc_id"</span>], <span class="st">"prev_vac_id"</span>].values, <span class="st">"pl_end_cat"</span>] <span class="op">=</span> <span class="st">"Internal move: same service"</span></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>pl_outcomes[<span class="st">"pathway"</span>] <span class="op">=</span> pl_outcomes[<span class="st">"svc_type_short"</span>]</span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>level_diff <span class="op">=</span> (pl_outcomes.loc[pl_outcomes[<span class="st">"pl_end_cat"</span>] <span class="op">==</span> <span class="st">"Internal move"</span>, [<span class="st">"pathway"</span>, <span class="st">"pathway_level"</span>]]</span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>              .join(next_pls[[<span class="st">"pathway"</span>, <span class="st">"pathway_level"</span>]].add_prefix(<span class="st">"next_"</span>))</span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>              .assign(level_diff<span class="op">=</span><span class="kw">lambda</span> df: df[[<span class="st">"pathway_level"</span>, <span class="st">"next_pathway_level"</span>]]</span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>              .astype(<span class="st">"Int64"</span>).diff(axis<span class="op">=</span><span class="dv">1</span>).iloc[:, <span class="op">-</span><span class="dv">1</span>]))</span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Difference in level is meaningful except that moves to/from SU pathway are different..</span></span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>pl_outcomes <span class="op">=</span> pl_outcomes.join((level_diff[[<span class="st">"next_pathway_level"</span>, <span class="st">"level_diff"</span>]]</span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>                                .where((level_diff[<span class="st">"pathway"</span>] <span class="op">==</span> level_diff[<span class="st">"next_pathway"</span>])</span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>                                       <span class="op">|</span> (level_diff[<span class="st">"pathway"</span>] <span class="op">!=</span> <span class="st">"Substance Misuse Pathway"</span>)</span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>                                       <span class="op">|</span> (level_diff[<span class="st">"next_pathway"</span>] <span class="op">!=</span> <span class="st">"Substance Misuse Pathway"</span>))))</span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>pl_outcomes.loc[pl_outcomes[<span class="st">"level_diff"</span>].notna(), <span class="st">"pl_end_cat"</span>] <span class="op">=</span> (</span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Internal move: "</span> <span class="op">+</span> np.sign(pl_outcomes.level_diff).<span class="bu">map</span>({<span class="op">-</span><span class="dv">1</span>: <span class="st">"backwards"</span>, <span class="dv">0</span>: <span class="st">"sideways"</span>, <span class="dv">1</span>: <span class="st">"forwards"</span>})</span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Exclude 42 0-day placements</span></span>
-<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>pl_outcomes <span class="op">=</span> pl_outcomes[pl_outcomes[<span class="st">"dur"</span>] <span class="op">&gt;</span> pd.Timedelta(days<span class="op">=</span><span class="dv">0</span>)]</span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>pl_outcomes_map <span class="op">=</span> {</span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Independent accommodation'</span>: [<span class="st">'To social housing'</span>, <span class="st">'To private rented'</span>],</span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Insecure outcome'</span>: [<span class="st">'To friends/family'</span>, <span class="st">'Custody'</span>, <span class="st">'[Not ended]'</span>, <span class="st">'To care/hospital'</span>, <span class="st">'To external supported'</span>],</span>
-<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Returned to homelessness'</span>: [<span class="st">'Evicted'</span>, <span class="st">'Abandoned'</span>],</span>
-<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Died'</span>: [<span class="st">'Died'</span>],</span>
-<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>    <span class="co"># '_excluded': ['Other', 'Missing data/error']</span></span>
-<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>pl_end_cat_map <span class="op">=</span> {cat: outcome <span class="cf">for</span> outcome <span class="kw">in</span> pl_outcomes_map.keys() <span class="cf">for</span> cat <span class="kw">in</span> pl_outcomes_map[outcome]}</span>
-<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>pl_outcomes[<span class="st">"pl_outcome"</span>] <span class="op">=</span> pl_outcomes[<span class="st">"pl_end_cat"</span>].<span class="bu">map</span>(pl_end_cat_map)</span>
-<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>pl_outcomes.loc[pl_outcomes[<span class="st">"pl_end_cat"</span>].fillna(<span class="st">""</span>).<span class="bu">str</span>.startswith(<span class="st">"Internal move"</span>), <span class="st">"pl_outcome"</span>] <span class="op">=</span> pl_outcomes[<span class="st">"pl_end_cat"</span>]</span>
-<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>display(get_frequencies(pl_outcomes.loc[pl_outcomes[<span class="st">"pl_end_cat"</span>] <span class="op">!=</span> <span class="st">"Internal move: same service"</span>, <span class="st">"pl_outcome"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>pl_excluded <span class="op">=</span> {}</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>pl_end_cat_map <span class="op">=</span> routes.get_end_cats_map()</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>pl_outcomes <span class="op">=</span> dpw_pls.set_index(<span class="st">"vac_id"</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>pl_outcomes[<span class="st">"pl_end_cat"</span>] <span class="op">=</span> pl_outcomes[<span class="st">"pl_end_reason"</span>].<span class="bu">map</span>(pl_end_cat_map)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>next_pls <span class="op">=</span> (dpw_pls.loc[dpw_pls[<span class="st">"prev_vac_id"</span>].notna()]</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>            .rename(columns<span class="op">=</span>{<span class="st">"vac_id"</span>: <span class="st">"next_vac_id"</span>, <span class="st">"prev_vac_id"</span>: <span class="st">"vac_id"</span>, <span class="st">"svc_type_short"</span>: <span class="st">"pathway"</span>})</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>            .set_index(<span class="st">"vac_id"</span>))</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>next_pls[<span class="st">"pathway"</span>] <span class="op">=</span> next_pls[<span class="st">"pathway"</span>].cat.remove_unused_categories()</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>pl_outcomes.loc[next_pls.index, <span class="st">"pl_end_cat"</span>] <span class="op">=</span> <span class="st">"Internal move"</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>pl_outcomes.loc[dpw_pls.loc[dpw_pls[<span class="st">"prev_svc_id"</span>] <span class="op">==</span> dpw_pls[<span class="st">"svc_id"</span>], <span class="st">"prev_vac_id"</span>].values, <span class="st">"pl_end_cat"</span>] <span class="op">=</span> <span class="st">"Internal move: same service"</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>pl_outcomes[<span class="st">"pathway"</span>] <span class="op">=</span> pl_outcomes[<span class="st">"svc_type_short"</span>].cat.remove_unused_categories()</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>pl_outcomes[<span class="st">"pathway_type"</span>] <span class="op">=</span> (pl_outcomes[<span class="st">"pathway"</span>] <span class="op">==</span> <span class="st">"Substance Misuse Pathway"</span>).<span class="bu">map</span>({<span class="va">True</span>: <span class="st">"Substance Misuse"</span>, <span class="va">False</span>: <span class="st">"Homelessness"</span>})</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>pl_outcomes[<span class="st">"ended"</span>] <span class="op">=</span> pl_outcomes[<span class="st">"pl_end_dt"</span>].isna().<span class="bu">map</span>({<span class="va">True</span>: <span class="st">"Current"</span>, <span class="va">False</span>: <span class="st">"Ended"</span>})</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> get_frequencies(pl_outcomes[[<span class="st">"ended"</span>]], sort<span class="op">=</span><span class="va">False</span>, dropna<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>tbl.loc[<span class="bu">tuple</span>([<span class="st">"All"</span>] <span class="op">*</span> <span class="bu">len</span>(tbl.index.levels)), :] <span class="op">=</span> tbl.<span class="bu">sum</span>()</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> tbl.convert_dtypes()</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>tbl_desc <span class="op">=</span> <span class="st">"Table 3.7.1: All placements"</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>excel_output[tbl_desc] <span class="op">=</span> tbl</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"### "</span> <span class="op">+</span> tbl_desc)</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>display(tbl)</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">""</span>)</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>level_diff <span class="op">=</span> (pl_outcomes.loc[pl_outcomes[<span class="st">"pl_end_cat"</span>] <span class="op">==</span> <span class="st">"Internal move"</span>, [<span class="st">"pathway"</span>, <span class="st">"pathway_level"</span>]]</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>              .join(next_pls[[<span class="st">"pathway"</span>, <span class="st">"pathway_level"</span>]].add_prefix(<span class="st">"next_"</span>))</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>              .assign(level_diff<span class="op">=</span><span class="kw">lambda</span> df: df[[<span class="st">"pathway_level"</span>, <span class="st">"next_pathway_level"</span>]]</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>              .astype(<span class="st">"Int64"</span>).diff(axis<span class="op">=</span><span class="dv">1</span>).iloc[:, <span class="op">-</span><span class="dv">1</span>]))</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Difference in level is meaningful except that moves to/from SU pathway are different..</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>pl_outcomes <span class="op">=</span> pl_outcomes.join((level_diff[[<span class="st">"next_pathway_level"</span>, <span class="st">"level_diff"</span>]]</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>                                .where((level_diff[<span class="st">"pathway"</span>] <span class="op">==</span> level_diff[<span class="st">"next_pathway"</span>])</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>                                       <span class="op">|</span> (level_diff[<span class="st">"pathway"</span>] <span class="op">!=</span> <span class="st">"Substance Misuse Pathway"</span>)</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>                                       <span class="op">|</span> (level_diff[<span class="st">"next_pathway"</span>] <span class="op">!=</span> <span class="st">"Substance Misuse Pathway"</span>))))</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>pl_outcomes.loc[pl_outcomes[<span class="st">"level_diff"</span>].notna(), <span class="st">"pl_end_cat"</span>] <span class="op">=</span> (</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Internal move: "</span> <span class="op">+</span> np.sign(pl_outcomes.level_diff).<span class="bu">map</span>({<span class="op">-</span><span class="dv">1</span>: <span class="st">"backwards"</span>, <span class="dv">0</span>: <span class="st">"sideways"</span>, <span class="dv">1</span>: <span class="st">"forwards"</span>})</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Exclude 738 placements that have not ended</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>pl_excluded[<span class="st">"Not-ended placements"</span>] <span class="op">=</span> pl_outcomes[pl_outcomes[<span class="st">"dur"</span>].isna()]</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>pl_outcomes <span class="op">=</span> pl_outcomes[pl_outcomes[<span class="st">"dur"</span>].notna()]</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a><span class="co"># Exclude 42 0-day placements</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>pl_excluded[<span class="st">"Zero-day placements"</span>] <span class="op">=</span> pl_outcomes[pl_outcomes[<span class="st">"dur"</span>] <span class="op">==</span> pd.Timedelta(days<span class="op">=</span><span class="dv">0</span>)]</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>pl_outcomes <span class="op">=</span> pl_outcomes[pl_outcomes[<span class="st">"dur"</span>] <span class="op">&gt;</span> pd.Timedelta(days<span class="op">=</span><span class="dv">0</span>)]</span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>pl_outcomes_map <span class="op">=</span> {</span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Independent accommodation'</span>: [<span class="st">'To social housing'</span>, <span class="st">'To private rented'</span>],</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Insecure outcome'</span>: [<span class="st">'To friends/family'</span>, <span class="st">'Custody'</span>, <span class="st">'[Not ended]'</span>, <span class="st">'To care/hospital'</span>, <span class="st">'To external supported'</span>],</span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Returned to homelessness'</span>: [<span class="st">'Evicted'</span>, <span class="st">'Abandoned'</span>],</span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Died'</span>: [<span class="st">'Died'</span>],</span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>    <span class="co"># '_excluded': ['Other', 'Missing data/error']</span></span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>pl_end_cat_map <span class="op">=</span> {cat: outcome <span class="cf">for</span> outcome <span class="kw">in</span> pl_outcomes_map.keys() <span class="cf">for</span> cat <span class="kw">in</span> pl_outcomes_map[outcome]}</span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>pl_outcomes[<span class="st">"pl_outcome"</span>] <span class="op">=</span> pl_outcomes[<span class="st">"pl_end_cat"</span>].<span class="bu">map</span>(pl_end_cat_map)</span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>pl_outcomes.loc[</span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>    pl_outcomes[<span class="st">"pl_end_cat"</span>].fillna(<span class="st">""</span>).<span class="bu">str</span>.startswith(<span class="st">"Internal move"</span>),</span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>    <span class="st">"pl_outcome"</span>] <span class="op">=</span> pl_outcomes[<span class="st">"pl_end_cat"</span>]</span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a><span class="co"># Exclude 1,310 moves within the same service</span></span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>pl_excluded[<span class="st">"Moves within same service"</span>] <span class="op">=</span> pl_outcomes[pl_outcomes[<span class="st">"pl_end_cat"</span>] <span class="op">==</span> <span class="st">"Internal move: same service"</span>]</span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>pl_outcomes_excl_same_svc <span class="op">=</span> pl_outcomes[pl_outcomes[<span class="st">"pl_end_cat"</span>] <span class="op">!=</span> <span class="st">"Internal move: same service"</span>]</span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a><span class="co"># Exclude 277 moves due to end reasons: 53 missing reaons, 200 "Other"</span></span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: Should "Other" really be excluded?</span></span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a><span class="co">### In [310]: pl_outcomes.set_index("pl_outcome").loc["Other"].pl_end_reason.astype("string").value_counts()</span></span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a><span class="co">### Out[310]: </span></span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a><span class="co">### pl_end_reason</span></span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a><span class="co">### Other (Planned)                                           141</span></span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a><span class="co">### Other (Unplanned)                                          58</span></span>
+<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a><span class="co">### (SSTS) BCC Emergency Accommodation (FOR SSTS USE ONLY)      1</span></span>
+<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a><span class="co">### Name: count, dtype: Int64</span></span>
+<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a>pl_excluded[<span class="st">"Unclear end categories"</span>] <span class="op">=</span> pl_outcomes[pl_outcomes[<span class="st">"pl_outcome"</span>].isna()]</span>
+<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a>tbl_desc <span class="op">=</span> <span class="st">"Table 3.7.2: Placements excluded from placement outcome DV construction"</span></span>
+<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> pd.DataFrame([<span class="bu">len</span>(pls) <span class="cf">for</span> pls <span class="kw">in</span> pl_excluded.values()], index<span class="op">=</span>pl_excluded.keys(), columns<span class="op">=</span>[<span class="st">"n"</span>])</span>
+<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a>tbl.loc[<span class="st">"All"</span>] <span class="op">=</span> tbl.<span class="bu">sum</span>()</span>
+<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"### "</span> <span class="op">+</span> tbl_desc)</span>
+<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a>display(tbl)</span>
+<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">""</span>)</span>
+<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a><span class="co"># Output univariate table for DV: pl_outcomes_excl_same_svc["pl_outcome"]</span></span>
+<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> get_frequencies(pl_outcomes_excl_same_svc[<span class="st">"pl_outcome"</span>], dropna<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-75"><a href="#cb8-75" aria-hidden="true" tabindex="-1"></a>tbl.loc[<span class="st">"All"</span>, :] <span class="op">=</span> tbl.<span class="bu">sum</span>()</span>
+<span id="cb8-76"><a href="#cb8-76" aria-hidden="true" tabindex="-1"></a>tbl <span class="op">=</span> tbl.convert_dtypes()</span>
+<span id="cb8-77"><a href="#cb8-77" aria-hidden="true" tabindex="-1"></a>tbl_desc <span class="op">=</span> <span class="st">"Table 3.7.3: Placement outcomes"</span></span>
+<span id="cb8-78"><a href="#cb8-78" aria-hidden="true" tabindex="-1"></a>excel_output[tbl_desc] <span class="op">=</span> tbl</span>
+<span id="cb8-79"><a href="#cb8-79" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"### "</span> <span class="op">+</span> tbl_desc)</span>
+<span id="cb8-80"><a href="#cb8-80" aria-hidden="true" tabindex="-1"></a>display(tbl)</span>
+<span id="cb8-81"><a href="#cb8-81" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display">
+<section id="table-3.7.1-all-placements" class="level3">
+<h3 class="anchored" data-anchor-id="table-3.7.1-all-placements">Table 3.7.1: All placements</h3>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">n</th>
+<th data-quarto-table-cell-role="th">pct</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">ended</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Current</td>
+<td>762</td>
+<td>8.996458</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Ended</td>
+<td>7708</td>
+<td>91.003542</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>8470</td>
+<td>100.0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</section>
+<section id="table-3.7.2-placements-excluded-from-placement-outcome-dv-construction" class="level3">
+<h3 class="anchored" data-anchor-id="table-3.7.2-placements-excluded-from-placement-outcome-dv-construction">Table 3.7.2: Placements excluded from placement outcome DV construction</h3>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Not-ended placements</td>
+<td>762</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Zero-day placements</td>
+<td>42</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Moves within same service</td>
+<td>1310</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Unclear end categories</td>
+<td>253</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>2367</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</section>
+<section id="table-3.7.3-placement-outcomes" class="level3">
+<h3 class="anchored" data-anchor-id="table-3.7.3-placement-outcomes">Table 3.7.3: Placement outcomes</h3>
 <div>
 
 
@@ -881,7 +1095,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Internal move: forwards</td>
 <td>1562</td>
-<td>25.593970</td>
+<td>25.59397</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">Independent accommodation</td>
@@ -911,14 +1125,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Died</td>
 <td>117</td>
-<td>1.917090</td>
+<td>1.91709</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">All</td>
+<td>6103</td>
+<td>100.0</td>
 </tr>
 </tbody>
 </table>
 
 </div>
-</div>
-</div>
+</section>
 </section>
 <section id="tables-in-an-excel-file" class="level2">
 <h2 class="anchored" data-anchor-id="tables-in-an-excel-file">Tables in an Excel file</h2>

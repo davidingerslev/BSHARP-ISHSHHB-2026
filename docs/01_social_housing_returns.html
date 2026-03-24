@@ -324,7 +324,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div id="d8fedaa7" class="cell" data-execution_count="1">
+<div id="3368bac0" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup code</span></span>
@@ -337,7 +337,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> python_scripts <span class="im">import</span> distinct_pathways</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>dpw_pls <span class="op">=</span> distinct_pathways.get_distinct_pathways_routes(dffp)</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>qrows <span class="op">=</span> dpw_pls[<span class="st">"rt_end_cat"</span>] <span class="op">==</span> <span class="st">"[Not ended or invalid end reason]"</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>dpw_pls.loc[dpw_pls.pl_end_dt <span class="op">&gt;</span> distinct_pathways.dpw_end_dt, [<span class="st">"pl_end_dt"</span>, <span class="st">"pl_end_reason"</span>]] <span class="op">=</span> pd.NA</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>dpw_pls.loc[dpw_pls.pl_end_dt <span class="op">&gt;</span> distinct_pathways.dpw_end_dt, [<span class="st">"pl_end_dt"</span>, <span class="st">"pl_end_reason"</span>, <span class="st">"dur"</span>]] <span class="op">=</span> pd.NA</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>dpw_pls.loc[qrows, <span class="st">"rt_end_cat"</span>] <span class="op">=</span> dpw_pls.loc[qrows, <span class="st">"pl_end_dt"</span>].isna().<span class="bu">map</span>({<span class="va">True</span>: <span class="st">"[Not ended]"</span>, <span class="va">False</span>: <span class="st">"Missing data/error"</span>})</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">"rt_end_cat"</span>] <span class="op">=</span> dpw_pls[<span class="st">"rt_end_cat"</span>].<span class="bu">str</span>.replace(<span class="st">"To care/hosp."</span>, <span class="st">"To care/hospital"</span>)</span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>dpw_rt_starts <span class="op">=</span> dpw_pls.groupby(<span class="st">"route_id"</span>).head(<span class="dv">1</span>)</span>
@@ -363,7 +363,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="social-housing-returns" class="level2">
 <h2 class="anchored" data-anchor-id="social-housing-returns">Social housing returns</h2>
-<div id="0978daf8" class="cell" data-execution_count="2">
+<div id="dbefb563" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>soc_moves <span class="op">=</span> dpw_pls[dpw_pls[<span class="st">"rt_end_cat"</span>] <span class="op">==</span> <span class="st">"To social housing"</span>]</span>
@@ -418,7 +418,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="durations-for-social-housing-outcomes-distributions" class="level2">
 <h2 class="anchored" data-anchor-id="durations-for-social-housing-outcomes-distributions">Durations for social housing outcomes: distributions</h2>
-<div id="6d9d0812" class="cell" data-execution_count="3">
+<div id="21115302" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -518,7 +518,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="durations-for-social-housing-outcomes-descriptive-statistics" class="level2">
 <h2 class="anchored" data-anchor-id="durations-for-social-housing-outcomes-descriptive-statistics">Durations for social housing outcomes: descriptive statistics</h2>
-<div id="06006902" class="cell" data-execution_count="4">
+<div id="3fbe37c2" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>tbl_data <span class="op">=</span> hist_data.copy()</span>
@@ -653,7 +653,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="returns-at-periods-of-time-after-exit-by-social-housing-type-table" class="level2">
 <h2 class="anchored" data-anchor-id="returns-at-periods-of-time-after-exit-by-social-housing-type-table">Returns at periods of time after exit by social housing type: table</h2>
-<div id="a7cf3427" class="cell" data-execution_count="5">
+<div id="9ac73dc2" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate table</span></span>
@@ -813,7 +813,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="returns-at-periods-of-time-after-exit-by-social-housing-type-charts" class="level2">
 <h2 class="anchored" data-anchor-id="returns-at-periods-of-time-after-exit-by-social-housing-type-charts">Returns at periods of time after exit by social housing type: charts</h2>
-<div id="b0a21911" class="cell" data-execution_count="6">
+<div id="aa5954e6" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot chart</span></span>

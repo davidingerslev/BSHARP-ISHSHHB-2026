@@ -38,6 +38,8 @@ assets_output = asset_themes["opaque"]
 output_dir = assets_output
 transparent = False
 excel_output = {}
+dpw_pls_orig = dpw_pls
+
 
 def get_frequencies(series, sort=True, dropna=True, dropna_pct=True):
     n = series.value_counts(sort=sort, dropna=dropna).rename("n")
@@ -50,18 +52,14 @@ def get_frequencies(series, sort=True, dropna=True, dropna_pct=True):
 
 ```{python}
 #| output: asis
-dv_dict = {
-    "routes": {},
-    "people": {},
-    "placements": {}
-}
+dv_dict = {}
 #####################################
 # 3.1 Entry point into BAHSA services
 #####################################
 rt_entries = dpw_rt_starts.copy()
 rt_entries["pathway"] = rt_entries["svc_type_short"]
 rt_entries["pathway_type"] = (rt_entries["pathway"] == "Substance Misuse Pathway").map({True: "Substance Misuse", False: "Homelessness"})
-dv_dict["routes"]["Entry point into BAHSA services"] = (
+dv_dict["Entry point into BAHSA services"] = (
     rt_entries[["route_id", "pathway_type", "pathway_level"]].set_index("route_id"))
 #####################################
 # 3.2 Route outcomes after 3.08 years
@@ -115,7 +113,7 @@ dpw_rt_outcomes.loc[
     & (rt_pls_at_timemeasures["pathway_level"].isin(["3", "4"]))
     & (rt_pls_at_timemeasures["shared"] == "No"),
     "rt_outcome"] = "Independent accommodation"
-dv_dict["routes"]["Route outcomes after 3.08 years"] = (
+dv_dict["Route outcomes after 3.08 years"] = (
                           dpw_rt_outcomes[["route_id", "rt_outcome"]].set_index("route_id"))
 #######################################################################
 # 3.3 Outcomes at a period of time after a person's first route started
@@ -152,14 +150,14 @@ dpw_cli_outcomes["cli_start_dt"] = (dpw_rt_starts.set_index("o_cli_id")
                                     .groupby("o_cli_id").head(1)["pl_start_dt"])
 dpw_cli_outcomes["cli_end_dt"] = (dpw_rt_ends.set_index("o_cli_id")
                                   .groupby("o_cli_id").tail(1)["pl_end_dt"])
-dv_dict["people"]["Outcomes 3.08 years after a person's first route started"] = (
+dv_dict["Outcomes 3.08 years after a person's first route started"] = (
                           dpw_cli_outcomes[["cli_outcome"]])
 ##############################################
 # 3.4 Returning to use services multiple times
 ##############################################
 dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1).set_index("o_cli_id")
 dpw_clis["multiple_returns"] = (dpw_rt_starts.groupby(['o_cli_id']).size() >= 3).rename("multiple_returns")
-dv_dict["people"]["People with multiple returns during 7.5 yrs"] = (
+dv_dict["People with multiple returns during 7.5 yrs"] = (
                           dpw_clis[["multiple_returns"]])
 ################################
 # 3.5 Using services longer-term
@@ -173,7 +171,7 @@ longer_term_threshold_days = durations.quantile(0.9)
 dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1).set_index("o_cli_id")
 dpw_clis["has_longer_term_rt"] = ((durations > longer_term_threshold_days)
                                   .groupby("o_cli_id").any())
-dv_dict["people"]["People with a route in top 10% of route durations"] = (
+dv_dict["People with a route in top 10% of route durations"] = (
                           dpw_clis[["has_longer_term_rt"]])
 ######################################################################
 # 3.6 Returns within 2 years after moving to independent accommodation
@@ -188,7 +186,7 @@ eligible_route_ends = dpw_rt_ends[
     dpw_rt_ends["rt_end_cat"].isin(["To social housing", "To private rented"])
     # Only include routes where there has been long enough for the outcome to happen
     & (dpw_rt_ends["pl_end_dt"] < distinct_pathways.dpw_end_dt - time_offset)]
-dv_dict["routes"]["Returns within 2 years after moving to independent accommodation"] = (
+dv_dict["Returns within 2 years after moving to independent accommodation"] = (
                           eligible_route_ends[["route_id", return_col]].set_index("route_id"))
 #########################################
 # 3.7 Outcomes from individual placements
@@ -241,13 +239,153 @@ pl_outcomes_excl_same_svc = pl_outcomes[pl_outcomes["pl_end_cat"] != "Internal m
 # Exclude 277 moves due to end reasons: 53 missing reaons, 200 "Other"
 # TODO: Should "Other" really be excluded?
 pl_outcomes_excl_same_svc = pl_outcomes_excl_same_svc[pl_outcomes_excl_same_svc["pl_outcome"].notna()]
-dv_dict["placements"]["Outcomes from individual placements"] = (
+dv_dict["Outcomes from individual placements"] = (
                               pl_outcomes_excl_same_svc[["pl_outcome"]])
-dv_dict_desc = {k: list(dv_dict[k].keys()) for k in dv_dict.keys()}
+dv_dict_desc = list(dv_dict.keys())
 display(dv_dict_desc)
 ```
 
 ## Collect independent variables
+```{python}
+#| output: asis
+from collections import defaultdict
+dpw_pls = dpw_pls_orig
+# Age category at year of first route during studied period
+dpw_pls["gender"] = dpw_pls["gender"].map({
+    "Male": "Male", "Female": "Female", "Don't Know": "_Unknown",
+    "Prefer not to say": "_Unknown", "Transgender": "Non-Binary",
+    "Non-Binary": "Non-Binary"
+})
+dpw_pls["age_cat"] = helper.age_cats(dpw_pls["pl_start_dt"].dt.year - dpw_pls["yob"])
+dpw_pls["global_majority"] = dpw_pls["ethnicity"].map(defaultdict(
+    lambda: "Yes",
+    {
+      "English/Welsh/Scottish/Northern Irish/British": "No", "White British": "No",
+      "White Other Origin": "No", "Any other White background": "No", "White European": "No",
+      "Eastern European": "No", "Turkish": "No", "White Irish": "No", "Irish": "No",
+      "White Gypsy/Irish Traveller": "No", "Gypsy (inc English, Scottish or Roma Gypsy) or Irish Traveller": "No",
+      "Don't know": "_Unknown", "Prefer not to say": "_Unknown", "Refused to answer question": "_Unknown"
+    }))
+dpw_pls["lgbtq_plus"] = dpw_pls["sexual_orientation"].map({
+    "Bi-sexual": "Yes", "Gay/Lesbian": "Yes", "other": "Yes", "Lesbian": "Yes",
+    "Heterosexual": "No", "Don't Know": "_Unknown", "Rather not state": "_Unknown",
+})
+dpw_pls["uk_immigration_status"] = dpw_pls["uk_immigration_status"].map({
+    "Other Protection Leave to Remain": "Non-EEA National",
+    "Indefinite Leave to Remain": "Non-EEA National",
+    "Other Non-EEA National": "Non-EEA National",
+    "Limited Leave to Remain": "Non-EEA National",
+    "EEA National": "EEA National",
+    "UK/Irish National": "UK/Irish National",
+})
+ref_cats = dpw_pls["ref_agency"].cat.categories
+ref_cat_map = {
+    "Local authority (Housing Options)": ["B.C.C. Homelessness Prevention Team"],
+    "Local authority (_other)": list(ref_cats[ref_cats.str.startswith(("B.C.C", "Bcc"))
+                                    & (ref_cats != "B.C.C. Homelessness Prevention Team")]),
+    "Service provider (rough sleeping and SH)": ["St. Mungo's", "St Mungo's", "Outreach"],
+    "Service provider (prison resettlement and SH)": ["A.R.A"],
+    "Service provider (_other SH)": ["E.C.H.G. Riverside", "Elim", "Livewest", "Missing Link", "Places For People",
+                                    "Salvation Army", "Second Step", "Self Help"]
+}
+ref_cat_map["_Others"] = ref_cats[~ref_cats.isin(sum(list(ref_cat_map.values()), []))]
+ref_agency_mapper = {k: v for v, k in pd.Series(ref_cat_map).explode().items()}
+dpw_pls["referral_agency"] = (dpw_pls["ref_agency"].map(ref_agency_mapper)
+                              .fillna("_[Missing data]"))
+support_need_cols = {
+    "hsn_prison_leaveron_probationrisk_of_offending": "offending",
+    "hsn_physical_health": "physical_health",
+    "hsn_mental_health": "mental_health",
+    "hsn_rough_sleeper": "rough_sleeping",
+}
+for hsn, ch_str in support_need_cols.items():
+    dpw_pls[ch_str] = dpw_pls[hsn].astype("boolean")
+gendered_support_need_cols = {
+    "hsn_sex_working": "sex_working",  # only women recorded as sex working
+    "hsn_risk_of_violenceabuse_victim": "risk_violence_abuse",
+    "hsn_risk_of_exploitation": "risk_exploitation",
+}
+for hsn, ch_str in gendered_support_need_cols.items():
+    dpw_pls[f"women_{ch_str}"] = dpw_pls[hsn].where(dpw_pls["gender"] == "Female")
+    dpw_pls[f"men_{ch_str}"] = dpw_pls[hsn].where(dpw_pls["gender"] == "Male")
+    dpw_pls[ch_str] = dpw_pls[hsn]
+dpw_pls["hsn_drug_or_alcohol_use"] = (dpw_pls["hsn_drug_use"].astype("boolean")
+                                      | dpw_pls["hsn_alcohol_use"].astype("boolean"))
+dpw_pls["multiple_disadvantage"] = (  # Current support needs for 3 out of 5 SMD dimensions
+  dpw_pls[["hsn_prison_leaveron_probationrisk_of_offending",
+           "hsn_drug_or_alcohol_use",
+           "hsn_risk_of_violenceabuse_victim",
+           "hsn_mental_health"
+           ]].assign(hsn_homelessness=True).astype("boolean").sum(axis=1, skipna=False) >= 3
+  )
+dpw_pls["substance_use"] = dpw_pls["hsn_drug_or_alcohol_use"]
+dpw_rt_starts = dpw_pls.groupby("route_id").head(1)
+dpw_rt_ends = dpw_pls.groupby("route_id").tail(1)
+dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1)  # 1 duplicate client but first entry has more detailed answers
+characteristics = [
+    "gender",
+    "global_majority",
+    "age_cat",
+    "lgbtq_plus",
+    "offending",
+    "physical_health",
+    "mental_health",
+    "substance_use",
+    "multiple_disadvantage",
+    "rough_sleeping",
+    "sex_working",
+    "women_sex_working",
+    "men_sex_working",
+    "risk_violence_abuse",
+    "women_risk_violence_abuse",
+    "men_risk_violence_abuse",
+    "risk_exploitation",
+    "women_risk_exploitation",
+    "men_risk_exploitation",
+    "uk_immigration_status",
+    "english_2nd_language",
+    "referral_agency"
+]
+display(characteristics)
+```
+
+## Create cross-tabulations for each DV and IV combination
+
+```{python}
+#| output: asis
+for ch in characteristics:
+    print("### " + ch)
+    print("")
+    for dv_desc in dv_dict.keys():
+        dv_df = dv_dict[dv_desc]
+        idx_type = dv_df.index.name
+        match idx_type:
+            case "vac_id":
+                iv_df = dpw_pls
+            case "route_id":
+                iv_df = dpw_rt_starts
+            case "o_cli_id":
+                iv_df = dpw_clis
+        iv_df = iv_df[[idx_type, ch]].set_index(idx_type)
+        tbl_desc = f"Cross-tabulation of {dv_desc.lower()} by {ch}"
+        ct_df = dv_df.join(iv_df, how="inner").assign(n=1)
+        tbl_n = pd.pivot_table(ct_df,
+                               values="n",
+                               index=list(dv_df.columns),
+                               columns=list(iv_df.columns),
+                               aggfunc="count",
+                               margins=True).astype("Int64")
+        tbl_pct = 100 * tbl_n / tbl_n.iloc[-1, :]
+        print(tbl_desc + " (n)")
+        excel_output[tbl_desc + " (n)"] = tbl_n
+        display(tbl_n)
+        print("")
+        print(tbl_desc + " (pct)")
+        excel_output[tbl_desc + " (pct)"] = tbl_pct
+        with pd.option_context("display.float_format", '{:,.1f}%'.format):
+            display(tbl_pct)
+        print("")
+```
 
 ## Tables in an Excel file
 

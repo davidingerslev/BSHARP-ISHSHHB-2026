@@ -224,7 +224,7 @@ pl_outcomes = pl_outcomes[pl_outcomes["dur"].notna()]
 pl_outcomes = pl_outcomes[pl_outcomes["dur"] > pd.Timedelta(days=0)]
 pl_outcomes_map = {
     'Independent accommodation': ['To social housing', 'To private rented'],
-    'Insecure outcome': ['To friends/family', 'Custody', '[Not ended]', 'To care/hospital', 'To external supported'],
+    'Insecure outcome (external)': ['To friends/family', 'Custody', '[Not ended]', 'To care/hospital', 'To external supported'],
     'Returned to homelessness': ['Evicted', 'Abandoned'],
     'Died': ['Died'],
     # '_excluded': ['Other', 'Missing data/error']

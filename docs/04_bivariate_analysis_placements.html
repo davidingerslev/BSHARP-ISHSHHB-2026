@@ -321,6 +321,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#table-4.10-placement-outcomes-as-row-percentages-from-level-3-4-by-shared-vs.-self-contained-1" id="toc-table-4.10-placement-outcomes-as-row-percentages-from-level-3-4-by-shared-vs.-self-contained-1" class="nav-link" data-scroll-target="#table-4.10-placement-outcomes-as-row-percentages-from-level-3-4-by-shared-vs.-self-contained-1">Table 4.10: Placement outcomes (as row percentages) from level 3-4 by shared vs.&nbsp;self-contained</a></li>
   </ul></li>
   <li><a href="#outcome-differences-for-sizes-of-hostels" id="toc-outcome-differences-for-sizes-of-hostels" class="nav-link" data-scroll-target="#outcome-differences-for-sizes-of-hostels">Outcome differences for sizes of hostels</a></li>
+  <li><a href="#placement-outcomes-by-placement-duration" id="toc-placement-outcomes-by-placement-duration" class="nav-link" data-scroll-target="#placement-outcomes-by-placement-duration">Placement outcomes by placement duration</a>
+  <ul class="collapse">
+  <li><a href="#table-4.11-placement-outcomes-by-duration" id="toc-table-4.11-placement-outcomes-by-duration" class="nav-link" data-scroll-target="#table-4.11-placement-outcomes-by-duration">Table 4.11: Placement outcomes by duration</a></li>
+  <li><a href="#table-4.8-placement-outcomes-as-row-percentages-by-level-and-pathway-1" id="toc-table-4.8-placement-outcomes-as-row-percentages-by-level-and-pathway-1" class="nav-link" data-scroll-target="#table-4.8-placement-outcomes-as-row-percentages-by-level-and-pathway-1">Table 4.8: Placement outcomes (as row percentages) by level and pathway</a></li>
+  </ul></li>
   <li><a href="#tables-in-an-excel-file" id="toc-tables-in-an-excel-file" class="nav-link" data-scroll-target="#tables-in-an-excel-file">Tables in an Excel file</a></li>
   </ul>
 </nav>
@@ -360,7 +365,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div id="d07ba2df" class="cell" data-execution_count="1">
+<div id="e95f0f92" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup code</span></span>
@@ -451,7 +456,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>pl_outcomes <span class="op">=</span> pl_outcomes[pl_outcomes[<span class="st">"dur"</span>] <span class="op">&gt;</span> pd.Timedelta(days<span class="op">=</span><span class="dv">0</span>)]</span>
 <span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>pl_outcomes_map <span class="op">=</span> {</span>
 <span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Independent accommodation'</span>: [<span class="st">'To social housing'</span>, <span class="st">'To private rented'</span>],</span>
-<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Insecure outcome'</span>: [<span class="st">'To friends/family'</span>, <span class="st">'Custody'</span>, <span class="st">'[Not ended]'</span>, <span class="st">'To care/hospital'</span>, <span class="st">'To external supported'</span>],</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Insecure outcome (external)'</span>: [<span class="st">'To friends/family'</span>, <span class="st">'Custody'</span>, <span class="st">'To care/hospital'</span>, <span class="st">'To external supported'</span>],</span>
 <span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Returned to homelessness'</span>: [<span class="st">'Evicted'</span>, <span class="st">'Abandoned'</span>],</span>
 <span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Died'</span>: [<span class="st">'Died'</span>],</span>
 <span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Other'</span>: [<span class="st">'Other'</span>],</span>
@@ -646,7 +651,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>10.360146</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>638</td>
 <td>10.122164</td>
 </tr>
@@ -775,7 +780,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>653</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>284</td>
 <td>85</td>
 <td>35</td>
@@ -927,7 +932,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>10.4</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>11.3</td>
 <td>9.8</td>
 <td>8.1</td>
@@ -1102,7 +1107,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>653</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>13</td>
 <td>96</td>
 <td>87</td>
@@ -1259,7 +1264,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>10.4</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>6.7</td>
 <td>9.2</td>
 <td>8.5</td>
@@ -1500,7 +1505,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>653</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>31</td>
 <td>139</td>
 <td>114</td>
@@ -1742,7 +1747,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>10.4</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>10.5</td>
 <td>11.1</td>
 <td>11.7</td>
@@ -1885,7 +1890,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>307</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>122</td>
 <td>26</td>
 <td>148</td>
@@ -1965,7 +1970,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>18.4</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>8.3</td>
 <td>12.9</td>
 <td>8.8</td>
@@ -2092,7 +2097,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>307</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>40</td>
 <td>58</td>
 <td>24</td>
@@ -2222,7 +2227,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>18.4</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>9.9</td>
 <td>8.3</td>
 <td>6.4</td>
@@ -2302,24 +2307,582 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Note: Analysis not completed. Initial testing indicated categories of project sizes were not useful. OABs within projects appeared as separate projects, affecting the apparent sizes even after OABs were adjusted to be back within the project where they were situated.</p>
 <p>Idea: Could estimate project sizes by concurrent number of placements at same address…</p>
 </section>
+<section id="placement-outcomes-by-placement-duration" class="level2">
+<h2 class="anchored" data-anchor-id="placement-outcomes-by-placement-duration">Placement outcomes by placement duration</h2>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Duration to nearest 6 months</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>pl_outcomes_excl_same_svc[<span class="st">"duration_cat"</span>] <span class="op">=</span> ((pl_outcomes_excl_same_svc.dur.dt.days <span class="op">*</span> <span class="dv">2</span> <span class="op">/</span> <span class="fl">365.25</span>).<span class="bu">round</span>(<span class="dv">0</span>) <span class="op">/</span> <span class="dv">2</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>tbl_n <span class="op">=</span> pl_outcomes_excl_same_svc.reset_index().pivot_table(</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>          values<span class="op">=</span><span class="st">"vac_id"</span>, index<span class="op">=</span><span class="st">"pl_outcome"</span>, columns<span class="op">=</span><span class="st">"duration_cat"</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>          aggfunc<span class="op">=</span><span class="st">"count"</span>, margins<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>tbl_n <span class="op">=</span> pd.concat([tbl_n.iloc[:<span class="op">-</span><span class="dv">1</span>, :].sort_values(by<span class="op">=</span><span class="st">"All"</span>, ascending<span class="op">=</span><span class="va">False</span>),  tbl_n.iloc[[<span class="op">-</span><span class="dv">1</span>], :]])</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>tbl_n_desc <span class="op">=</span> <span class="st">"Table 4.11: Placement outcomes by duration"</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>excel_output[tbl_n_desc] <span class="op">=</span> tbl_n</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>tbl_pct <span class="op">=</span> (<span class="dv">100</span> <span class="op">*</span> tbl_n <span class="op">/</span> tbl_n.iloc[<span class="op">-</span><span class="dv">1</span>, :])</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>tbl_pct_desc <span class="op">=</span> <span class="st">"Table 4.8: Placement outcomes (as row percentages) by level and pathway"</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>excel_output[tbl_pct_desc] <span class="op">=</span> tbl_pct</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">"display.precision"</span>, <span class="dv">1</span>):</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"### "</span> <span class="op">+</span> tbl_n_desc)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    display(tbl_n)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">""</span>)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"### "</span> <span class="op">+</span> tbl_pct_desc)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    display(tbl_pct)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<section id="table-4.11-placement-outcomes-by-duration" class="level3">
+<h3 class="anchored" data-anchor-id="table-4.11-placement-outcomes-by-duration">Table 4.11: Placement outcomes by duration</h3>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">duration_cat</th>
+<th data-quarto-table-cell-role="th">0.0</th>
+<th data-quarto-table-cell-role="th">0.5</th>
+<th data-quarto-table-cell-role="th">1.0</th>
+<th data-quarto-table-cell-role="th">1.5</th>
+<th data-quarto-table-cell-role="th">2.0</th>
+<th data-quarto-table-cell-role="th">2.5</th>
+<th data-quarto-table-cell-role="th">3.0</th>
+<th data-quarto-table-cell-role="th">3.5</th>
+<th data-quarto-table-cell-role="th">4.0</th>
+<th data-quarto-table-cell-role="th">4.5</th>
+<th data-quarto-table-cell-role="th">5.0</th>
+<th data-quarto-table-cell-role="th">5.5</th>
+<th data-quarto-table-cell-role="th">6.0</th>
+<th data-quarto-table-cell-role="th">6.5</th>
+<th data-quarto-table-cell-role="th">7.0</th>
+<th data-quarto-table-cell-role="th">7.5</th>
+<th data-quarto-table-cell-role="th">8.0</th>
+<th data-quarto-table-cell-role="th">12.5</th>
+<th data-quarto-table-cell-role="th">20.0</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">pl_outcome</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Internal move: forwards</td>
+<td>481</td>
+<td>613</td>
+<td>281</td>
+<td>102</td>
+<td>39</td>
+<td>20</td>
+<td>11</td>
+<td>6</td>
+<td>6</td>
+<td>1</td>
+<td>&lt;NA&gt;</td>
+<td>1</td>
+<td>1</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>1562</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Independent accommodation</td>
+<td>129</td>
+<td>274</td>
+<td>277</td>
+<td>218</td>
+<td>124</td>
+<td>103</td>
+<td>46</td>
+<td>24</td>
+<td>12</td>
+<td>7</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>1</td>
+<td>1</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>1225</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Internal move: sideways</td>
+<td>524</td>
+<td>440</td>
+<td>121</td>
+<td>45</td>
+<td>13</td>
+<td>13</td>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>1164</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Returned to homelessness</td>
+<td>301</td>
+<td>263</td>
+<td>85</td>
+<td>47</td>
+<td>16</td>
+<td>13</td>
+<td>5</td>
+<td>7</td>
+<td>5</td>
+<td>1</td>
+<td>1</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>744</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Internal move: backwards</td>
+<td>181</td>
+<td>218</td>
+<td>116</td>
+<td>59</td>
+<td>25</td>
+<td>17</td>
+<td>12</td>
+<td>8</td>
+<td>8</td>
+<td>3</td>
+<td>1</td>
+<td>2</td>
+<td>&lt;NA&gt;</td>
+<td>2</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>1</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>653</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
+<td>251</td>
+<td>210</td>
+<td>75</td>
+<td>42</td>
+<td>32</td>
+<td>11</td>
+<td>8</td>
+<td>5</td>
+<td>2</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>1</td>
+<td>&lt;NA&gt;</td>
+<td>1</td>
+<td>&lt;NA&gt;</td>
+<td>638</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Other</td>
+<td>71</td>
+<td>62</td>
+<td>31</td>
+<td>15</td>
+<td>12</td>
+<td>6</td>
+<td>1</td>
+<td>&lt;NA&gt;</td>
+<td>1</td>
+<td>&lt;NA&gt;</td>
+<td>1</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>200</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Died</td>
+<td>27</td>
+<td>33</td>
+<td>26</td>
+<td>12</td>
+<td>8</td>
+<td>3</td>
+<td>3</td>
+<td>1</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>1</td>
+<td>1</td>
+<td>&lt;NA&gt;</td>
+<td>1</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>1</td>
+<td>117</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>1965</td>
+<td>2113</td>
+<td>1012</td>
+<td>540</td>
+<td>269</td>
+<td>186</td>
+<td>88</td>
+<td>52</td>
+<td>36</td>
+<td>13</td>
+<td>8</td>
+<td>7</td>
+<td>5</td>
+<td>3</td>
+<td>2</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>6303</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</section>
+<section id="table-4.8-placement-outcomes-as-row-percentages-by-level-and-pathway-1" class="level3">
+<h3 class="anchored" data-anchor-id="table-4.8-placement-outcomes-as-row-percentages-by-level-and-pathway-1">Table 4.8: Placement outcomes (as row percentages) by level and pathway</h3>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">duration_cat</th>
+<th data-quarto-table-cell-role="th">0.0</th>
+<th data-quarto-table-cell-role="th">0.5</th>
+<th data-quarto-table-cell-role="th">1.0</th>
+<th data-quarto-table-cell-role="th">1.5</th>
+<th data-quarto-table-cell-role="th">2.0</th>
+<th data-quarto-table-cell-role="th">2.5</th>
+<th data-quarto-table-cell-role="th">3.0</th>
+<th data-quarto-table-cell-role="th">3.5</th>
+<th data-quarto-table-cell-role="th">4.0</th>
+<th data-quarto-table-cell-role="th">4.5</th>
+<th data-quarto-table-cell-role="th">5.0</th>
+<th data-quarto-table-cell-role="th">5.5</th>
+<th data-quarto-table-cell-role="th">6.0</th>
+<th data-quarto-table-cell-role="th">6.5</th>
+<th data-quarto-table-cell-role="th">7.0</th>
+<th data-quarto-table-cell-role="th">7.5</th>
+<th data-quarto-table-cell-role="th">8.0</th>
+<th data-quarto-table-cell-role="th">12.5</th>
+<th data-quarto-table-cell-role="th">20.0</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">pl_outcome</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Internal move: forwards</td>
+<td>24.5</td>
+<td>29.0</td>
+<td>27.8</td>
+<td>18.9</td>
+<td>14.5</td>
+<td>10.8</td>
+<td>12.5</td>
+<td>11.5</td>
+<td>16.7</td>
+<td>7.7</td>
+<td>&lt;NA&gt;</td>
+<td>14.3</td>
+<td>20.0</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>24.8</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Independent accommodation</td>
+<td>6.6</td>
+<td>13.0</td>
+<td>27.4</td>
+<td>40.4</td>
+<td>46.1</td>
+<td>55.4</td>
+<td>52.3</td>
+<td>46.2</td>
+<td>33.3</td>
+<td>53.8</td>
+<td>37.5</td>
+<td>42.9</td>
+<td>60.0</td>
+<td>33.3</td>
+<td>50.0</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>19.4</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Internal move: sideways</td>
+<td>26.7</td>
+<td>20.8</td>
+<td>12.0</td>
+<td>8.3</td>
+<td>4.8</td>
+<td>7.0</td>
+<td>2.3</td>
+<td>1.9</td>
+<td>5.6</td>
+<td>7.7</td>
+<td>25.0</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>18.5</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Returned to homelessness</td>
+<td>15.3</td>
+<td>12.4</td>
+<td>8.4</td>
+<td>8.7</td>
+<td>5.9</td>
+<td>7.0</td>
+<td>5.7</td>
+<td>13.5</td>
+<td>13.9</td>
+<td>7.7</td>
+<td>12.5</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>11.8</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Internal move: backwards</td>
+<td>9.2</td>
+<td>10.3</td>
+<td>11.5</td>
+<td>10.9</td>
+<td>9.3</td>
+<td>9.1</td>
+<td>13.6</td>
+<td>15.4</td>
+<td>22.2</td>
+<td>23.1</td>
+<td>12.5</td>
+<td>28.6</td>
+<td>&lt;NA&gt;</td>
+<td>66.7</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>100.0</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>10.4</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
+<td>12.8</td>
+<td>9.9</td>
+<td>7.4</td>
+<td>7.8</td>
+<td>11.9</td>
+<td>5.9</td>
+<td>9.1</td>
+<td>9.6</td>
+<td>5.6</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>100.0</td>
+<td>&lt;NA&gt;</td>
+<td>100.0</td>
+<td>&lt;NA&gt;</td>
+<td>10.1</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Other</td>
+<td>3.6</td>
+<td>2.9</td>
+<td>3.1</td>
+<td>2.8</td>
+<td>4.5</td>
+<td>3.2</td>
+<td>1.1</td>
+<td>&lt;NA&gt;</td>
+<td>2.8</td>
+<td>&lt;NA&gt;</td>
+<td>12.5</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>3.2</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Died</td>
+<td>1.4</td>
+<td>1.6</td>
+<td>2.6</td>
+<td>2.2</td>
+<td>3.0</td>
+<td>1.6</td>
+<td>3.4</td>
+<td>1.9</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>14.3</td>
+<td>20.0</td>
+<td>&lt;NA&gt;</td>
+<td>50.0</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>&lt;NA&gt;</td>
+<td>100.0</td>
+<td>1.9</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>100.0</td>
+<td>100.0</td>
+<td>100.0</td>
+<td>100.0</td>
+<td>100.0</td>
+<td>100.0</td>
+<td>100.0</td>
+<td>100.0</td>
+<td>100.0</td>
+<td>100.0</td>
+<td>100.0</td>
+<td>100.0</td>
+<td>100.0</td>
+<td>100.0</td>
+<td>100.0</td>
+<td>100.0</td>
+<td>100.0</td>
+<td>100.0</td>
+<td>100.0</td>
+<td>100.0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</section>
+</section>
 <section id="tables-in-an-excel-file" class="level2">
 <h2 class="anchored" data-anchor-id="tables-in-an-excel-file">Tables in an Excel file</h2>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>sheetname <span class="op">=</span> <span class="st">"Sheet1"</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>qmdfile <span class="op">=</span> os.getenv(<span class="st">"QUARTO_DOCUMENT_FILE"</span>)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>filename <span class="op">=</span> assets_output <span class="op">+</span> qmdfile[:<span class="op">-</span><span class="dv">4</span>]<span class="op">+</span><span class="st">".xlsx"</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.ExcelWriter(filename) <span class="im">as</span> writer:</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    next_row <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k, v <span class="kw">in</span> excel_output.items():</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        pd.DataFrame([k]).to_excel(writer, sheet_name<span class="op">=</span>sheetname, header<span class="op">=</span><span class="va">False</span>, index<span class="op">=</span><span class="va">False</span>, startrow<span class="op">=</span>next_row)</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        next_row <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        v.to_excel(writer, sheet_name<span class="op">=</span>sheetname, startrow<span class="op">=</span>next_row, float_format<span class="op">=</span><span class="st">"</span><span class="sc">%.1f</span><span class="st">"</span>)</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        next_row <span class="op">+=</span> (</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>            (<span class="dv">1</span> <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(v.columns, pd.MultiIndex) <span class="cf">else</span> <span class="dv">1</span> <span class="op">+</span> <span class="bu">len</span>(v.columns.levels))</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">+</span> <span class="bu">len</span>(v) <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"[Excel file](./</span><span class="sc">{</span>filename<span class="sc">}</span><span class="ss">)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>sheetname <span class="op">=</span> <span class="st">"Sheet1"</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>qmdfile <span class="op">=</span> os.getenv(<span class="st">"QUARTO_DOCUMENT_FILE"</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>filename <span class="op">=</span> assets_output <span class="op">+</span> qmdfile[:<span class="op">-</span><span class="dv">4</span>]<span class="op">+</span><span class="st">".xlsx"</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.ExcelWriter(filename) <span class="im">as</span> writer:</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    next_row <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k, v <span class="kw">in</span> excel_output.items():</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        pd.DataFrame([k]).to_excel(writer, sheet_name<span class="op">=</span>sheetname, header<span class="op">=</span><span class="va">False</span>, index<span class="op">=</span><span class="va">False</span>, startrow<span class="op">=</span>next_row)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        next_row <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        v.to_excel(writer, sheet_name<span class="op">=</span>sheetname, startrow<span class="op">=</span>next_row, float_format<span class="op">=</span><span class="st">"</span><span class="sc">%.1f</span><span class="st">"</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        next_row <span class="op">+=</span> (</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>            (<span class="dv">1</span> <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(v.columns, pd.MultiIndex) <span class="cf">else</span> <span class="dv">1</span> <span class="op">+</span> <span class="bu">len</span>(v.columns.levels))</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">+</span> <span class="bu">len</span>(v) <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"[Excel file](./</span><span class="sc">{</span>filename<span class="sc">}</span><span class="ss">)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <p><a href="./assets_output/04_bivariate_analysis_placements.xlsx">Excel file</a></p>
 

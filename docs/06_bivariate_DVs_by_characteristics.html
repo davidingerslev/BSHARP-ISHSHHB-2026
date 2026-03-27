@@ -359,7 +359,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div id="dc3a668e" class="cell" data-execution_count="1">
+<div id="ba9dc0d6" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup code</span></span>
@@ -580,7 +580,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-170"><a href="#cb2-170" aria-hidden="true" tabindex="-1"></a>pl_outcomes <span class="op">=</span> pl_outcomes[pl_outcomes[<span class="st">"dur"</span>] <span class="op">&gt;</span> pd.Timedelta(days<span class="op">=</span><span class="dv">0</span>)]</span>
 <span id="cb2-171"><a href="#cb2-171" aria-hidden="true" tabindex="-1"></a>pl_outcomes_map <span class="op">=</span> {</span>
 <span id="cb2-172"><a href="#cb2-172" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Independent accommodation'</span>: [<span class="st">'To social housing'</span>, <span class="st">'To private rented'</span>],</span>
-<span id="cb2-173"><a href="#cb2-173" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Insecure outcome'</span>: [<span class="st">'To friends/family'</span>, <span class="st">'Custody'</span>, <span class="st">'[Not ended]'</span>, <span class="st">'To care/hospital'</span>, <span class="st">'To external supported'</span>],</span>
+<span id="cb2-173"><a href="#cb2-173" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Insecure outcome (external)'</span>: [<span class="st">'To friends/family'</span>, <span class="st">'Custody'</span>, <span class="st">'[Not ended]'</span>, <span class="st">'To care/hospital'</span>, <span class="st">'To external supported'</span>],</span>
 <span id="cb2-174"><a href="#cb2-174" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Returned to homelessness'</span>: [<span class="st">'Evicted'</span>, <span class="st">'Abandoned'</span>],</span>
 <span id="cb2-175"><a href="#cb2-175" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Died'</span>: [<span class="st">'Died'</span>],</span>
 <span id="cb2-176"><a href="#cb2-176" aria-hidden="true" tabindex="-1"></a>    <span class="co"># '_excluded': ['Other', 'Missing data/error']</span></span>
@@ -1609,7 +1609,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>1225</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>168</td>
 <td>454</td>
 <td>2</td>
@@ -1701,7 +1701,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>20.1%</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>9.9%</td>
 <td>10.6%</td>
 <td>8.3%</td>
@@ -2506,7 +2506,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>1225</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>485</td>
 <td>129</td>
 <td>24</td>
@@ -2588,7 +2588,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>20.1%</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>10.5%</td>
 <td>10.3%</td>
 <td>11.0%</td>
@@ -3723,7 +3723,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>1225</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>0</td>
 <td>50</td>
 <td>210</td>
@@ -3845,7 +3845,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>20.1%</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>0.0%</td>
 <td>12.0%</td>
 <td>11.5%</td>
@@ -4668,7 +4668,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>1225</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>468</td>
 <td>38</td>
 <td>132</td>
@@ -4750,7 +4750,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>20.1%</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>10.2%</td>
 <td>12.1%</td>
 <td>10.9%</td>
@@ -5465,7 +5465,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>911</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>373</td>
 <td>129</td>
 <td>502</td>
@@ -5537,7 +5537,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>17.2%</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>8.7%</td>
 <td>12.7%</td>
 <td>9.5%</td>
@@ -6246,7 +6246,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>911</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>310</td>
 <td>192</td>
 <td>502</td>
@@ -6318,7 +6318,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>17.2%</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>9.6%</td>
 <td>9.3%</td>
 <td>9.5%</td>
@@ -7027,7 +7027,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>911</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>131</td>
 <td>371</td>
 <td>502</td>
@@ -7099,7 +7099,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>17.2%</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>9.5%</td>
 <td>9.5%</td>
 <td>9.5%</td>
@@ -7808,7 +7808,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>911</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>208</td>
 <td>294</td>
 <td>502</td>
@@ -7880,7 +7880,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>17.2%</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>10.1%</td>
 <td>9.1%</td>
 <td>9.5%</td>
@@ -8589,7 +8589,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>911</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>191</td>
 <td>311</td>
 <td>502</td>
@@ -8661,7 +8661,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>17.2%</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>9.1%</td>
 <td>9.8%</td>
 <td>9.5%</td>
@@ -9370,7 +9370,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>911</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>392</td>
 <td>110</td>
 <td>502</td>
@@ -9442,7 +9442,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>17.2%</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>9.4%</td>
 <td>9.8%</td>
 <td>9.5%</td>
@@ -10151,7 +10151,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>911</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>492</td>
 <td>10</td>
 <td>502</td>
@@ -10223,7 +10223,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>17.2%</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>9.6%</td>
 <td>5.7%</td>
 <td>9.5%</td>
@@ -10932,7 +10932,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>283</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>124</td>
 <td>10</td>
 <td>134</td>
@@ -11004,7 +11004,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>19.1%</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>9.5%</td>
 <td>5.8%</td>
 <td>9.0%</td>
@@ -11629,7 +11629,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>606</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>358</td>
 <td>358</td>
 </tr>
@@ -11691,7 +11691,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>16.3%</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>9.7%</td>
 <td>9.7%</td>
 </tr>
@@ -12394,7 +12394,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>911</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>412</td>
 <td>90</td>
 <td>502</td>
@@ -12466,7 +12466,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>17.2%</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>9.5%</td>
 <td>9.3%</td>
 <td>9.5%</td>
@@ -13175,7 +13175,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>283</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>80</td>
 <td>54</td>
 <td>134</td>
@@ -13247,7 +13247,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>19.1%</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>9.3%</td>
 <td>8.7%</td>
 <td>9.0%</td>
@@ -13956,7 +13956,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>606</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>324</td>
 <td>34</td>
 <td>358</td>
@@ -14028,7 +14028,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>16.3%</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>9.6%</td>
 <td>10.6%</td>
 <td>9.7%</td>
@@ -14737,7 +14737,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>911</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>450</td>
 <td>52</td>
 <td>502</td>
@@ -14809,7 +14809,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>17.2%</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>9.5%</td>
 <td>9.3%</td>
 <td>9.5%</td>
@@ -15518,7 +15518,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>283</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>106</td>
 <td>28</td>
 <td>134</td>
@@ -15590,7 +15590,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>19.1%</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>8.7%</td>
 <td>10.4%</td>
 <td>9.0%</td>
@@ -16299,7 +16299,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>606</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>335</td>
 <td>23</td>
 <td>358</td>
@@ -16371,7 +16371,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>16.3%</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>9.8%</td>
 <td>8.1%</td>
 <td>9.7%</td>
@@ -17164,7 +17164,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>912</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>14</td>
 <td>27</td>
 <td>466</td>
@@ -17246,7 +17246,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>16.9%</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>8.2%</td>
 <td>6.7%</td>
 <td>9.7%</td>
@@ -17961,7 +17961,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>1225</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>594</td>
 <td>44</td>
 <td>638</td>
@@ -18033,7 +18033,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>20.1%</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>10.6%</td>
 <td>8.4%</td>
 <td>10.5%</td>
@@ -19162,7 +19162,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>1225</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>222</td>
 <td>14</td>
 <td>47</td>
@@ -19284,7 +19284,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>20.1%</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
 <td>12.8%</td>
 <td>11.4%</td>
 <td>9.2%</td>

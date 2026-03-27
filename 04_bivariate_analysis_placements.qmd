@@ -94,7 +94,7 @@ pl_excluded["Zero-day placements"] = pl_outcomes[pl_outcomes["dur"] == pd.Timede
 pl_outcomes = pl_outcomes[pl_outcomes["dur"] > pd.Timedelta(days=0)]
 pl_outcomes_map = {
     'Independent accommodation': ['To social housing', 'To private rented'],
-    'Insecure outcome': ['To friends/family', 'Custody', '[Not ended]', 'To care/hospital', 'To external supported'],
+    'Insecure outcome (external)': ['To friends/family', 'Custody', 'To care/hospital', 'To external supported'],
     'Returned to homelessness': ['Evicted', 'Abandoned'],
     'Died': ['Died'],
     'Other': ['Other'],
@@ -270,6 +270,30 @@ for day in range(0, days_range + 1):
 svc_placements_df = pd.concat(svc_placements).groupby("svc_id").describe()
 svc_placements_df.join(df.svc.set_index("svc_id"))
 #TODO: Work in progress!
+```
+
+## Placement outcomes by placement duration
+
+```{python}
+#| output: asis
+# Duration to nearest 6 months
+pl_outcomes_excl_same_svc["duration_cat"] = ((pl_outcomes_excl_same_svc.dur.dt.days * 2 / 365.25).round(0) / 2)
+tbl_n = pl_outcomes_excl_same_svc.reset_index().pivot_table(
+          values="vac_id", index="pl_outcome", columns="duration_cat",
+          aggfunc="count", margins=True)
+tbl_n = pd.concat([tbl_n.iloc[:-1, :].sort_values(by="All", ascending=False),  tbl_n.iloc[[-1], :]])
+tbl_n_desc = "Table 4.11: Placement outcomes by duration"
+excel_output[tbl_n_desc] = tbl_n
+tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :])
+tbl_pct_desc = "Table 4.8: Placement outcomes (as row percentages) by level and pathway"
+excel_output[tbl_pct_desc] = tbl_pct
+with pd.option_context("display.precision", 1):
+    print("### " + tbl_n_desc)
+    display(tbl_n)
+    print("")
+    print("### " + tbl_pct_desc)
+    display(tbl_pct)
+    print("")
 ```
 
 ## Tables in an Excel file

@@ -143,6 +143,13 @@ tbl.loc["All", :] = tbl.sum()
 excel_output["Table 3.2: Route outcomes after 3.08 years"] = tbl
 with pd.option_context("display.precision", 1):
     display(tbl)
+print("""
+::: {.callout-note}
+- "Insecure outcome" includes still being in Level 1 or 2 of the homelessness or substance use pathways,
+  or level 3/4 in shared accommodation.
+- "Independent outcome" includes being in Level 1 or 2 of the homelessness or substance use pathways
+:::
+""")
 ```
 
 ## 3.3 Outcomes at a period of time after a person's first route started
@@ -203,6 +210,13 @@ tbl.index = tbl.index.rename("Route outcome")
 excel_output[f"Table 3.3: Route outcomes after 3.08 years"] = tbl
 with pd.option_context("display.precision", 1):
     display(tbl)
+print("""
+::: {.callout-note}
+- "Insecure outcome" includes still being in Level 1 or 2 of the homelessness or substance use pathways,
+  or level 3/4 in shared accommodation.
+- "Independent outcome" includes being in Level 1 or 2 of the homelessness or substance use pathways
+:::
+""")
 ```
 
 ## 3.4 Returning to use services multiple times
@@ -334,7 +348,7 @@ pl_excluded["Zero-day placements"] = pl_outcomes[pl_outcomes["dur"] == pd.Timede
 pl_outcomes = pl_outcomes[pl_outcomes["dur"] > pd.Timedelta(days=0)]
 pl_outcomes_map = {
     'Independent accommodation': ['To social housing', 'To private rented'],
-    'Insecure outcome': ['To friends/family', 'Custody', '[Not ended]', 'To care/hospital', 'To external supported'],
+    'Insecure outcome (external)': ['To friends/family', 'Custody', 'To care/hospital', 'To external supported'],
     'Returned to homelessness': ['Evicted', 'Abandoned'],
     'Died': ['Died'],
     # '_excluded': ['Other', 'Missing data/error']

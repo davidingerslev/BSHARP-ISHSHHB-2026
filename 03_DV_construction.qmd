@@ -65,6 +65,20 @@ with pd.option_context("display.precision", 1):
     display(tbl)
 ```
 
+## 3.1.1 Entry point into BAHSA: pathway and level
+```{python}
+rt_entries = dpw_rt_starts.copy()
+print(f"Routes: {len(rt_entries):,}")
+rt_entries["pway_and_lvl"] = rt_entries["svc_typelvl"]
+# Create univariate table for new DV, rt_entries[["pathway_type", "pathway_level"]]
+n = rt_entries["pway_and_lvl"].value_counts(dropna=False).rename("n").astype("Int64")
+pct = (100 * rt_entries["pway_and_lvl"].value_counts(dropna=False, normalize=True)).rename("pct")
+tbl = pd.concat([n, pct], axis=1).sort_index()
+excel_output["Table 3.1.1: Entry point into BAHSA services (pathway and level)"] = tbl
+with pd.option_context("display.precision", 1):
+    display(tbl)
+```
+
 ## 3.2 Outcomes at a period of time after a route started
 
 Period: 3.08 years

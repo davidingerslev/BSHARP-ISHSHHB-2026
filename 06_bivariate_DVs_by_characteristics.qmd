@@ -59,8 +59,16 @@ dv_dict = {}
 rt_entries = dpw_rt_starts.copy()
 rt_entries["pathway"] = rt_entries["svc_type_short"]
 rt_entries["pathway_type"] = (rt_entries["pathway"] == "Substance Misuse Pathway").map({True: "Substance Misuse", False: "Homelessness"})
-dv_dict["Entry point into BAHSA services"] = (
+dv_dict["Entry point into BAHSA services (pathway type and level)"] = (
     rt_entries[["route_id", "pathway_type", "pathway_level"]].set_index("route_id"))
+#################################################
+# 3.1.1 Entry point into BAHSA: pathway and level
+#################################################
+rt_entries = dpw_rt_starts.copy()
+print(f"Routes: {len(rt_entries):,}")
+rt_entries["pway_and_lvl"] = rt_entries["svc_typelvl"]
+dv_dict["Entry point into BAHSA services (pathway and level)"] = (
+    rt_entries[["route_id", "pway_and_lvl"]].set_index("route_id"))
 #####################################
 # 3.2 Route outcomes after 3.08 years
 #####################################
@@ -250,6 +258,12 @@ display(dv_dict_desc)
 #| output: asis
 from collections import defaultdict
 dpw_pls = dpw_pls_orig
+# Add route entry point as an IV as well as a DV
+#TODO:
+tdf = dv_dict["Entry point into BAHSA services (pathway type and level)"]
+rt_entry_point = (tdf["pathway_type"].map({"Homelessness": "H ", "Substance Misuse": "SU "})
+                  + tdf["pathway_level"].astype("string")).rename("rt_entry_point")
+dpw_pls = dpw_pls.join(rt_entry_point, on="route_id")
 # Age category at year of first route during studied period
 dpw_pls["gender"] = dpw_pls["gender"].map({
     "Male": "Male", "Female": "Female", "Don't Know": "_Unknown",
@@ -323,6 +337,7 @@ dpw_rt_starts = dpw_pls.groupby("route_id").head(1)
 dpw_rt_ends = dpw_pls.groupby("route_id").tail(1)
 dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1)  # 1 duplicate client but first entry has more detailed answers
 characteristics = [
+    "rt_entry_point",
     "gender",
     "global_majority",
     "age_cat",

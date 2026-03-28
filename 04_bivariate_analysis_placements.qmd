@@ -133,7 +133,7 @@ tbl_n = pd.concat([tbl_n.iloc[:-1, :].sort_values(by="All", ascending=False),  t
 tbl_n_desc = "Table 4.3: Placement outcomes by pathway type and level"
 excel_output[tbl_n_desc] = tbl_n
 tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :])
-tbl_pct_desc = "Table 4.4: Placement outcomes (as row percentages) by pathway type and level"
+tbl_pct_desc = "Table 4.4: Placement outcomes (as column percentages) by pathway type and level"
 excel_output[tbl_pct_desc] = tbl_pct
 with pd.option_context("display.precision", 1):
     print("### " + tbl_n_desc)
@@ -155,7 +155,7 @@ tbl_n = pd.concat([tbl_n.iloc[:-1, :].sort_values(by="All", ascending=False),  t
 tbl_n_desc = "Table 4.5: Placement outcomes by calendar year"
 excel_output[tbl_n_desc] = tbl_n
 tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :])
-tbl_pct_desc = "Table 4.6: Placement outcomes (as row percentages) by calendar year"
+tbl_pct_desc = "Table 4.6: Placement outcomes (as column percentages) by calendar year"
 excel_output[tbl_pct_desc] = tbl_pct
 with pd.option_context("display.precision", 1):
     print("### " + tbl_n_desc)
@@ -182,7 +182,7 @@ tbl_n = pd.concat([tbl_n.iloc[:-1, :].sort_values(by="All", ascending=False),  t
 tbl_n_desc = "Table 4.7: Placement outcomes by level and pathway"
 excel_output[tbl_n_desc] = tbl_n
 tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :])
-tbl_pct_desc = "Table 4.8: Placement outcomes (as row percentages) by level and pathway"
+tbl_pct_desc = "Table 4.8: Placement outcomes (as column percentages) by level and pathway"
 excel_output[tbl_pct_desc] = tbl_pct
 with pd.option_context("display.precision", 1):
     print("### " + tbl_n_desc)
@@ -207,7 +207,7 @@ tbl_n = pd.concat([tbl_n.iloc[:-1, :].sort_values(by="All", ascending=False),  t
 tbl_n_desc = "Table 4.9: Placement outcomes from level 3-4 by shared vs. self-contained"
 excel_output[tbl_n_desc] = tbl_n
 tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :]).add_suffix(" %")
-tbl_pct_desc = "Table 4.10: Placement outcomes (as row percentages) from level 3-4 by shared vs. self-contained"
+tbl_pct_desc = "Table 4.10: Placement outcomes (as column percentages) from level 3-4 by shared vs. self-contained"
 excel_output[tbl_pct_desc] = tbl_pct
 with pd.option_context("display.precision", 1):
     print("### " + tbl_n_desc)
@@ -229,10 +229,11 @@ tbl_n = l3_l4_outcomes.reset_index().pivot_table(
           values="vac_id", index="pl_outcome", columns=["shared", "pathway_short"],
           aggfunc="count", margins=True)
 tbl_n = pd.concat([tbl_n.iloc[:-1, :].sort_values(by="All", ascending=False),  tbl_n.iloc[[-1], :]])
-tbl_n_desc = "Table 4.9: Placement outcomes from level 3-4 by shared vs. self-contained"
+tbl_n_desc = "Table 4.13: Placement outcomes from level 3-4 by shared vs. self-contained and pathway"
 excel_output[tbl_n_desc] = tbl_n
 tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :]).add_suffix(" %")
-tbl_pct_desc = "Table 4.10: Placement outcomes (as row percentages) from level 3-4 by shared vs. self-contained"
+tbl_pct_desc = ("Table 4.14: Placement outcomes (as column percentages) from level 3-4" +
+                " by shared vs. self-contained and pathway")
 excel_output[tbl_pct_desc] = tbl_pct
 with pd.option_context("display.precision", 1):
     print("### " + tbl_n_desc)
@@ -282,10 +283,37 @@ tbl_n = pl_outcomes_excl_same_svc.reset_index().pivot_table(
           values="vac_id", index="pl_outcome", columns="duration_cat",
           aggfunc="count", margins=True)
 tbl_n = pd.concat([tbl_n.iloc[:-1, :].sort_values(by="All", ascending=False),  tbl_n.iloc[[-1], :]])
-tbl_n_desc = "Table 4.11: Placement outcomes by duration"
+tbl_n_desc = "Table 4.15: Placement outcomes by duration"
 excel_output[tbl_n_desc] = tbl_n
 tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :])
-tbl_pct_desc = "Table 4.8: Placement outcomes (as row percentages) by level and pathway"
+tbl_pct_desc = "Table 4.16: Placement outcomes (as column percentages) by duration"
+excel_output[tbl_pct_desc] = tbl_pct
+with pd.option_context("display.precision", 1):
+    print("### " + tbl_n_desc)
+    display(tbl_n)
+    print("")
+    print("### " + tbl_pct_desc)
+    display(tbl_pct)
+    print("")
+```
+
+## Placement outcomes by placement duration, pathway type and pathway level
+
+```{python}
+#| output: asis
+# Duration to nearest 6 months
+pl_outcomes_excl_same_svc["duration_cat"] = ((pl_outcomes_excl_same_svc.dur.dt.days * 2 / 365.25).round(0) / 2)
+tbl_n = pl_outcomes_excl_same_svc.reset_index().pivot_table(
+          values="vac_id", index=["pathway_type", "pathway_level", "pl_outcome"], columns="duration_cat",
+          aggfunc="count", margins=True)
+tbl_n = (pd.concat([
+    tbl_n.iloc[:-1, :].sort_values(by="All", ascending=False).sort_index(level=[0, 1]),
+    tbl_n.iloc[[-1], :]])
+    ).drop(index=[("Substance Misuse", "3"), ("Substance Misuse", "4")])
+tbl_n_desc = "Table 4.15: Placement outcomes by duration"
+excel_output[tbl_n_desc] = tbl_n
+tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :])
+tbl_pct_desc = "Table 4.16: Placement outcomes (as column percentages) by duration"
 excel_output[tbl_pct_desc] = tbl_pct
 with pd.option_context("display.precision", 1):
     print("### " + tbl_n_desc)

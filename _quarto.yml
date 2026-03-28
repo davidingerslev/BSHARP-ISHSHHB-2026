@@ -12,8 +12,9 @@ format:
             dark: darkly
             light: flatly
         respect-user-color-scheme: true
-        embed-resources: false
+        embed-resources: true
         page-layout: full
+        smooth-scroll: true
 
 website:
     page-footer:

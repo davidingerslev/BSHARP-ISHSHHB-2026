@@ -82,8 +82,8 @@ tblno = get_next_table_number()
 tbl_desc = f"Table 4.{tblno}: Placements in different pathway levels"
 excel_output[tbl_desc] = tbl
 print("### " + tbl_desc)
-display(tbl)
-print("")
+with pd.option_context("display.precision", 1):
+    display(tbl)
 level_diff = (pl_outcomes.loc[pl_outcomes["pl_end_cat"] == "Internal move", ["pathway", "pathway_level"]]
               .join(next_pls[["pathway", "pathway_level"]].add_prefix("next_"))
               .assign(level_diff=lambda df: df[["pathway_level", "next_pathway_level"]]
@@ -115,6 +115,7 @@ pl_outcomes["pl_outcome"] = pl_outcomes["pl_end_cat"].map(pl_end_cat_map)
 pl_outcomes.loc[
     pl_outcomes["pl_end_cat"].fillna("").str.startswith("Internal move"),
     "pl_outcome"] = pl_outcomes["pl_end_cat"]
+pl_outcomes["pl_outcome"] = pl_outcomes["pl_outcome"].fillna("<NA>")
 # Exclude 1,310 moves within the same service
 pl_excluded["Moves within same service"] = pl_outcomes[pl_outcomes["pl_end_cat"] == "Internal move: same service"]
 pl_outcomes_excl_same_svc = pl_outcomes[pl_outcomes["pl_end_cat"] != "Internal move: same service"]
@@ -135,8 +136,37 @@ tblno = get_next_table_number()
 tbl_desc = f"Table 4.{tblno}: Placement outcomes"
 excel_output[tbl_desc] = tbl
 print("### " + tbl_desc)
-display(tbl)
+with pd.option_context("display.precision", 1):
+    display(tbl)
 print("")
+```
+Notes:<br>
+
+```{python}
+#| output: asis
+pl_outcomes_excl_same_svc["planned"] = (
+   pl_outcomes_excl_same_svc.pl_end_reason.str.split(" ").str[-1].map({"(Unplanned)": "Unplanned",
+                                                                       "(Planned)": "Planned",
+                                                                       "(planned)": "Planned"})).astype("string")
+tbl = get_frequencies(pl_outcomes_excl_same_svc[["pl_outcome", "planned"]], dropna=False, dropna_pct=False)
+tbl["n_grp"] = tbl["n"].groupby(level=0).transform("sum").astype("Int64")
+tbl["pct_grp"] = tbl["n"].groupby(level=0).transform(lambda g: 100 * g.sum() / tbl["n"].sum())
+tbl = tbl.sort_values(["n_grp", "n"], ascending=False)
+tbl.loc[("All", "All"), :] = tbl.sum()
+tbl.loc[("All", "All"), ["n_grp", "pct_grp"]] = tbl.loc[("All", "All"), ["n", "pct"]].to_list()
+tbl = tbl.set_index(["n_grp", "pct_grp"], append=True).reorder_levels(["pl_outcome", "n_grp", "pct_grp", "planned"])
+tbl = tbl.convert_dtypes()
+tblno = get_next_table_number()
+tbl_desc = f"Table 4.{tblno}: Placement outcomes (planned/unplanned)"
+excel_output[tbl_desc] = tbl
+print("### " + tbl_desc)
+with pd.option_context("display.precision", 1):
+    display(tbl)
+print("")
+```
+
+```{python}
+#| output: asis
 tbl_n = pl_outcomes_excl_same_svc.reset_index().pivot_table(
           values="vac_id", index="pl_outcome", columns=["pathway_type", "pathway_level"],
           aggfunc="count", margins=True, dropna=True)

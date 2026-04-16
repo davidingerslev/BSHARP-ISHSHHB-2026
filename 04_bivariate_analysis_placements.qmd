@@ -254,12 +254,21 @@ excel_output[tbl_n_desc] = tbl_n
 tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :])
 tbl_pct_desc = f"Table 4.{get_next_table_number()}: Placement outcomes (as column percentages) by pathway"
 excel_output[tbl_pct_desc] = tbl_pct
+f = plt.figure(figsize=(6.2, 8.1))
 p = (so.Plot(data=tbl_pct.iloc[:-1, :].unstack().to_frame(name="pct"),
              x="pct", y="pl_outcome", color="pathway_short")
+     .label(x="% outcomes from individual placements", y="")
      .add(so.Bar(), so.Dodge())
-     .layout(size=(9.2, 4.1))
+     .theme({"legend.loc": "lower left"})
+     .on(f)
+     .plot()
      )
-p.show(block=False)
+legend = f.legends.pop(0)
+f.legend(legend.legendHandles, [t.get_text() for t in legend.texts],
+         loc="lower left", bbox_to_anchor=(0, 0.05),
+         title="Pathway")
+f.savefig(output_dir + "Figure_4.1.svg")
+plt.show(block=False)
 with pd.option_context("display.precision", 1):
     print("### " + tbl_n_desc)
     display(tbl_n)

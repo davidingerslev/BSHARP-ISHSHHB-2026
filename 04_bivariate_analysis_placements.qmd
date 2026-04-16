@@ -199,7 +199,7 @@ tbl_n = pl_outcomes_excl_same_svc.reset_index().pivot_table(
           aggfunc="count", margins=True, dropna=True)
 tbl_n = pd.concat([tbl_n.iloc[:-1, :].sort_values(by="All", ascending=False),  tbl_n.iloc[[-1], :]])
 tblno = get_next_table_number()
-tbl_n_desc = f"Table 4.{tblno}: Placement outcomes by pathway type and level"
+tbl_n_desc = f"Table 4.{tblno}: Placement outcomes by level and pathway type"
 excel_output[tbl_n_desc] = tbl_n
 tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :])
 tblno = get_next_table_number()
@@ -271,11 +271,36 @@ f.legend(legend.legendHandles, [t.get_text() for t in legend.texts],
          loc="lower left", bbox_to_anchor=(0, 0.05),
          title="Pathway",
          fontsize="small")
-legend = plt.legend()
-for t in legend.texts:
+legend = f.legends[0]
+for t in [legend.get_title()] + legend.texts:
     t.set_alpha(0.8)
 f.savefig(output_dir + "Figure_4.1.svg")
 plt.show(block=False)
+with pd.option_context("display.precision", 1):
+    print("### " + tbl_n_desc)
+    display(tbl_n)
+    print("")
+    print("### " + tbl_pct_desc)
+    display(tbl_pct)
+    print("")
+```
+
+## Placement outcomes by level and pathway type
+
+```{python}
+#| output: asis
+pl_outcomes_excl_same_svc["pathway_type"] = (
+    (pl_outcomes_excl_same_svc["pathway"] == "Substance Misuse Pathway")
+    .map({True: "Substance Misuse", False: "Homelessness"}))
+tbl_n = pl_outcomes_excl_same_svc.reset_index().pivot_table(
+          values="vac_id", index="pl_outcome", columns=["pathway_type", "pathway_level"],
+          aggfunc="count", margins=True)
+tbl_n = pd.concat([tbl_n.iloc[:-1, :].sort_values(by="All", ascending=False),  tbl_n.iloc[[-1], :]])
+tbl_n_desc = f"Table 4.{get_next_table_number()}: Placement outcomes by level and pathway type"
+excel_output[tbl_n_desc] = tbl_n
+tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :])
+tbl_pct_desc = f"Table 4.{get_next_table_number()}: Placement outcomes (as column percentages) by level and pathway"
+excel_output[tbl_pct_desc] = tbl_pct
 with pd.option_context("display.precision", 1):
     print("### " + tbl_n_desc)
     display(tbl_n)

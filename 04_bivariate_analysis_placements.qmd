@@ -199,7 +199,7 @@ tbl_n = pl_outcomes_excl_same_svc.reset_index().pivot_table(
           aggfunc="count", margins=True, dropna=True)
 tbl_n = pd.concat([tbl_n.iloc[:-1, :].sort_values(by="All", ascending=False),  tbl_n.iloc[[-1], :]])
 tblno = get_next_table_number()
-tbl_n_desc = f"Table 4.{tblno}: Placement outcomes by level and pathway type"
+tbl_n_desc = f"Table 4.{tblno}: Placement outcomes by pathway type and level"
 excel_output[tbl_n_desc] = tbl_n
 tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :])
 tblno = get_next_table_number()

@@ -4025,7 +4025,7 @@ vertical-align: -.125em;
   <li><a href="#table-4.1-placement-durations" id="toc-table-4.1-placement-durations" class="nav-link" data-scroll-target="#table-4.1-placement-durations">Table 4.1: Placement durations</a></li>
   <li><a href="#table-4.2-placement-outcomes" id="toc-table-4.2-placement-outcomes" class="nav-link" data-scroll-target="#table-4.2-placement-outcomes">Table 4.2: Placement outcomes</a></li>
   <li><a href="#table-4.3-placement-outcomes-plannedunplanned" id="toc-table-4.3-placement-outcomes-plannedunplanned" class="nav-link" data-scroll-target="#table-4.3-placement-outcomes-plannedunplanned">Table 4.3: Placement outcomes (planned/unplanned)</a></li>
-  <li><a href="#table-4.4-placement-outcomes-by-level-and-pathway-type" id="toc-table-4.4-placement-outcomes-by-level-and-pathway-type" class="nav-link" data-scroll-target="#table-4.4-placement-outcomes-by-level-and-pathway-type">Table 4.4: Placement outcomes by level and pathway type</a></li>
+  <li><a href="#table-4.4-placement-outcomes-by-pathway-type-and-level" id="toc-table-4.4-placement-outcomes-by-pathway-type-and-level" class="nav-link" data-scroll-target="#table-4.4-placement-outcomes-by-pathway-type-and-level">Table 4.4: Placement outcomes by pathway type and level</a></li>
   <li><a href="#table-4.5-placement-outcomes-as-column-percentages-by-pathway-type-and-level" id="toc-table-4.5-placement-outcomes-as-column-percentages-by-pathway-type-and-level" class="nav-link" data-scroll-target="#table-4.5-placement-outcomes-as-column-percentages-by-pathway-type-and-level">Table 4.5: Placement outcomes (as column percentages) by pathway type and level</a></li>
   </ul></li>
   <li><a href="#placement-outcomes-by-calendar-year" id="toc-placement-outcomes-by-calendar-year" class="nav-link" data-scroll-target="#placement-outcomes-by-calendar-year">Placement outcomes by calendar year</a>
@@ -4107,7 +4107,7 @@ vertical-align: -.125em;
 </header>
 
 
-<div id="68cb80ad" class="cell" data-execution_count="1">
+<div id="91ceb48f" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup code</span></span>
@@ -4676,7 +4676,7 @@ vertical-align: -.125em;
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>          aggfunc<span class="op">=</span><span class="st">&quot;count&quot;</span>, margins<span class="op">=</span><span class="va">True</span>, dropna<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>tbl_n <span class="op">=</span> pd.concat([tbl_n.iloc[:<span class="op">-</span><span class="dv">1</span>, :].sort_values(by<span class="op">=</span><span class="st">&quot;All&quot;</span>, ascending<span class="op">=</span><span class="va">False</span>),  tbl_n.iloc[[<span class="op">-</span><span class="dv">1</span>], :]])</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>tblno <span class="op">=</span> get_next_table_number()</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>tbl_n_desc <span class="op">=</span> <span class="ss">f&quot;Table 4.</span><span class="sc">{</span>tblno<span class="sc">}</span><span class="ss">: Placement outcomes by level and pathway type&quot;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>tbl_n_desc <span class="op">=</span> <span class="ss">f&quot;Table 4.</span><span class="sc">{</span>tblno<span class="sc">}</span><span class="ss">: Placement outcomes by pathway type and level&quot;</span></span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>excel_output[tbl_n_desc] <span class="op">=</span> tbl_n</span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>tbl_pct <span class="op">=</span> (<span class="dv">100</span> <span class="op">*</span> tbl_n <span class="op">/</span> tbl_n.iloc[<span class="op">-</span><span class="dv">1</span>, :])</span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>tblno <span class="op">=</span> get_next_table_number()</span>
@@ -4691,8 +4691,8 @@ vertical-align: -.125em;
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </section>
-<section id="table-4.4-placement-outcomes-by-level-and-pathway-type" class="level3">
-<h3 class="anchored" data-anchor-id="table-4.4-placement-outcomes-by-level-and-pathway-type">Table 4.4: Placement outcomes by level and pathway type</h3>
+<section id="table-4.4-placement-outcomes-by-pathway-type-and-level" class="level3">
+<h3 class="anchored" data-anchor-id="table-4.4-placement-outcomes-by-pathway-type-and-level">Table 4.4: Placement outcomes by pathway type and level</h3>
 <div>
 
 

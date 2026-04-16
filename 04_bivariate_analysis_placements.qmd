@@ -25,6 +25,7 @@ dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1)  # 1 duplicate client but first
 
 import matplotlib
 import matplotlib.pyplot as plt
+import seaborn.objects as so
 matplotlib.rcParams.update({
     'figure.figsize': (6.2, 4.1),
     'font.size': 12,
@@ -72,6 +73,10 @@ next_pls = (dpw_pls.loc[dpw_pls["prev_vac_id"].notna()]
 next_pls["pathway"] = next_pls["pathway"].cat.remove_unused_categories()
 pl_outcomes.loc[next_pls.index, "pl_end_cat"] = "Internal move"
 pl_outcomes.loc[dpw_pls.loc[dpw_pls["prev_svc_id"] == dpw_pls["svc_id"], "prev_vac_id"].values, "pl_end_cat"] = "Internal move: same service"
+#TODO: fix duration dates for internal moves to same service
+same_svc_dates = (dpw_pls.groupby(["route_id", dpw_pls["svc_id"].diff().ne(0).cumsum().fillna(0)], as_index=False)
+                  .agg(vac_id=("vac_id", "last"), pl_start_dt=("pl_start_dt", "first"), pl_end_dt=("pl_end_dt", "last"))
+                  .set_index("vac_id").drop(columns="route_id"))
 pl_outcomes["pathway"] = pl_outcomes["svc_type_short"].cat.remove_unused_categories()
 pl_outcomes["pathway_type"] = (pl_outcomes["pathway"] == "Substance Misuse Pathway").map({True: "Substance Misuse", False: "Homelessness"})
 pl_outcomes["ended"] = pl_outcomes["pl_end_dt"].isna().map({True: "Current", False: "Ended"})
@@ -98,6 +103,9 @@ pl_outcomes.loc[pl_outcomes["level_diff"].notna(), "pl_end_cat"] = (
 )
 # Exclude 738 placements that have not ended
 pl_excluded["Not-ended placements"] = pl_outcomes[pl_outcomes["dur"].isna()]
+pl_excluded["Not-ended placements"]["dur"] = (
+    pd.Timedelta(days=1)
+    + (distinct_pathways.dpw_end_dt - pl_excluded["Not-ended placements"]["pl_start_dt"]))
 pl_outcomes = pl_outcomes[pl_outcomes["dur"].notna()]
 # Exclude 42 0-day placements
 pl_excluded["Zero-day placements"] = pl_outcomes[pl_outcomes["dur"] == pd.Timedelta(days=0)]
@@ -115,11 +123,10 @@ pl_outcomes["pl_outcome"] = pl_outcomes["pl_end_cat"].map(pl_end_cat_map)
 pl_outcomes.loc[
     pl_outcomes["pl_end_cat"].fillna("").str.startswith("Internal move"),
     "pl_outcome"] = pl_outcomes["pl_end_cat"]
-pl_outcomes["pl_outcome"] = pl_outcomes["pl_outcome"].fillna("<NA>")
 # Exclude 1,310 moves within the same service
 pl_excluded["Moves within same service"] = pl_outcomes[pl_outcomes["pl_end_cat"] == "Internal move: same service"]
-pl_outcomes_excl_same_svc = pl_outcomes[pl_outcomes["pl_end_cat"] != "Internal move: same service"]
 # Exclude 277 moves due to end reasons: 53 missing reaons, 200 "Other"
+pl_outcomes["pl_outcome"] = pl_outcomes["pl_outcome"].fillna("Other")
 # TODO: Should "Other" really be excluded?
 ### In [310]: pl_outcomes.set_index("pl_outcome").loc["Other"].pl_end_reason.astype("string").value_counts()
 ### Out[310]: 
@@ -128,7 +135,27 @@ pl_outcomes_excl_same_svc = pl_outcomes[pl_outcomes["pl_end_cat"] != "Internal m
 ### Other (Unplanned)                                          58
 ### (SSTS) BCC Emergency Accommodation (FOR SSTS USE ONLY)      1
 ### Name: count, dtype: Int64
-pl_excluded["Unclear end categories"] = pl_outcomes[pl_outcomes["pl_outcome"].isna()]
+### pl_excluded["Unclear end categories"] = pl_outcomes[pl_outcomes["pl_outcome"].isna()]
+pl_outcomes_excl_same_svc = pl_outcomes[pl_outcomes["pl_end_cat"] != "Internal move: same service"]
+```
+
+```{python}
+#| output: asis
+pl_durs = dpw_pls.copy()
+pl_durs["dur"] = (
+    pd.Timedelta(days=1)
+    + (distinct_pathways.dpw_end_dt - pl_durs["pl_start_dt"]))
+tbl = pl_durs["dur"].dt.days.describe(percentiles=[0.1, 0.9]).rename("Placement durations").to_frame()
+tbl_desc = f"Table 4.{tblno}: Placement durations"
+excel_output[tbl_desc] = tbl
+print("### " + tbl_desc)
+with pd.option_context("display.precision", 1):
+    display(tbl)
+print("")
+```
+
+```{python}
+#| output: asis
 tbl = get_frequencies(pl_outcomes_excl_same_svc["pl_outcome"], dropna=False)
 tbl.loc["All", :] = tbl.sum()
 tbl = tbl.convert_dtypes()
@@ -138,9 +165,9 @@ excel_output[tbl_desc] = tbl
 print("### " + tbl_desc)
 with pd.option_context("display.precision", 1):
     display(tbl)
+print("Excluding: " + ", ".join([f"{k.lower()} ({len(pl_excluded[k])})" for k in pl_excluded.keys()]))
 print("")
 ```
-Notes:<br>
 
 ```{python}
 #| output: asis
@@ -227,6 +254,12 @@ excel_output[tbl_n_desc] = tbl_n
 tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :])
 tbl_pct_desc = f"Table 4.{get_next_table_number()}: Placement outcomes (as column percentages) by pathway"
 excel_output[tbl_pct_desc] = tbl_pct
+p = (so.Plot(data=tbl_pct.iloc[:-1, :].unstack().to_frame(name="pct"),
+             x="pct", y="pl_outcome", color="pathway_short")
+     .add(so.Bar(), so.Dodge())
+     .layout(size=(9.2, 4.1))
+     )
+p.show(block=False)
 with pd.option_context("display.precision", 1):
     print("### " + tbl_n_desc)
     display(tbl_n)

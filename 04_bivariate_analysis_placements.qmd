@@ -317,7 +317,7 @@ excel_output[tbl_pct_desc] = tbl_pct
 pathway_n_labels = tbl_n.iloc[-1].rename("n").apply(lambda x: f"(n={x:,.0f})").to_dict()
 for k, v in pathway_n_labels.items():
     pathway_n_labels[k] = f"{k} {v}"
-f = plt.figure(figsize=(6.2, 8.1))
+f = plt.figure(figsize=(6.2, 6.1))
 p = (so.Plot(data=tbl_pct.iloc[:-1, :].unstack().to_frame(name="pct").rename(index=pathway_n_labels),
              x="pct", y="pl_outcome", color="pathway_short")
      .label(x="% outcomes from individual placements", y="")
@@ -327,15 +327,16 @@ p = (so.Plot(data=tbl_pct.iloc[:-1, :].unstack().to_frame(name="pct").rename(ind
      .plot()
      )
 legend = f.legends.pop(0)
+zw_legendHandles = legend.legendHandles.copy()
 f.legend(legend.legendHandles, [t.get_text() for t in legend.texts],
          loc="lower left", bbox_to_anchor=(0, 0.05),
-         title="Pathway",
-         fontsize="small")
+         title="Pathway", fontsize="small")
 legend = f.legends[0]
 for t in [legend.get_title()] + legend.texts:
     t.set_alpha(0.8)
+legend.get_title().set_fontsize("medium")
 f.savefig(output_dir + "Figure_4.1.svg")
-plt.show(block=False)
+# plt.show(block=False)
 with pd.option_context("display.precision", 1):
     print("### " + tbl_n_desc)
     display(tbl_n)
@@ -344,6 +345,8 @@ with pd.option_context("display.precision", 1):
     display(tbl_pct)
     print("")
 ```
+
+![](assets_output/Figure_4.1.svg)
 
 ## Placement outcomes by level and pathway type
 
@@ -435,10 +438,10 @@ tbl_n = l3_l4_outcomes.reset_index().pivot_table(
           values="vac_id", index="pl_outcome", columns=["shared", "approx_age_cat"],
           aggfunc="count", margins=True)
 tbl_n = pd.concat([tbl_n.iloc[:-1, :].sort_values(by="All", ascending=False),  tbl_n.iloc[[-1], :]])
-tbl_n_desc = f"Table 4.{get_next_table_number()}: Placement outcomes from level 3-4 by shared vs. self-contained"
+tbl_n_desc = f"Table 4.{get_next_table_number()}: Placement outcomes from level 3-4 by shared vs. self-contained and age categories"
 excel_output[tbl_n_desc] = tbl_n
 tbl_pct = (100 * tbl_n / tbl_n.iloc[-1, :])
-tbl_pct_desc = f"Table 4.{get_next_table_number()}: Placement outcomes (as column percentages) from level 3-4 by shared vs. self-contained"
+tbl_pct_desc = f"Table 4.{get_next_table_number()}: Placement outcomes (as column percentages) from level 3-4 by shared vs. self-contained and age categories"
 excel_output[tbl_pct_desc] = tbl_pct
 with pd.option_context("display.precision", 1):
     print("### " + tbl_n_desc)

@@ -90,14 +90,15 @@ print("### " + tbl_desc)
 with pd.option_context("display.precision", 1):
     display(tbl)
 level_diff = (pl_outcomes.loc[pl_outcomes["pl_end_cat"] == "Internal move", ["pathway", "pathway_level"]]
-              .join(next_pls[["pathway", "pathway_level"]].add_prefix("next_"))
-              .assign(level_diff=lambda df: df[["pathway_level", "next_pathway_level"]]
-              .astype("Int64").diff(axis=1).iloc[:, -1]))
+              .join(next_pls[["pathway", "pathway_level"]].add_prefix("next_")))
+level_diff[["pathway_level", "next_pathway_level"]] = level_diff[["pathway_level", "next_pathway_level"]].astype("Float64")
 # Difference in level is meaningful except that moves to/from SU pathway are different..
-pl_outcomes = pl_outcomes.join((level_diff[["next_pathway_level", "level_diff"]]
-                                .where((level_diff["pathway"] == level_diff["next_pathway"])
-                                       | (level_diff["pathway"] != "Substance Misuse Pathway")
-                                       | (level_diff["next_pathway"] != "Substance Misuse Pathway"))))
+for prefix in ["", "next_"]:
+    level_diff.loc[level_diff[prefix+"pathway"] == "Substance Misuse Pathway", prefix+"pathway_level"] = (
+        level_diff.loc[level_diff[prefix+"pathway"] == "Substance Misuse Pathway", prefix+"pathway_level"]
+        .map({1: 2, 2: 3}))
+level_diff = (level_diff.assign(level_diff=lambda df: df[["pathway_level", "next_pathway_level"]].diff(axis=1).iloc[:, -1]))
+pl_outcomes = pl_outcomes.join(level_diff[["next_pathway", "next_pathway_level", "level_diff"]])
 pl_outcomes.loc[pl_outcomes["level_diff"].notna(), "pl_end_cat"] = (
     "Internal move: " + np.sign(pl_outcomes.level_diff).map({-1: "backwards", 0: "sideways", 1: "forwards"})
 )
@@ -235,6 +236,65 @@ with pd.option_context("display.precision", 1):
     display(tbl_pct)
     print("")
 ```
+
+```{python}
+#| output: false
+f = plt.figure(figsize=(6.5, 4.1))
+plotdata = tbl_n.iloc[:-1, 1:-2].unstack().to_frame(name="n")
+plotdata.index = plotdata.index.set_levels([plotdata.index.levels[0].astype("int"), plotdata.index.levels[1]])
+p = (so.Plot(data=plotdata,
+             x="end_year", y="n", color="pl_outcome")
+     .label(x="", y="")
+     .add(so.Dot(color=".6", pointsize=4, alpha=0.65), legend=False)
+     .add(so.Bar(), legend=False)
+     .add(so.Line(color=".6", linestyle=(4, 2), alpha=0.65), so.PolyFit(1), legend=False)
+     .theme({"axes.titlesize": "small", "xtick.labelsize": "small", "ytick.labelsize": "small",
+             "lines.linewidth": 2, "axes.grid.axis": "y"})
+     .scale(x=so.Continuous().tick(at=[2018, 2024]), y=so.Continuous().tick(every=150))
+     .facet(col="pl_outcome", wrap=3)
+     .on(f)
+     .plot()
+     )
+f.savefig(output_dir + "Figure_4.2.svg")
+#plt.show(block=False)
+f = plt.figure(figsize=(3.4, 2.1))
+p = (so.Plot(data=plotdata,
+             x="end_year", y="n", color="pl_outcome")
+     .label(x="", y="", title="Placement outcomes by year pl. ended")
+     # .add(so.Dot(color=".6", pointsize=4, alpha=0.65), legend=False)
+     .add(so.Bar(), so.Stack(), legend=False)
+     # .add(so.Line(color=".6", linestyle=(4, 2), alpha=0.65), so.PolyFit(1), legend=False)
+     # .add(so.Line(alpha=1), legend=False)
+     .theme({"axes.titlesize": "small", "xtick.labelsize": "small", "ytick.labelsize": "small",
+             "lines.linewidth": 2, "axes.grid.axis": "y"})
+     .scale(x=so.Continuous().tick(at=[2018, 2024]))
+     .on(f)
+     .plot()
+     )
+f.savefig(output_dir + "Figure_4.3.svg")
+f = plt.figure(figsize=(6.5, 4.1))
+plotdata = tbl_pct.iloc[:-1, 1:-2].unstack().to_frame(name="pct")
+plotdata.index = plotdata.index.set_levels([plotdata.index.levels[0].astype("int"), plotdata.index.levels[1]])
+p = (so.Plot(data=plotdata,
+             x="end_year", y="pct", color="pl_outcome")
+     .label(x="", y="")
+     .add(so.Dot(color=".6", pointsize=4, alpha=0.65), legend=False)
+     .add(so.Bar(), legend=False)
+     .add(so.Line(color=".6", linestyle=(4, 2), alpha=0.65), so.PolyFit(1), legend=False)
+     .theme({"axes.titlesize": "small", "xtick.labelsize": "small", "ytick.labelsize": "small",
+             "lines.linewidth": 2, "axes.grid.axis": "y"})
+     .scale(x=so.Continuous().tick(at=[2018, 2024]), y=so.Continuous().tick(every=15).label(like="{x:.0f}%"))
+     .facet(col="pl_outcome", wrap=3)
+     .on(f)
+     .plot()
+     )
+f.savefig(output_dir + "Figure_4.4.svg")
+#plt.show(block=False)
+pass
+```
+![](assets_output/Figure_4.2.svg)
+![](assets_output/Figure_4.3.svg)
+![](assets_output/Figure_4.4.svg)
 
 ## Placement outcomes by pathway
 

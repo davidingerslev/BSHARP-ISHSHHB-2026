@@ -83,6 +83,96 @@ dpw_pls["global_majority"] = dpw_pls["ethnicity"].map(defaultdict(
       "White Gypsy/Irish Traveller": "No", "Gypsy (inc English, Scottish or Roma Gypsy) or Irish Traveller": "No",
       "Don't know": "_Unknown", "Prefer not to say": "_Unknown", "Refused to answer question": "_Unknown"
     }))
+eth_dtl_map = {
+    "White British": [
+        "English/Welsh/Scottish/Northern Irish/British"
+    ],
+    "Unknown": [
+        "Don't know",
+        "Prefer not to say",
+        "Refused to answer question"
+    ],
+    "Black/Black British - African": [
+        "African (non Somali)",
+        "Somali",
+        "Black/Black British - Somali",
+        "Black or Black British Ghanaian"
+    ],
+    "Black/Black British - Caribbean": [
+        "Caribbean"
+    ],
+    "White Other": [
+        "White Other Origin",
+        "Any other White background",
+        "White Irish",
+        "Irish",
+        "White European",
+        "Eastern European",
+        "Turkish"
+    ],
+    "Mixed/Dual Heritage - White+Black Caribbean": [
+        "White and Black Caribbean"
+    ],
+    "Black/Black British - Other": [
+        "Black/Black British - Other",
+        "Any other Black/African/Caribbean background"
+    ],
+    "Arab": [
+        "Iranian",
+        "Iraqi",
+    ],
+    "Asian/Asian British": [
+        "Asian/Asian British - Other",
+        "Pakistani",
+        "Bangladeshi",
+        "Asian/Asian British - Chinese",
+        "Asian/Asian British - Bangladeshi",
+        "Asian/Asian British - Indian",
+        "Indian",
+        "Asian/Asian British - Asian African",
+        "Chinese",
+        "Asian/Asian British - Pakistani",
+        "Asian or Asian British Sri Lankan",
+        "Any other Asian background",
+    ],
+    "Any other Mixed/multiple ethnic background": [
+        "Mixed/Dual Heritage - White+Asian",
+        "Mixed/Dual Heritage - Other",
+        "White and Asian",
+        "Mixed/Dual Heritage - White+Chinese"
+    ],
+    "Mixed/Dual Heritage - White+Black African": [
+        "White and Black African (non Somali)"
+    ],
+    "Other": [
+        "Any other ethnic group",
+        "Kurdish"
+    ],
+    "White Gypsy/Irish Traveller": [
+        "Gypsy (inc English, Scottish or Roma Gypsy) or Irish Traveller"
+    ]
+}
+mapper = {k: v for v,k in pd.Series(eth_dtl_map).explode().items()}
+dpw_pls["ethnicity_detailed"] = dpw_pls["ethnicity"].replace(mapper).astype("string").astype("category")
+eth_grp_map = {
+    "White": [
+        "White British",
+        "White Other",
+        "White Gypsy/Irish Traveller",
+    ],
+    "Black": [
+        "Black/Black British - African",
+        "Black/Black British - Caribbean",
+        "Black/Black British - Other",
+    ],
+    "Mixed Heritage": [
+        "Mixed/Dual Heritage - White+Black African",
+        "Mixed/Dual Heritage - White+Black Caribbean",
+        "Any other Mixed/multiple ethnic background",
+    ]
+}
+mapper = {k: v for v,k in pd.Series(eth_grp_map).explode().items()}
+dpw_pls["ethnicity_grouped"] = dpw_pls["ethnicity_detailed"].replace(mapper).astype("string").astype("category")
 dpw_pls["lgbtq_plus"] = dpw_pls["sexual_orientation"].map({
     "Bi-sexual": "Yes", "Gay/Lesbian": "Yes", "other": "Yes", "Lesbian": "Yes",
     "Heterosexual": "No", "Don't Know": "_Unknown", "Rather not state": "_Unknown",
@@ -139,9 +229,12 @@ dpw_pls["substance_use"] = dpw_pls["hsn_drug_or_alcohol_use"]
 dpw_rt_starts = dpw_pls.groupby("route_id").head(1)
 dpw_rt_ends = dpw_pls.groupby("route_id").tail(1)
 dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1)  # 1 duplicate client but first entry has more detailed answers
+ivs = {}
 for ch in [
     "gender",
     "global_majority",
+    "ethnicity_grouped",
+    "ethnicity_detailed",
     "age_cat",
     "lgbtq_plus",
     "offending",
@@ -164,6 +257,7 @@ for ch in [
     "referral_agency"
 ]:
     tbl_desc = f"Frequencies for {ch}"
+    ivs[ch] = list(dpw_clis[ch].astype("string").fillna("<N/A>").unique())
     tbl = get_frequencies(dpw_clis[ch], sort=False, dropna=False)
     excel_output[tbl_desc] = tbl
     if ch != "age_cat":

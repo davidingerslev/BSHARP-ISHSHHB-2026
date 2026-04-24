@@ -4026,6 +4026,8 @@ vertical-align: -.125em;
   <li><a href="#rt_entry_point" id="toc-rt_entry_point" class="nav-link" data-scroll-target="#rt_entry_point">rt_entry_point</a></li>
   <li><a href="#gender" id="toc-gender" class="nav-link" data-scroll-target="#gender">gender</a></li>
   <li><a href="#global_majority" id="toc-global_majority" class="nav-link" data-scroll-target="#global_majority">global_majority</a></li>
+  <li><a href="#ethnicity_grouped" id="toc-ethnicity_grouped" class="nav-link" data-scroll-target="#ethnicity_grouped">ethnicity_grouped</a></li>
+  <li><a href="#ethnicity_detailed" id="toc-ethnicity_detailed" class="nav-link" data-scroll-target="#ethnicity_detailed">ethnicity_detailed</a></li>
   <li><a href="#age_cat" id="toc-age_cat" class="nav-link" data-scroll-target="#age_cat">age_cat</a></li>
   <li><a href="#lgbtq_plus" id="toc-lgbtq_plus" class="nav-link" data-scroll-target="#lgbtq_plus">lgbtq_plus</a></li>
   <li><a href="#offending" id="toc-offending" class="nav-link" data-scroll-target="#offending">offending</a></li>
@@ -4086,7 +4088,7 @@ vertical-align: -.125em;
 </header>
 
 
-<div id="3a920ce3" class="cell" data-execution_count="1">
+<div id="b56481fc" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup code</span></span>
@@ -4333,7 +4335,8 @@ vertical-align: -.125em;
 <span id="cb2-196"><a href="#cb2-196" aria-hidden="true" tabindex="-1"></a>dv_dict[<span class="st">&quot;Outcomes from individual placements&quot;</span>] <span class="op">=</span> (</span>
 <span id="cb2-197"><a href="#cb2-197" aria-hidden="true" tabindex="-1"></a>                              pl_outcomes_excl_same_svc[[<span class="st">&quot;pl_outcome&quot;</span>]])</span>
 <span id="cb2-198"><a href="#cb2-198" aria-hidden="true" tabindex="-1"></a>dv_dict_desc <span class="op">=</span> <span class="bu">list</span>(dv_dict.keys())</span>
-<span id="cb2-199"><a href="#cb2-199" aria-hidden="true" tabindex="-1"></a>display(dv_dict_desc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-199"><a href="#cb2-199" aria-hidden="true" tabindex="-1"></a>dv_dict_cats <span class="op">=</span> {k: <span class="bu">list</span>(v.iloc[:, <span class="dv">0</span>].astype(<span class="st">&quot;string&quot;</span>).fillna(<span class="st">&quot;&lt;N/A&gt;&quot;</span>).unique()) <span class="cf">for</span> k, v <span class="kw">in</span> dv_dict.items()}</span>
+<span id="cb2-200"><a href="#cb2-200" aria-hidden="true" tabindex="-1"></a>display(dv_dict_desc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <p>Routes: 5,072</p>
 <pre><code>[&#39;Entry point into BAHSA services (pathway type and level)&#39;,
@@ -4373,92 +4376,186 @@ vertical-align: -.125em;
 <span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;White Gypsy/Irish Traveller&quot;</span>: <span class="st">&quot;No&quot;</span>, <span class="st">&quot;Gypsy (inc English, Scottish or Roma Gypsy) or Irish Traveller&quot;</span>: <span class="st">&quot;No&quot;</span>,</span>
 <span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;Don&#39;t know&quot;</span>: <span class="st">&quot;_Unknown&quot;</span>, <span class="st">&quot;Prefer not to say&quot;</span>: <span class="st">&quot;_Unknown&quot;</span>, <span class="st">&quot;Refused to answer question&quot;</span>: <span class="st">&quot;_Unknown&quot;</span></span>
 <span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    }))</span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;lgbtq_plus&quot;</span>] <span class="op">=</span> dpw_pls[<span class="st">&quot;sexual_orientation&quot;</span>].<span class="bu">map</span>({</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Bi-sexual&quot;</span>: <span class="st">&quot;Yes&quot;</span>, <span class="st">&quot;Gay/Lesbian&quot;</span>: <span class="st">&quot;Yes&quot;</span>, <span class="st">&quot;other&quot;</span>: <span class="st">&quot;Yes&quot;</span>, <span class="st">&quot;Lesbian&quot;</span>: <span class="st">&quot;Yes&quot;</span>,</span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Heterosexual&quot;</span>: <span class="st">&quot;No&quot;</span>, <span class="st">&quot;Don&#39;t Know&quot;</span>: <span class="st">&quot;_Unknown&quot;</span>, <span class="st">&quot;Rather not state&quot;</span>: <span class="st">&quot;_Unknown&quot;</span>,</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;uk_immigration_status&quot;</span>] <span class="op">=</span> dpw_pls[<span class="st">&quot;uk_immigration_status&quot;</span>].<span class="bu">map</span>({</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Other Protection Leave to Remain&quot;</span>: <span class="st">&quot;Non-EEA National&quot;</span>,</span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Indefinite Leave to Remain&quot;</span>: <span class="st">&quot;Non-EEA National&quot;</span>,</span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Other Non-EEA National&quot;</span>: <span class="st">&quot;Non-EEA National&quot;</span>,</span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Limited Leave to Remain&quot;</span>: <span class="st">&quot;Non-EEA National&quot;</span>,</span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;EEA National&quot;</span>: <span class="st">&quot;EEA National&quot;</span>,</span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;UK/Irish National&quot;</span>: <span class="st">&quot;UK/Irish National&quot;</span>,</span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>ref_cats <span class="op">=</span> dpw_pls[<span class="st">&quot;ref_agency&quot;</span>].cat.categories</span>
-<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>ref_cat_map <span class="op">=</span> {</span>
-<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Local authority (Housing Options)&quot;</span>: [<span class="st">&quot;B.C.C. Homelessness Prevention Team&quot;</span>],</span>
-<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Local authority (_other)&quot;</span>: <span class="bu">list</span>(ref_cats[ref_cats.<span class="bu">str</span>.startswith((<span class="st">&quot;B.C.C&quot;</span>, <span class="st">&quot;Bcc&quot;</span>))</span>
-<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>                                    <span class="op">&amp;</span> (ref_cats <span class="op">!=</span> <span class="st">&quot;B.C.C. Homelessness Prevention Team&quot;</span>)]),</span>
-<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Service provider (rough sleeping and SH)&quot;</span>: [<span class="st">&quot;St. Mungo&#39;s&quot;</span>, <span class="st">&quot;St Mungo&#39;s&quot;</span>, <span class="st">&quot;Outreach&quot;</span>],</span>
-<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Service provider (prison resettlement and SH)&quot;</span>: [<span class="st">&quot;A.R.A&quot;</span>],</span>
-<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Service provider (_other SH)&quot;</span>: [<span class="st">&quot;E.C.H.G. Riverside&quot;</span>, <span class="st">&quot;Elim&quot;</span>, <span class="st">&quot;Livewest&quot;</span>, <span class="st">&quot;Missing Link&quot;</span>, <span class="st">&quot;Places For People&quot;</span>,</span>
-<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>                                    <span class="st">&quot;Salvation Army&quot;</span>, <span class="st">&quot;Second Step&quot;</span>, <span class="st">&quot;Self Help&quot;</span>]</span>
-<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>ref_cat_map[<span class="st">&quot;_Others&quot;</span>] <span class="op">=</span> ref_cats[<span class="op">~</span>ref_cats.isin(<span class="bu">sum</span>(<span class="bu">list</span>(ref_cat_map.values()), []))]</span>
-<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>ref_agency_mapper <span class="op">=</span> {k: v <span class="cf">for</span> v, k <span class="kw">in</span> pd.Series(ref_cat_map).explode().items()}</span>
-<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;referral_agency&quot;</span>] <span class="op">=</span> (dpw_pls[<span class="st">&quot;ref_agency&quot;</span>].<span class="bu">map</span>(ref_agency_mapper)</span>
-<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>                              .fillna(<span class="st">&quot;_[Missing data]&quot;</span>))</span>
-<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>support_need_cols <span class="op">=</span> {</span>
-<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_prison_leaveron_probationrisk_of_offending&quot;</span>: <span class="st">&quot;offending&quot;</span>,</span>
-<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_physical_health&quot;</span>: <span class="st">&quot;physical_health&quot;</span>,</span>
-<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_mental_health&quot;</span>: <span class="st">&quot;mental_health&quot;</span>,</span>
-<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_rough_sleeper&quot;</span>: <span class="st">&quot;rough_sleeping&quot;</span>,</span>
-<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> hsn, ch_str <span class="kw">in</span> support_need_cols.items():</span>
-<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>    dpw_pls[ch_str] <span class="op">=</span> dpw_pls[hsn].astype(<span class="st">&quot;boolean&quot;</span>)</span>
-<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>gendered_support_need_cols <span class="op">=</span> {</span>
-<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_sex_working&quot;</span>: <span class="st">&quot;sex_working&quot;</span>,  <span class="co"># only women recorded as sex working</span></span>
-<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_risk_of_violenceabuse_victim&quot;</span>: <span class="st">&quot;risk_violence_abuse&quot;</span>,</span>
-<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_risk_of_exploitation&quot;</span>: <span class="st">&quot;risk_exploitation&quot;</span>,</span>
-<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> hsn, ch_str <span class="kw">in</span> gendered_support_need_cols.items():</span>
-<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>    dpw_pls[<span class="ss">f&quot;women_</span><span class="sc">{</span>ch_str<span class="sc">}</span><span class="ss">&quot;</span>] <span class="op">=</span> dpw_pls[hsn].where(dpw_pls[<span class="st">&quot;gender&quot;</span>] <span class="op">==</span> <span class="st">&quot;Female&quot;</span>)</span>
-<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>    dpw_pls[<span class="ss">f&quot;men_</span><span class="sc">{</span>ch_str<span class="sc">}</span><span class="ss">&quot;</span>] <span class="op">=</span> dpw_pls[hsn].where(dpw_pls[<span class="st">&quot;gender&quot;</span>] <span class="op">==</span> <span class="st">&quot;Male&quot;</span>)</span>
-<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>    dpw_pls[ch_str] <span class="op">=</span> dpw_pls[hsn]</span>
-<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;hsn_drug_or_alcohol_use&quot;</span>] <span class="op">=</span> (dpw_pls[<span class="st">&quot;hsn_drug_use&quot;</span>].astype(<span class="st">&quot;boolean&quot;</span>)</span>
-<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>                                      <span class="op">|</span> dpw_pls[<span class="st">&quot;hsn_alcohol_use&quot;</span>].astype(<span class="st">&quot;boolean&quot;</span>))</span>
-<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;multiple_disadvantage&quot;</span>] <span class="op">=</span> (  <span class="co"># Current support needs for 3 out of 5 SMD dimensions</span></span>
-<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>  dpw_pls[[<span class="st">&quot;hsn_prison_leaveron_probationrisk_of_offending&quot;</span>,</span>
-<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;hsn_drug_or_alcohol_use&quot;</span>,</span>
-<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;hsn_risk_of_violenceabuse_victim&quot;</span>,</span>
-<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;hsn_mental_health&quot;</span></span>
-<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>           ]].assign(hsn_homelessness<span class="op">=</span><span class="va">True</span>).astype(<span class="st">&quot;boolean&quot;</span>).<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>, skipna<span class="op">=</span><span class="va">False</span>) <span class="op">&gt;=</span> <span class="dv">3</span></span>
-<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;substance_use&quot;</span>] <span class="op">=</span> dpw_pls[<span class="st">&quot;hsn_drug_or_alcohol_use&quot;</span>]</span>
-<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a>dpw_rt_starts <span class="op">=</span> dpw_pls.groupby(<span class="st">&quot;route_id&quot;</span>).head(<span class="dv">1</span>)</span>
-<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a>dpw_rt_ends <span class="op">=</span> dpw_pls.groupby(<span class="st">&quot;route_id&quot;</span>).tail(<span class="dv">1</span>)</span>
-<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a>dpw_clis <span class="op">=</span> dpw_pls.groupby([<span class="st">&quot;o_cli_id&quot;</span>]).head(<span class="dv">1</span>)  <span class="co"># 1 duplicate client but first entry has more detailed answers</span></span>
-<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>characteristics <span class="op">=</span> [</span>
-<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;rt_entry_point&quot;</span>,</span>
-<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;gender&quot;</span>,</span>
-<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;global_majority&quot;</span>,</span>
-<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;age_cat&quot;</span>,</span>
-<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;lgbtq_plus&quot;</span>,</span>
-<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;offending&quot;</span>,</span>
-<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;physical_health&quot;</span>,</span>
-<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;mental_health&quot;</span>,</span>
-<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;substance_use&quot;</span>,</span>
-<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;multiple_disadvantage&quot;</span>,</span>
-<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;rough_sleeping&quot;</span>,</span>
-<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;sex_working&quot;</span>,</span>
-<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;women_sex_working&quot;</span>,</span>
-<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;men_sex_working&quot;</span>,</span>
-<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;risk_violence_abuse&quot;</span>,</span>
-<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;women_risk_violence_abuse&quot;</span>,</span>
-<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;men_risk_violence_abuse&quot;</span>,</span>
-<span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;risk_exploitation&quot;</span>,</span>
-<span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;women_risk_exploitation&quot;</span>,</span>
-<span id="cb4-101"><a href="#cb4-101" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;men_risk_exploitation&quot;</span>,</span>
-<span id="cb4-102"><a href="#cb4-102" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;uk_immigration_status&quot;</span>,</span>
-<span id="cb4-103"><a href="#cb4-103" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;english_2nd_language&quot;</span>,</span>
-<span id="cb4-104"><a href="#cb4-104" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;referral_agency&quot;</span></span>
-<span id="cb4-105"><a href="#cb4-105" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb4-106"><a href="#cb4-106" aria-hidden="true" tabindex="-1"></a>display(characteristics)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>eth_dtl_map <span class="op">=</span> {</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;White British&quot;</span>: [</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;English/Welsh/Scottish/Northern Irish/British&quot;</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Unknown&quot;</span>: [</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Don&#39;t know&quot;</span>,</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Prefer not to say&quot;</span>,</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Refused to answer question&quot;</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Black/Black British - African&quot;</span>: [</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;African (non Somali)&quot;</span>,</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Somali&quot;</span>,</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Black/Black British - Somali&quot;</span>,</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Black or Black British Ghanaian&quot;</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Black/Black British - Caribbean&quot;</span>: [</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Caribbean&quot;</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;White Other&quot;</span>: [</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;White Other Origin&quot;</span>,</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Any other White background&quot;</span>,</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;White Irish&quot;</span>,</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Irish&quot;</span>,</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;White European&quot;</span>,</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Eastern European&quot;</span>,</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Turkish&quot;</span></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Mixed/Dual Heritage - White+Black Caribbean&quot;</span>: [</span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;White and Black Caribbean&quot;</span></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Black/Black British - Other&quot;</span>: [</span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Black/Black British - Other&quot;</span>,</span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Any other Black/African/Caribbean background&quot;</span></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Arab&quot;</span>: [</span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Iranian&quot;</span>,</span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Iraqi&quot;</span>,</span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Asian/Asian British&quot;</span>: [</span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Asian/Asian British - Other&quot;</span>,</span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Pakistani&quot;</span>,</span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Bangladeshi&quot;</span>,</span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Asian/Asian British - Chinese&quot;</span>,</span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Asian/Asian British - Bangladeshi&quot;</span>,</span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Asian/Asian British - Indian&quot;</span>,</span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Indian&quot;</span>,</span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Asian/Asian British - Asian African&quot;</span>,</span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Chinese&quot;</span>,</span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Asian/Asian British - Pakistani&quot;</span>,</span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Asian or Asian British Sri Lankan&quot;</span>,</span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Any other Asian background&quot;</span>,</span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Any other Mixed/multiple ethnic background&quot;</span>: [</span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Mixed/Dual Heritage - White+Asian&quot;</span>,</span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Mixed/Dual Heritage - Other&quot;</span>,</span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;White and Asian&quot;</span>,</span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Mixed/Dual Heritage - White+Chinese&quot;</span></span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Mixed/Dual Heritage - White+Black African&quot;</span>: [</span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;White and Black African (non Somali)&quot;</span></span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Other&quot;</span>: [</span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Any other ethnic group&quot;</span>,</span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Kurdish&quot;</span></span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;White Gypsy/Irish Traveller&quot;</span>: [</span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Gypsy (inc English, Scottish or Roma Gypsy) or Irish Traveller&quot;</span></span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a>mapper <span class="op">=</span> {k: v <span class="cf">for</span> v,k <span class="kw">in</span> pd.Series(eth_dtl_map).explode().items()}</span>
+<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;ethnicity_detailed&quot;</span>] <span class="op">=</span> dpw_pls[<span class="st">&quot;ethnicity&quot;</span>].replace(mapper).astype(<span class="st">&quot;string&quot;</span>).astype(<span class="st">&quot;category&quot;</span>)</span>
+<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a>eth_grp_map <span class="op">=</span> {</span>
+<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;White&quot;</span>: [</span>
+<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;White British&quot;</span>,</span>
+<span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;White Other&quot;</span>,</span>
+<span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;White Gypsy/Irish Traveller&quot;</span>,</span>
+<span id="cb4-101"><a href="#cb4-101" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb4-102"><a href="#cb4-102" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Black&quot;</span>: [</span>
+<span id="cb4-103"><a href="#cb4-103" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Black/Black British - African&quot;</span>,</span>
+<span id="cb4-104"><a href="#cb4-104" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Black/Black British - Caribbean&quot;</span>,</span>
+<span id="cb4-105"><a href="#cb4-105" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Black/Black British - Other&quot;</span>,</span>
+<span id="cb4-106"><a href="#cb4-106" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb4-107"><a href="#cb4-107" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Mixed Heritage&quot;</span>: [</span>
+<span id="cb4-108"><a href="#cb4-108" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Mixed/Dual Heritage - White+Black African&quot;</span>,</span>
+<span id="cb4-109"><a href="#cb4-109" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Mixed/Dual Heritage - White+Black Caribbean&quot;</span>,</span>
+<span id="cb4-110"><a href="#cb4-110" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Any other Mixed/multiple ethnic background&quot;</span>,</span>
+<span id="cb4-111"><a href="#cb4-111" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb4-112"><a href="#cb4-112" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-113"><a href="#cb4-113" aria-hidden="true" tabindex="-1"></a>mapper <span class="op">=</span> {k: v <span class="cf">for</span> v,k <span class="kw">in</span> pd.Series(eth_grp_map).explode().items()}</span>
+<span id="cb4-114"><a href="#cb4-114" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;ethnicity_grouped&quot;</span>] <span class="op">=</span> dpw_pls[<span class="st">&quot;ethnicity_detailed&quot;</span>].replace(mapper).astype(<span class="st">&quot;string&quot;</span>).astype(<span class="st">&quot;category&quot;</span>)</span>
+<span id="cb4-115"><a href="#cb4-115" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;lgbtq_plus&quot;</span>] <span class="op">=</span> dpw_pls[<span class="st">&quot;sexual_orientation&quot;</span>].<span class="bu">map</span>({</span>
+<span id="cb4-116"><a href="#cb4-116" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Bi-sexual&quot;</span>: <span class="st">&quot;Yes&quot;</span>, <span class="st">&quot;Gay/Lesbian&quot;</span>: <span class="st">&quot;Yes&quot;</span>, <span class="st">&quot;other&quot;</span>: <span class="st">&quot;Yes&quot;</span>, <span class="st">&quot;Lesbian&quot;</span>: <span class="st">&quot;Yes&quot;</span>,</span>
+<span id="cb4-117"><a href="#cb4-117" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Heterosexual&quot;</span>: <span class="st">&quot;No&quot;</span>, <span class="st">&quot;Don&#39;t Know&quot;</span>: <span class="st">&quot;_Unknown&quot;</span>, <span class="st">&quot;Rather not state&quot;</span>: <span class="st">&quot;_Unknown&quot;</span>,</span>
+<span id="cb4-118"><a href="#cb4-118" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb4-119"><a href="#cb4-119" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;uk_immigration_status&quot;</span>] <span class="op">=</span> dpw_pls[<span class="st">&quot;uk_immigration_status&quot;</span>].<span class="bu">map</span>({</span>
+<span id="cb4-120"><a href="#cb4-120" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Other Protection Leave to Remain&quot;</span>: <span class="st">&quot;Non-EEA National&quot;</span>,</span>
+<span id="cb4-121"><a href="#cb4-121" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Indefinite Leave to Remain&quot;</span>: <span class="st">&quot;Non-EEA National&quot;</span>,</span>
+<span id="cb4-122"><a href="#cb4-122" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Other Non-EEA National&quot;</span>: <span class="st">&quot;Non-EEA National&quot;</span>,</span>
+<span id="cb4-123"><a href="#cb4-123" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Limited Leave to Remain&quot;</span>: <span class="st">&quot;Non-EEA National&quot;</span>,</span>
+<span id="cb4-124"><a href="#cb4-124" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;EEA National&quot;</span>: <span class="st">&quot;EEA National&quot;</span>,</span>
+<span id="cb4-125"><a href="#cb4-125" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;UK/Irish National&quot;</span>: <span class="st">&quot;UK/Irish National&quot;</span>,</span>
+<span id="cb4-126"><a href="#cb4-126" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb4-127"><a href="#cb4-127" aria-hidden="true" tabindex="-1"></a>ref_cats <span class="op">=</span> dpw_pls[<span class="st">&quot;ref_agency&quot;</span>].cat.categories</span>
+<span id="cb4-128"><a href="#cb4-128" aria-hidden="true" tabindex="-1"></a>ref_cat_map <span class="op">=</span> {</span>
+<span id="cb4-129"><a href="#cb4-129" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Local authority (Housing Options)&quot;</span>: [<span class="st">&quot;B.C.C. Homelessness Prevention Team&quot;</span>],</span>
+<span id="cb4-130"><a href="#cb4-130" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Local authority (_other)&quot;</span>: <span class="bu">list</span>(ref_cats[ref_cats.<span class="bu">str</span>.startswith((<span class="st">&quot;B.C.C&quot;</span>, <span class="st">&quot;Bcc&quot;</span>))</span>
+<span id="cb4-131"><a href="#cb4-131" aria-hidden="true" tabindex="-1"></a>                                    <span class="op">&amp;</span> (ref_cats <span class="op">!=</span> <span class="st">&quot;B.C.C. Homelessness Prevention Team&quot;</span>)]),</span>
+<span id="cb4-132"><a href="#cb4-132" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Service provider (rough sleeping and SH)&quot;</span>: [<span class="st">&quot;St. Mungo&#39;s&quot;</span>, <span class="st">&quot;St Mungo&#39;s&quot;</span>, <span class="st">&quot;Outreach&quot;</span>],</span>
+<span id="cb4-133"><a href="#cb4-133" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Service provider (prison resettlement and SH)&quot;</span>: [<span class="st">&quot;A.R.A&quot;</span>],</span>
+<span id="cb4-134"><a href="#cb4-134" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Service provider (_other SH)&quot;</span>: [<span class="st">&quot;E.C.H.G. Riverside&quot;</span>, <span class="st">&quot;Elim&quot;</span>, <span class="st">&quot;Livewest&quot;</span>, <span class="st">&quot;Missing Link&quot;</span>, <span class="st">&quot;Places For People&quot;</span>,</span>
+<span id="cb4-135"><a href="#cb4-135" aria-hidden="true" tabindex="-1"></a>                                    <span class="st">&quot;Salvation Army&quot;</span>, <span class="st">&quot;Second Step&quot;</span>, <span class="st">&quot;Self Help&quot;</span>]</span>
+<span id="cb4-136"><a href="#cb4-136" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-137"><a href="#cb4-137" aria-hidden="true" tabindex="-1"></a>ref_cat_map[<span class="st">&quot;_Others&quot;</span>] <span class="op">=</span> ref_cats[<span class="op">~</span>ref_cats.isin(<span class="bu">sum</span>(<span class="bu">list</span>(ref_cat_map.values()), []))]</span>
+<span id="cb4-138"><a href="#cb4-138" aria-hidden="true" tabindex="-1"></a>ref_agency_mapper <span class="op">=</span> {k: v <span class="cf">for</span> v, k <span class="kw">in</span> pd.Series(ref_cat_map).explode().items()}</span>
+<span id="cb4-139"><a href="#cb4-139" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;referral_agency&quot;</span>] <span class="op">=</span> (dpw_pls[<span class="st">&quot;ref_agency&quot;</span>].<span class="bu">map</span>(ref_agency_mapper)</span>
+<span id="cb4-140"><a href="#cb4-140" aria-hidden="true" tabindex="-1"></a>                              .fillna(<span class="st">&quot;_[Missing data]&quot;</span>))</span>
+<span id="cb4-141"><a href="#cb4-141" aria-hidden="true" tabindex="-1"></a>support_need_cols <span class="op">=</span> {</span>
+<span id="cb4-142"><a href="#cb4-142" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_prison_leaveron_probationrisk_of_offending&quot;</span>: <span class="st">&quot;offending&quot;</span>,</span>
+<span id="cb4-143"><a href="#cb4-143" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_physical_health&quot;</span>: <span class="st">&quot;physical_health&quot;</span>,</span>
+<span id="cb4-144"><a href="#cb4-144" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_mental_health&quot;</span>: <span class="st">&quot;mental_health&quot;</span>,</span>
+<span id="cb4-145"><a href="#cb4-145" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_rough_sleeper&quot;</span>: <span class="st">&quot;rough_sleeping&quot;</span>,</span>
+<span id="cb4-146"><a href="#cb4-146" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-147"><a href="#cb4-147" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> hsn, ch_str <span class="kw">in</span> support_need_cols.items():</span>
+<span id="cb4-148"><a href="#cb4-148" aria-hidden="true" tabindex="-1"></a>    dpw_pls[ch_str] <span class="op">=</span> dpw_pls[hsn].astype(<span class="st">&quot;boolean&quot;</span>)</span>
+<span id="cb4-149"><a href="#cb4-149" aria-hidden="true" tabindex="-1"></a>gendered_support_need_cols <span class="op">=</span> {</span>
+<span id="cb4-150"><a href="#cb4-150" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_sex_working&quot;</span>: <span class="st">&quot;sex_working&quot;</span>,  <span class="co"># only women recorded as sex working</span></span>
+<span id="cb4-151"><a href="#cb4-151" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_risk_of_violenceabuse_victim&quot;</span>: <span class="st">&quot;risk_violence_abuse&quot;</span>,</span>
+<span id="cb4-152"><a href="#cb4-152" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_risk_of_exploitation&quot;</span>: <span class="st">&quot;risk_exploitation&quot;</span>,</span>
+<span id="cb4-153"><a href="#cb4-153" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-154"><a href="#cb4-154" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> hsn, ch_str <span class="kw">in</span> gendered_support_need_cols.items():</span>
+<span id="cb4-155"><a href="#cb4-155" aria-hidden="true" tabindex="-1"></a>    dpw_pls[<span class="ss">f&quot;women_</span><span class="sc">{</span>ch_str<span class="sc">}</span><span class="ss">&quot;</span>] <span class="op">=</span> dpw_pls[hsn].where(dpw_pls[<span class="st">&quot;gender&quot;</span>] <span class="op">==</span> <span class="st">&quot;Female&quot;</span>)</span>
+<span id="cb4-156"><a href="#cb4-156" aria-hidden="true" tabindex="-1"></a>    dpw_pls[<span class="ss">f&quot;men_</span><span class="sc">{</span>ch_str<span class="sc">}</span><span class="ss">&quot;</span>] <span class="op">=</span> dpw_pls[hsn].where(dpw_pls[<span class="st">&quot;gender&quot;</span>] <span class="op">==</span> <span class="st">&quot;Male&quot;</span>)</span>
+<span id="cb4-157"><a href="#cb4-157" aria-hidden="true" tabindex="-1"></a>    dpw_pls[ch_str] <span class="op">=</span> dpw_pls[hsn]</span>
+<span id="cb4-158"><a href="#cb4-158" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;hsn_drug_or_alcohol_use&quot;</span>] <span class="op">=</span> (dpw_pls[<span class="st">&quot;hsn_drug_use&quot;</span>].astype(<span class="st">&quot;boolean&quot;</span>)</span>
+<span id="cb4-159"><a href="#cb4-159" aria-hidden="true" tabindex="-1"></a>                                      <span class="op">|</span> dpw_pls[<span class="st">&quot;hsn_alcohol_use&quot;</span>].astype(<span class="st">&quot;boolean&quot;</span>))</span>
+<span id="cb4-160"><a href="#cb4-160" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;multiple_disadvantage&quot;</span>] <span class="op">=</span> (  <span class="co"># Current support needs for 3 out of 5 SMD dimensions</span></span>
+<span id="cb4-161"><a href="#cb4-161" aria-hidden="true" tabindex="-1"></a>  dpw_pls[[<span class="st">&quot;hsn_prison_leaveron_probationrisk_of_offending&quot;</span>,</span>
+<span id="cb4-162"><a href="#cb4-162" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;hsn_drug_or_alcohol_use&quot;</span>,</span>
+<span id="cb4-163"><a href="#cb4-163" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;hsn_risk_of_violenceabuse_victim&quot;</span>,</span>
+<span id="cb4-164"><a href="#cb4-164" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;hsn_mental_health&quot;</span></span>
+<span id="cb4-165"><a href="#cb4-165" aria-hidden="true" tabindex="-1"></a>           ]].assign(hsn_homelessness<span class="op">=</span><span class="va">True</span>).astype(<span class="st">&quot;boolean&quot;</span>).<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>, skipna<span class="op">=</span><span class="va">False</span>) <span class="op">&gt;=</span> <span class="dv">3</span></span>
+<span id="cb4-166"><a href="#cb4-166" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-167"><a href="#cb4-167" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;substance_use&quot;</span>] <span class="op">=</span> dpw_pls[<span class="st">&quot;hsn_drug_or_alcohol_use&quot;</span>]</span>
+<span id="cb4-168"><a href="#cb4-168" aria-hidden="true" tabindex="-1"></a>dpw_rt_starts <span class="op">=</span> dpw_pls.groupby(<span class="st">&quot;route_id&quot;</span>).head(<span class="dv">1</span>)</span>
+<span id="cb4-169"><a href="#cb4-169" aria-hidden="true" tabindex="-1"></a>dpw_rt_ends <span class="op">=</span> dpw_pls.groupby(<span class="st">&quot;route_id&quot;</span>).tail(<span class="dv">1</span>)</span>
+<span id="cb4-170"><a href="#cb4-170" aria-hidden="true" tabindex="-1"></a>dpw_clis <span class="op">=</span> dpw_pls.groupby([<span class="st">&quot;o_cli_id&quot;</span>]).head(<span class="dv">1</span>)  <span class="co"># 1 duplicate client but first entry has more detailed answers</span></span>
+<span id="cb4-171"><a href="#cb4-171" aria-hidden="true" tabindex="-1"></a>characteristics <span class="op">=</span> [</span>
+<span id="cb4-172"><a href="#cb4-172" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;rt_entry_point&quot;</span>,</span>
+<span id="cb4-173"><a href="#cb4-173" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;gender&quot;</span>,</span>
+<span id="cb4-174"><a href="#cb4-174" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;global_majority&quot;</span>,</span>
+<span id="cb4-175"><a href="#cb4-175" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;ethnicity_grouped&quot;</span>,</span>
+<span id="cb4-176"><a href="#cb4-176" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;ethnicity_detailed&quot;</span>,</span>
+<span id="cb4-177"><a href="#cb4-177" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;age_cat&quot;</span>,</span>
+<span id="cb4-178"><a href="#cb4-178" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;lgbtq_plus&quot;</span>,</span>
+<span id="cb4-179"><a href="#cb4-179" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;offending&quot;</span>,</span>
+<span id="cb4-180"><a href="#cb4-180" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;physical_health&quot;</span>,</span>
+<span id="cb4-181"><a href="#cb4-181" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;mental_health&quot;</span>,</span>
+<span id="cb4-182"><a href="#cb4-182" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;substance_use&quot;</span>,</span>
+<span id="cb4-183"><a href="#cb4-183" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;multiple_disadvantage&quot;</span>,</span>
+<span id="cb4-184"><a href="#cb4-184" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;rough_sleeping&quot;</span>,</span>
+<span id="cb4-185"><a href="#cb4-185" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;sex_working&quot;</span>,</span>
+<span id="cb4-186"><a href="#cb4-186" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;women_sex_working&quot;</span>,</span>
+<span id="cb4-187"><a href="#cb4-187" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;men_sex_working&quot;</span>,</span>
+<span id="cb4-188"><a href="#cb4-188" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;risk_violence_abuse&quot;</span>,</span>
+<span id="cb4-189"><a href="#cb4-189" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;women_risk_violence_abuse&quot;</span>,</span>
+<span id="cb4-190"><a href="#cb4-190" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;men_risk_violence_abuse&quot;</span>,</span>
+<span id="cb4-191"><a href="#cb4-191" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;risk_exploitation&quot;</span>,</span>
+<span id="cb4-192"><a href="#cb4-192" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;women_risk_exploitation&quot;</span>,</span>
+<span id="cb4-193"><a href="#cb4-193" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;men_risk_exploitation&quot;</span>,</span>
+<span id="cb4-194"><a href="#cb4-194" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;uk_immigration_status&quot;</span>,</span>
+<span id="cb4-195"><a href="#cb4-195" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;english_2nd_language&quot;</span>,</span>
+<span id="cb4-196"><a href="#cb4-196" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;referral_agency&quot;</span></span>
+<span id="cb4-197"><a href="#cb4-197" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb4-198"><a href="#cb4-198" aria-hidden="true" tabindex="-1"></a>display(characteristics)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <pre><code>[&#39;rt_entry_point&#39;,
  &#39;gender&#39;,
  &#39;global_majority&#39;,
+ &#39;ethnicity_grouped&#39;,
+ &#39;ethnicity_detailed&#39;,
  &#39;age_cat&#39;,
  &#39;lgbtq_plus&#39;,
  &#39;offending&#39;,
@@ -8472,6 +8569,4168 @@ vertical-align: -.125em;
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">All</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</section>
+<section id="ethnicity_grouped" class="level3">
+<h3 class="anchored" data-anchor-id="ethnicity_grouped">ethnicity_grouped</h3>
+<p>Cross-tabulation of entry point into bahsa services (pathway type and level) by ethnicity_grouped (n)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">ethnicity_grouped</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black</th>
+<th data-quarto-table-cell-role="th">Mixed Heritage</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">pathway_type</th>
+<th data-quarto-table-cell-role="th">pathway_level</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td rowspan="4" data-quarto-table-cell-role="th" data-valign="top">Homelessness</td>
+<td data-quarto-table-cell-role="th">1</td>
+<td>21</td>
+<td>42</td>
+<td>235</td>
+<td>112</td>
+<td>30</td>
+<td>88</td>
+<td>1953</td>
+<td>2481</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2</td>
+<td>2</td>
+<td>10</td>
+<td>43</td>
+<td>20</td>
+<td>6</td>
+<td>23</td>
+<td>285</td>
+<td>389</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3</td>
+<td>4</td>
+<td>4</td>
+<td>31</td>
+<td>19</td>
+<td>3</td>
+<td>19</td>
+<td>126</td>
+<td>206</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4</td>
+<td>30</td>
+<td>45</td>
+<td>235</td>
+<td>57</td>
+<td>23</td>
+<td>50</td>
+<td>477</td>
+<td>917</td>
+</tr>
+<tr class="odd">
+<td rowspan="4" data-quarto-table-cell-role="th" data-valign="top">Substance Misuse</td>
+<td data-quarto-table-cell-role="th">1</td>
+<td>0</td>
+<td>12</td>
+<td>32</td>
+<td>39</td>
+<td>1</td>
+<td>25</td>
+<td>734</td>
+<td>843</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2</td>
+<td>1</td>
+<td>7</td>
+<td>15</td>
+<td>11</td>
+<td>2</td>
+<td>6</td>
+<td>193</td>
+<td>235</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>&lt;NA&gt;</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>&lt;NA&gt;</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td data-quarto-table-cell-role="th"></td>
+<td>58</td>
+<td>120</td>
+<td>591</td>
+<td>258</td>
+<td>65</td>
+<td>211</td>
+<td>3768</td>
+<td>5071</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of entry point into bahsa services (pathway type and level) by ethnicity_grouped (pct)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">ethnicity_grouped</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black</th>
+<th data-quarto-table-cell-role="th">Mixed Heritage</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">pathway_type</th>
+<th data-quarto-table-cell-role="th">pathway_level</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td rowspan="4" data-quarto-table-cell-role="th" data-valign="top">Homelessness</td>
+<td data-quarto-table-cell-role="th">1</td>
+<td>36.2%</td>
+<td>35.0%</td>
+<td>39.8%</td>
+<td>43.4%</td>
+<td>46.2%</td>
+<td>41.7%</td>
+<td>51.8%</td>
+<td>48.9%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2</td>
+<td>3.4%</td>
+<td>8.3%</td>
+<td>7.3%</td>
+<td>7.8%</td>
+<td>9.2%</td>
+<td>10.9%</td>
+<td>7.6%</td>
+<td>7.7%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3</td>
+<td>6.9%</td>
+<td>3.3%</td>
+<td>5.2%</td>
+<td>7.4%</td>
+<td>4.6%</td>
+<td>9.0%</td>
+<td>3.3%</td>
+<td>4.1%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4</td>
+<td>51.7%</td>
+<td>37.5%</td>
+<td>39.8%</td>
+<td>22.1%</td>
+<td>35.4%</td>
+<td>23.7%</td>
+<td>12.7%</td>
+<td>18.1%</td>
+</tr>
+<tr class="odd">
+<td rowspan="4" data-quarto-table-cell-role="th" data-valign="top">Substance Misuse</td>
+<td data-quarto-table-cell-role="th">1</td>
+<td>0.0%</td>
+<td>10.0%</td>
+<td>5.4%</td>
+<td>15.1%</td>
+<td>1.5%</td>
+<td>11.8%</td>
+<td>19.5%</td>
+<td>16.6%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2</td>
+<td>1.7%</td>
+<td>5.8%</td>
+<td>2.5%</td>
+<td>4.3%</td>
+<td>3.1%</td>
+<td>2.8%</td>
+<td>5.1%</td>
+<td>4.6%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>&lt;NA&gt;</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>&lt;NA&gt;</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td data-quarto-table-cell-role="th"></td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of entry point into bahsa services (pathway and level) by ethnicity_grouped (n)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_grouped</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black</th>
+<th data-quarto-table-cell-role="th">Mixed Heritage</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">pway_and_lvl</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">F L1</td>
+<td>1</td>
+<td>0</td>
+<td>11</td>
+<td>15</td>
+<td>2</td>
+<td>16</td>
+<td>210</td>
+<td>255</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">F L2</td>
+<td>2</td>
+<td>7</td>
+<td>24</td>
+<td>13</td>
+<td>3</td>
+<td>17</td>
+<td>181</td>
+<td>247</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">F L3</td>
+<td>2</td>
+<td>0</td>
+<td>23</td>
+<td>11</td>
+<td>3</td>
+<td>17</td>
+<td>70</td>
+<td>126</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">F L4</td>
+<td>5</td>
+<td>8</td>
+<td>66</td>
+<td>16</td>
+<td>2</td>
+<td>13</td>
+<td>111</td>
+<td>221</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">M L1</td>
+<td>11</td>
+<td>27</td>
+<td>146</td>
+<td>55</td>
+<td>24</td>
+<td>43</td>
+<td>1002</td>
+<td>1308</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">M L2</td>
+<td>0</td>
+<td>2</td>
+<td>16</td>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+<td>55</td>
+<td>78</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">M L3</td>
+<td>1</td>
+<td>3</td>
+<td>7</td>
+<td>4</td>
+<td>0</td>
+<td>2</td>
+<td>33</td>
+<td>50</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">M L4</td>
+<td>21</td>
+<td>29</td>
+<td>136</td>
+<td>22</td>
+<td>17</td>
+<td>29</td>
+<td>266</td>
+<td>520</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">M/F L1</td>
+<td>9</td>
+<td>15</td>
+<td>78</td>
+<td>42</td>
+<td>4</td>
+<td>29</td>
+<td>741</td>
+<td>918</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">M/F L2</td>
+<td>0</td>
+<td>1</td>
+<td>3</td>
+<td>5</td>
+<td>2</td>
+<td>4</td>
+<td>49</td>
+<td>64</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">M/F L3</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>23</td>
+<td>30</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">M/F L4</td>
+<td>4</td>
+<td>8</td>
+<td>33</td>
+<td>19</td>
+<td>4</td>
+<td>8</td>
+<td>100</td>
+<td>176</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">SU L1</td>
+<td>0</td>
+<td>12</td>
+<td>32</td>
+<td>39</td>
+<td>1</td>
+<td>25</td>
+<td>734</td>
+<td>843</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">SU L2</td>
+<td>1</td>
+<td>7</td>
+<td>15</td>
+<td>11</td>
+<td>2</td>
+<td>6</td>
+<td>193</td>
+<td>235</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>58</td>
+<td>120</td>
+<td>591</td>
+<td>258</td>
+<td>65</td>
+<td>211</td>
+<td>3768</td>
+<td>5071</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of entry point into bahsa services (pathway and level) by ethnicity_grouped (pct)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_grouped</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black</th>
+<th data-quarto-table-cell-role="th">Mixed Heritage</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">pway_and_lvl</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">F L1</td>
+<td>1.7%</td>
+<td>0.0%</td>
+<td>1.9%</td>
+<td>5.8%</td>
+<td>3.1%</td>
+<td>7.6%</td>
+<td>5.6%</td>
+<td>5.0%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">F L2</td>
+<td>3.4%</td>
+<td>5.8%</td>
+<td>4.1%</td>
+<td>5.0%</td>
+<td>4.6%</td>
+<td>8.1%</td>
+<td>4.8%</td>
+<td>4.9%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">F L3</td>
+<td>3.4%</td>
+<td>0.0%</td>
+<td>3.9%</td>
+<td>4.3%</td>
+<td>4.6%</td>
+<td>8.1%</td>
+<td>1.9%</td>
+<td>2.5%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">F L4</td>
+<td>8.6%</td>
+<td>6.7%</td>
+<td>11.2%</td>
+<td>6.2%</td>
+<td>3.1%</td>
+<td>6.2%</td>
+<td>2.9%</td>
+<td>4.4%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">M L1</td>
+<td>19.0%</td>
+<td>22.5%</td>
+<td>24.7%</td>
+<td>21.3%</td>
+<td>36.9%</td>
+<td>20.4%</td>
+<td>26.6%</td>
+<td>25.8%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">M L2</td>
+<td>0.0%</td>
+<td>1.7%</td>
+<td>2.7%</td>
+<td>0.8%</td>
+<td>1.5%</td>
+<td>0.9%</td>
+<td>1.5%</td>
+<td>1.5%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">M L3</td>
+<td>1.7%</td>
+<td>2.5%</td>
+<td>1.2%</td>
+<td>1.6%</td>
+<td>0.0%</td>
+<td>0.9%</td>
+<td>0.9%</td>
+<td>1.0%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">M L4</td>
+<td>36.2%</td>
+<td>24.2%</td>
+<td>23.0%</td>
+<td>8.5%</td>
+<td>26.2%</td>
+<td>13.7%</td>
+<td>7.1%</td>
+<td>10.3%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">M/F L1</td>
+<td>15.5%</td>
+<td>12.5%</td>
+<td>13.2%</td>
+<td>16.3%</td>
+<td>6.2%</td>
+<td>13.7%</td>
+<td>19.7%</td>
+<td>18.1%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">M/F L2</td>
+<td>0.0%</td>
+<td>0.8%</td>
+<td>0.5%</td>
+<td>1.9%</td>
+<td>3.1%</td>
+<td>1.9%</td>
+<td>1.3%</td>
+<td>1.3%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">M/F L3</td>
+<td>1.7%</td>
+<td>0.8%</td>
+<td>0.2%</td>
+<td>1.6%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.6%</td>
+<td>0.6%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">M/F L4</td>
+<td>6.9%</td>
+<td>6.7%</td>
+<td>5.6%</td>
+<td>7.4%</td>
+<td>6.2%</td>
+<td>3.8%</td>
+<td>2.7%</td>
+<td>3.5%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">SU L1</td>
+<td>0.0%</td>
+<td>10.0%</td>
+<td>5.4%</td>
+<td>15.1%</td>
+<td>1.5%</td>
+<td>11.8%</td>
+<td>19.5%</td>
+<td>16.6%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">SU L2</td>
+<td>1.7%</td>
+<td>5.8%</td>
+<td>2.5%</td>
+<td>4.3%</td>
+<td>3.1%</td>
+<td>2.8%</td>
+<td>5.1%</td>
+<td>4.6%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of route outcomes after 3.08 years by ethnicity_grouped (n)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_grouped</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black</th>
+<th data-quarto-table-cell-role="th">Mixed Heritage</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">rt_outcome</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Died</td>
+<td>0</td>
+<td>2</td>
+<td>6</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>68</td>
+<td>80</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Independent accommodation</td>
+<td>28</td>
+<td>38</td>
+<td>205</td>
+<td>65</td>
+<td>15</td>
+<td>42</td>
+<td>755</td>
+<td>1148</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td>10</td>
+<td>26</td>
+<td>111</td>
+<td>61</td>
+<td>9</td>
+<td>34</td>
+<td>842</td>
+<td>1093</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Returned to homelessness</td>
+<td>2</td>
+<td>8</td>
+<td>75</td>
+<td>51</td>
+<td>7</td>
+<td>28</td>
+<td>841</td>
+<td>1012</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>40</td>
+<td>74</td>
+<td>397</td>
+<td>178</td>
+<td>32</td>
+<td>106</td>
+<td>2506</td>
+<td>3333</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of route outcomes after 3.08 years by ethnicity_grouped (pct)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_grouped</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black</th>
+<th data-quarto-table-cell-role="th">Mixed Heritage</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">rt_outcome</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Died</td>
+<td>0.0%</td>
+<td>2.7%</td>
+<td>1.5%</td>
+<td>0.6%</td>
+<td>3.1%</td>
+<td>1.9%</td>
+<td>2.7%</td>
+<td>2.4%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Independent accommodation</td>
+<td>70.0%</td>
+<td>51.4%</td>
+<td>51.6%</td>
+<td>36.5%</td>
+<td>46.9%</td>
+<td>39.6%</td>
+<td>30.1%</td>
+<td>34.4%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td>25.0%</td>
+<td>35.1%</td>
+<td>28.0%</td>
+<td>34.3%</td>
+<td>28.1%</td>
+<td>32.1%</td>
+<td>33.6%</td>
+<td>32.8%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Returned to homelessness</td>
+<td>5.0%</td>
+<td>10.8%</td>
+<td>18.9%</td>
+<td>28.7%</td>
+<td>21.9%</td>
+<td>26.4%</td>
+<td>33.6%</td>
+<td>30.4%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of outcomes 3.08 years after a person’s first route started by ethnicity_grouped (n)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_grouped</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black</th>
+<th data-quarto-table-cell-role="th">Mixed Heritage</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">cli_outcome</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Died</td>
+<td>0</td>
+<td>1</td>
+<td>4</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>57</td>
+<td>66</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Independent accommodation</td>
+<td>30</td>
+<td>39</td>
+<td>220</td>
+<td>72</td>
+<td>19</td>
+<td>46</td>
+<td>791</td>
+<td>1217</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td>7</td>
+<td>24</td>
+<td>80</td>
+<td>44</td>
+<td>5</td>
+<td>30</td>
+<td>642</td>
+<td>832</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Returned to homelessness</td>
+<td>2</td>
+<td>3</td>
+<td>41</td>
+<td>29</td>
+<td>4</td>
+<td>21</td>
+<td>417</td>
+<td>517</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>39</td>
+<td>67</td>
+<td>345</td>
+<td>146</td>
+<td>29</td>
+<td>99</td>
+<td>1907</td>
+<td>2632</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of outcomes 3.08 years after a person’s first route started by ethnicity_grouped (pct)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_grouped</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black</th>
+<th data-quarto-table-cell-role="th">Mixed Heritage</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">cli_outcome</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Died</td>
+<td>0.0%</td>
+<td>1.5%</td>
+<td>1.2%</td>
+<td>0.7%</td>
+<td>3.4%</td>
+<td>2.0%</td>
+<td>3.0%</td>
+<td>2.5%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Independent accommodation</td>
+<td>76.9%</td>
+<td>58.2%</td>
+<td>63.8%</td>
+<td>49.3%</td>
+<td>65.5%</td>
+<td>46.5%</td>
+<td>41.5%</td>
+<td>46.2%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td>17.9%</td>
+<td>35.8%</td>
+<td>23.2%</td>
+<td>30.1%</td>
+<td>17.2%</td>
+<td>30.3%</td>
+<td>33.7%</td>
+<td>31.6%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Returned to homelessness</td>
+<td>5.1%</td>
+<td>4.5%</td>
+<td>11.9%</td>
+<td>19.9%</td>
+<td>13.8%</td>
+<td>21.2%</td>
+<td>21.9%</td>
+<td>19.6%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of people with multiple returns during 7.5 yrs by ethnicity_grouped (n)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_grouped</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black</th>
+<th data-quarto-table-cell-role="th">Mixed Heritage</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">multiple_returns</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">False</td>
+<td>57</td>
+<td>102</td>
+<td>475</td>
+<td>186</td>
+<td>51</td>
+<td>186</td>
+<td>2402</td>
+<td>3459</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">True</td>
+<td>0</td>
+<td>3</td>
+<td>22</td>
+<td>10</td>
+<td>2</td>
+<td>2</td>
+<td>256</td>
+<td>295</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>57</td>
+<td>105</td>
+<td>497</td>
+<td>196</td>
+<td>53</td>
+<td>188</td>
+<td>2658</td>
+<td>3754</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of people with multiple returns during 7.5 yrs by ethnicity_grouped (pct)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_grouped</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black</th>
+<th data-quarto-table-cell-role="th">Mixed Heritage</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">multiple_returns</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">False</td>
+<td>100.0%</td>
+<td>97.1%</td>
+<td>95.6%</td>
+<td>94.9%</td>
+<td>96.2%</td>
+<td>98.9%</td>
+<td>90.4%</td>
+<td>92.1%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">True</td>
+<td>0.0%</td>
+<td>2.9%</td>
+<td>4.4%</td>
+<td>5.1%</td>
+<td>3.8%</td>
+<td>1.1%</td>
+<td>9.6%</td>
+<td>7.9%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of people with a route in top 10% of route durations by ethnicity_grouped (n)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_grouped</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black</th>
+<th data-quarto-table-cell-role="th">Mixed Heritage</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">has_longer_term_rt</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">False</td>
+<td>52</td>
+<td>89</td>
+<td>428</td>
+<td>165</td>
+<td>49</td>
+<td>170</td>
+<td>2296</td>
+<td>3249</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">True</td>
+<td>5</td>
+<td>16</td>
+<td>69</td>
+<td>31</td>
+<td>4</td>
+<td>18</td>
+<td>362</td>
+<td>505</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>57</td>
+<td>105</td>
+<td>497</td>
+<td>196</td>
+<td>53</td>
+<td>188</td>
+<td>2658</td>
+<td>3754</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of people with a route in top 10% of route durations by ethnicity_grouped (pct)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_grouped</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black</th>
+<th data-quarto-table-cell-role="th">Mixed Heritage</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">has_longer_term_rt</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">False</td>
+<td>91.2%</td>
+<td>84.8%</td>
+<td>86.1%</td>
+<td>84.2%</td>
+<td>92.5%</td>
+<td>90.4%</td>
+<td>86.4%</td>
+<td>86.5%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">True</td>
+<td>8.8%</td>
+<td>15.2%</td>
+<td>13.9%</td>
+<td>15.8%</td>
+<td>7.5%</td>
+<td>9.6%</td>
+<td>13.6%</td>
+<td>13.5%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of returns within 2 years after moving to independent accommodation by ethnicity_grouped (n)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_grouped</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black</th>
+<th data-quarto-table-cell-role="th">Mixed Heritage</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">after_rt_ret_within_2y</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">No</td>
+<td>25</td>
+<td>32</td>
+<td>181</td>
+<td>52</td>
+<td>15</td>
+<td>39</td>
+<td>678</td>
+<td>1022</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Yes</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>21</td>
+<td>24</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>25</td>
+<td>33</td>
+<td>182</td>
+<td>53</td>
+<td>15</td>
+<td>39</td>
+<td>699</td>
+<td>1046</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of returns within 2 years after moving to independent accommodation by ethnicity_grouped (pct)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_grouped</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black</th>
+<th data-quarto-table-cell-role="th">Mixed Heritage</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">after_rt_ret_within_2y</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">No</td>
+<td>100.0%</td>
+<td>97.0%</td>
+<td>99.5%</td>
+<td>98.1%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>97.0%</td>
+<td>97.7%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Yes</td>
+<td>0.0%</td>
+<td>3.0%</td>
+<td>0.5%</td>
+<td>1.9%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>3.0%</td>
+<td>2.3%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of outcomes from individual placements by ethnicity_grouped (n)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_grouped</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black</th>
+<th data-quarto-table-cell-role="th">Mixed Heritage</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">pl_outcome</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Died</td>
+<td>0</td>
+<td>3</td>
+<td>6</td>
+<td>3</td>
+<td>2</td>
+<td>3</td>
+<td>100</td>
+<td>117</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Independent accommodation</td>
+<td>30</td>
+<td>39</td>
+<td>219</td>
+<td>64</td>
+<td>19</td>
+<td>45</td>
+<td>809</td>
+<td>1225</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
+<td>7</td>
+<td>18</td>
+<td>62</td>
+<td>35</td>
+<td>7</td>
+<td>24</td>
+<td>485</td>
+<td>638</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Internal move: backwards</td>
+<td>3</td>
+<td>11</td>
+<td>64</td>
+<td>38</td>
+<td>4</td>
+<td>23</td>
+<td>510</td>
+<td>653</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Internal move: forwards</td>
+<td>23</td>
+<td>33</td>
+<td>177</td>
+<td>70</td>
+<td>20</td>
+<td>57</td>
+<td>1182</td>
+<td>1562</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Internal move: sideways</td>
+<td>5</td>
+<td>15</td>
+<td>77</td>
+<td>56</td>
+<td>8</td>
+<td>26</td>
+<td>977</td>
+<td>1164</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Returned to homelessness</td>
+<td>2</td>
+<td>14</td>
+<td>66</td>
+<td>43</td>
+<td>4</td>
+<td>40</td>
+<td>575</td>
+<td>744</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">All</td>
+<td>70</td>
+<td>133</td>
+<td>671</td>
+<td>309</td>
+<td>64</td>
+<td>218</td>
+<td>4638</td>
+<td>6103</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of outcomes from individual placements by ethnicity_grouped (pct)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_grouped</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black</th>
+<th data-quarto-table-cell-role="th">Mixed Heritage</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">pl_outcome</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Died</td>
+<td>0.0%</td>
+<td>2.3%</td>
+<td>0.9%</td>
+<td>1.0%</td>
+<td>3.1%</td>
+<td>1.4%</td>
+<td>2.2%</td>
+<td>1.9%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Independent accommodation</td>
+<td>42.9%</td>
+<td>29.3%</td>
+<td>32.6%</td>
+<td>20.7%</td>
+<td>29.7%</td>
+<td>20.6%</td>
+<td>17.4%</td>
+<td>20.1%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
+<td>10.0%</td>
+<td>13.5%</td>
+<td>9.2%</td>
+<td>11.3%</td>
+<td>10.9%</td>
+<td>11.0%</td>
+<td>10.5%</td>
+<td>10.5%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Internal move: backwards</td>
+<td>4.3%</td>
+<td>8.3%</td>
+<td>9.5%</td>
+<td>12.3%</td>
+<td>6.2%</td>
+<td>10.6%</td>
+<td>11.0%</td>
+<td>10.7%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Internal move: forwards</td>
+<td>32.9%</td>
+<td>24.8%</td>
+<td>26.4%</td>
+<td>22.7%</td>
+<td>31.2%</td>
+<td>26.1%</td>
+<td>25.5%</td>
+<td>25.6%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Internal move: sideways</td>
+<td>7.1%</td>
+<td>11.3%</td>
+<td>11.5%</td>
+<td>18.1%</td>
+<td>12.5%</td>
+<td>11.9%</td>
+<td>21.1%</td>
+<td>19.1%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Returned to homelessness</td>
+<td>2.9%</td>
+<td>10.5%</td>
+<td>9.8%</td>
+<td>13.9%</td>
+<td>6.2%</td>
+<td>18.3%</td>
+<td>12.4%</td>
+<td>12.2%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">All</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</section>
+<section id="ethnicity_detailed" class="level3">
+<h3 class="anchored" data-anchor-id="ethnicity_detailed">ethnicity_detailed</h3>
+<p>Cross-tabulation of entry point into bahsa services (pathway type and level) by ethnicity_detailed (n)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">ethnicity_detailed</th>
+<th data-quarto-table-cell-role="th">Any other Mixed/multiple ethnic background</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black/Black British - African</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Caribbean</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Other</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black African</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black Caribbean</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White British</th>
+<th data-quarto-table-cell-role="th">White Gypsy/Irish Traveller</th>
+<th data-quarto-table-cell-role="th">White Other</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">pathway_type</th>
+<th data-quarto-table-cell-role="th">pathway_level</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td rowspan="4" data-quarto-table-cell-role="th" data-valign="top">Homelessness</td>
+<td data-quarto-table-cell-role="th">1</td>
+<td>23</td>
+<td>21</td>
+<td>42</td>
+<td>109</td>
+<td>89</td>
+<td>37</td>
+<td>17</td>
+<td>72</td>
+<td>30</td>
+<td>88</td>
+<td>1809</td>
+<td>8</td>
+<td>136</td>
+<td>2481</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2</td>
+<td>3</td>
+<td>2</td>
+<td>10</td>
+<td>22</td>
+<td>17</td>
+<td>4</td>
+<td>6</td>
+<td>11</td>
+<td>6</td>
+<td>23</td>
+<td>263</td>
+<td>2</td>
+<td>20</td>
+<td>389</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3</td>
+<td>9</td>
+<td>4</td>
+<td>4</td>
+<td>14</td>
+<td>12</td>
+<td>5</td>
+<td>3</td>
+<td>7</td>
+<td>3</td>
+<td>19</td>
+<td>117</td>
+<td>1</td>
+<td>8</td>
+<td>206</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4</td>
+<td>10</td>
+<td>30</td>
+<td>45</td>
+<td>161</td>
+<td>41</td>
+<td>33</td>
+<td>14</td>
+<td>33</td>
+<td>23</td>
+<td>50</td>
+<td>427</td>
+<td>4</td>
+<td>46</td>
+<td>917</td>
+</tr>
+<tr class="odd">
+<td rowspan="4" data-quarto-table-cell-role="th" data-valign="top">Substance Misuse</td>
+<td data-quarto-table-cell-role="th">1</td>
+<td>11</td>
+<td>0</td>
+<td>12</td>
+<td>7</td>
+<td>20</td>
+<td>5</td>
+<td>1</td>
+<td>27</td>
+<td>1</td>
+<td>25</td>
+<td>699</td>
+<td>1</td>
+<td>34</td>
+<td>843</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2</td>
+<td>6</td>
+<td>1</td>
+<td>7</td>
+<td>4</td>
+<td>9</td>
+<td>2</td>
+<td>1</td>
+<td>4</td>
+<td>2</td>
+<td>6</td>
+<td>177</td>
+<td>1</td>
+<td>15</td>
+<td>235</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>&lt;NA&gt;</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>&lt;NA&gt;</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td data-quarto-table-cell-role="th"></td>
+<td>62</td>
+<td>58</td>
+<td>120</td>
+<td>317</td>
+<td>188</td>
+<td>86</td>
+<td>42</td>
+<td>154</td>
+<td>65</td>
+<td>211</td>
+<td>3492</td>
+<td>17</td>
+<td>259</td>
+<td>5071</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of entry point into bahsa services (pathway type and level) by ethnicity_detailed (pct)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">ethnicity_detailed</th>
+<th data-quarto-table-cell-role="th">Any other Mixed/multiple ethnic background</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black/Black British - African</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Caribbean</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Other</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black African</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black Caribbean</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White British</th>
+<th data-quarto-table-cell-role="th">White Gypsy/Irish Traveller</th>
+<th data-quarto-table-cell-role="th">White Other</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">pathway_type</th>
+<th data-quarto-table-cell-role="th">pathway_level</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td rowspan="4" data-quarto-table-cell-role="th" data-valign="top">Homelessness</td>
+<td data-quarto-table-cell-role="th">1</td>
+<td>37.1%</td>
+<td>36.2%</td>
+<td>35.0%</td>
+<td>34.4%</td>
+<td>47.3%</td>
+<td>43.0%</td>
+<td>40.5%</td>
+<td>46.8%</td>
+<td>46.2%</td>
+<td>41.7%</td>
+<td>51.8%</td>
+<td>47.1%</td>
+<td>52.5%</td>
+<td>48.9%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2</td>
+<td>4.8%</td>
+<td>3.4%</td>
+<td>8.3%</td>
+<td>6.9%</td>
+<td>9.0%</td>
+<td>4.7%</td>
+<td>14.3%</td>
+<td>7.1%</td>
+<td>9.2%</td>
+<td>10.9%</td>
+<td>7.5%</td>
+<td>11.8%</td>
+<td>7.7%</td>
+<td>7.7%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3</td>
+<td>14.5%</td>
+<td>6.9%</td>
+<td>3.3%</td>
+<td>4.4%</td>
+<td>6.4%</td>
+<td>5.8%</td>
+<td>7.1%</td>
+<td>4.5%</td>
+<td>4.6%</td>
+<td>9.0%</td>
+<td>3.4%</td>
+<td>5.9%</td>
+<td>3.1%</td>
+<td>4.1%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4</td>
+<td>16.1%</td>
+<td>51.7%</td>
+<td>37.5%</td>
+<td>50.8%</td>
+<td>21.8%</td>
+<td>38.4%</td>
+<td>33.3%</td>
+<td>21.4%</td>
+<td>35.4%</td>
+<td>23.7%</td>
+<td>12.2%</td>
+<td>23.5%</td>
+<td>17.8%</td>
+<td>18.1%</td>
+</tr>
+<tr class="odd">
+<td rowspan="4" data-quarto-table-cell-role="th" data-valign="top">Substance Misuse</td>
+<td data-quarto-table-cell-role="th">1</td>
+<td>17.7%</td>
+<td>0.0%</td>
+<td>10.0%</td>
+<td>2.2%</td>
+<td>10.6%</td>
+<td>5.8%</td>
+<td>2.4%</td>
+<td>17.5%</td>
+<td>1.5%</td>
+<td>11.8%</td>
+<td>20.0%</td>
+<td>5.9%</td>
+<td>13.1%</td>
+<td>16.6%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2</td>
+<td>9.7%</td>
+<td>1.7%</td>
+<td>5.8%</td>
+<td>1.3%</td>
+<td>4.8%</td>
+<td>2.3%</td>
+<td>2.4%</td>
+<td>2.6%</td>
+<td>3.1%</td>
+<td>2.8%</td>
+<td>5.1%</td>
+<td>5.9%</td>
+<td>5.8%</td>
+<td>4.6%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>&lt;NA&gt;</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>&lt;NA&gt;</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td data-quarto-table-cell-role="th"></td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of entry point into bahsa services (pathway and level) by ethnicity_detailed (n)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_detailed</th>
+<th data-quarto-table-cell-role="th">Any other Mixed/multiple ethnic background</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black/Black British - African</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Caribbean</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Other</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black African</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black Caribbean</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White British</th>
+<th data-quarto-table-cell-role="th">White Gypsy/Irish Traveller</th>
+<th data-quarto-table-cell-role="th">White Other</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">pway_and_lvl</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">F L1</td>
+<td>4</td>
+<td>1</td>
+<td>0</td>
+<td>6</td>
+<td>3</td>
+<td>2</td>
+<td>2</td>
+<td>9</td>
+<td>2</td>
+<td>16</td>
+<td>192</td>
+<td>1</td>
+<td>17</td>
+<td>255</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">F L2</td>
+<td>2</td>
+<td>2</td>
+<td>7</td>
+<td>12</td>
+<td>9</td>
+<td>3</td>
+<td>5</td>
+<td>6</td>
+<td>3</td>
+<td>17</td>
+<td>166</td>
+<td>1</td>
+<td>14</td>
+<td>247</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">F L3</td>
+<td>4</td>
+<td>2</td>
+<td>0</td>
+<td>12</td>
+<td>8</td>
+<td>3</td>
+<td>2</td>
+<td>5</td>
+<td>3</td>
+<td>17</td>
+<td>62</td>
+<td>1</td>
+<td>7</td>
+<td>126</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">F L4</td>
+<td>5</td>
+<td>5</td>
+<td>8</td>
+<td>45</td>
+<td>14</td>
+<td>7</td>
+<td>4</td>
+<td>7</td>
+<td>2</td>
+<td>13</td>
+<td>95</td>
+<td>1</td>
+<td>15</td>
+<td>221</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">M L1</td>
+<td>10</td>
+<td>11</td>
+<td>27</td>
+<td>72</td>
+<td>55</td>
+<td>19</td>
+<td>7</td>
+<td>38</td>
+<td>24</td>
+<td>43</td>
+<td>937</td>
+<td>1</td>
+<td>64</td>
+<td>1308</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">M L2</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>9</td>
+<td>6</td>
+<td>1</td>
+<td>0</td>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+<td>50</td>
+<td>1</td>
+<td>4</td>
+<td>78</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">M L3</td>
+<td>3</td>
+<td>1</td>
+<td>3</td>
+<td>2</td>
+<td>3</td>
+<td>2</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>33</td>
+<td>0</td>
+<td>0</td>
+<td>50</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">M L4</td>
+<td>3</td>
+<td>21</td>
+<td>29</td>
+<td>95</td>
+<td>21</td>
+<td>20</td>
+<td>6</td>
+<td>13</td>
+<td>17</td>
+<td>29</td>
+<td>238</td>
+<td>3</td>
+<td>25</td>
+<td>520</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">M/F L1</td>
+<td>9</td>
+<td>9</td>
+<td>15</td>
+<td>31</td>
+<td>31</td>
+<td>16</td>
+<td>8</td>
+<td>25</td>
+<td>4</td>
+<td>29</td>
+<td>680</td>
+<td>6</td>
+<td>55</td>
+<td>918</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">M/F L2</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+<td>1</td>
+<td>3</td>
+<td>2</td>
+<td>4</td>
+<td>47</td>
+<td>0</td>
+<td>2</td>
+<td>64</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">M/F L3</td>
+<td>2</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>22</td>
+<td>0</td>
+<td>1</td>
+<td>30</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">M/F L4</td>
+<td>2</td>
+<td>4</td>
+<td>8</td>
+<td>21</td>
+<td>6</td>
+<td>6</td>
+<td>4</td>
+<td>13</td>
+<td>4</td>
+<td>8</td>
+<td>94</td>
+<td>0</td>
+<td>6</td>
+<td>176</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">SU L1</td>
+<td>11</td>
+<td>0</td>
+<td>12</td>
+<td>7</td>
+<td>20</td>
+<td>5</td>
+<td>1</td>
+<td>27</td>
+<td>1</td>
+<td>25</td>
+<td>699</td>
+<td>1</td>
+<td>34</td>
+<td>843</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">SU L2</td>
+<td>6</td>
+<td>1</td>
+<td>7</td>
+<td>4</td>
+<td>9</td>
+<td>2</td>
+<td>1</td>
+<td>4</td>
+<td>2</td>
+<td>6</td>
+<td>177</td>
+<td>1</td>
+<td>15</td>
+<td>235</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>62</td>
+<td>58</td>
+<td>120</td>
+<td>317</td>
+<td>188</td>
+<td>86</td>
+<td>42</td>
+<td>154</td>
+<td>65</td>
+<td>211</td>
+<td>3492</td>
+<td>17</td>
+<td>259</td>
+<td>5071</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of entry point into bahsa services (pathway and level) by ethnicity_detailed (pct)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_detailed</th>
+<th data-quarto-table-cell-role="th">Any other Mixed/multiple ethnic background</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black/Black British - African</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Caribbean</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Other</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black African</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black Caribbean</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White British</th>
+<th data-quarto-table-cell-role="th">White Gypsy/Irish Traveller</th>
+<th data-quarto-table-cell-role="th">White Other</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">pway_and_lvl</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">F L1</td>
+<td>6.5%</td>
+<td>1.7%</td>
+<td>0.0%</td>
+<td>1.9%</td>
+<td>1.6%</td>
+<td>2.3%</td>
+<td>4.8%</td>
+<td>5.8%</td>
+<td>3.1%</td>
+<td>7.6%</td>
+<td>5.5%</td>
+<td>5.9%</td>
+<td>6.6%</td>
+<td>5.0%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">F L2</td>
+<td>3.2%</td>
+<td>3.4%</td>
+<td>5.8%</td>
+<td>3.8%</td>
+<td>4.8%</td>
+<td>3.5%</td>
+<td>11.9%</td>
+<td>3.9%</td>
+<td>4.6%</td>
+<td>8.1%</td>
+<td>4.8%</td>
+<td>5.9%</td>
+<td>5.4%</td>
+<td>4.9%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">F L3</td>
+<td>6.5%</td>
+<td>3.4%</td>
+<td>0.0%</td>
+<td>3.8%</td>
+<td>4.3%</td>
+<td>3.5%</td>
+<td>4.8%</td>
+<td>3.2%</td>
+<td>4.6%</td>
+<td>8.1%</td>
+<td>1.8%</td>
+<td>5.9%</td>
+<td>2.7%</td>
+<td>2.5%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">F L4</td>
+<td>8.1%</td>
+<td>8.6%</td>
+<td>6.7%</td>
+<td>14.2%</td>
+<td>7.4%</td>
+<td>8.1%</td>
+<td>9.5%</td>
+<td>4.5%</td>
+<td>3.1%</td>
+<td>6.2%</td>
+<td>2.7%</td>
+<td>5.9%</td>
+<td>5.8%</td>
+<td>4.4%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">M L1</td>
+<td>16.1%</td>
+<td>19.0%</td>
+<td>22.5%</td>
+<td>22.7%</td>
+<td>29.3%</td>
+<td>22.1%</td>
+<td>16.7%</td>
+<td>24.7%</td>
+<td>36.9%</td>
+<td>20.4%</td>
+<td>26.8%</td>
+<td>5.9%</td>
+<td>24.7%</td>
+<td>25.8%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">M L2</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>1.7%</td>
+<td>2.8%</td>
+<td>3.2%</td>
+<td>1.2%</td>
+<td>0.0%</td>
+<td>1.3%</td>
+<td>1.5%</td>
+<td>0.9%</td>
+<td>1.4%</td>
+<td>5.9%</td>
+<td>1.5%</td>
+<td>1.5%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">M L3</td>
+<td>4.8%</td>
+<td>1.7%</td>
+<td>2.5%</td>
+<td>0.6%</td>
+<td>1.6%</td>
+<td>2.3%</td>
+<td>2.4%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.9%</td>
+<td>0.9%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>1.0%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">M L4</td>
+<td>4.8%</td>
+<td>36.2%</td>
+<td>24.2%</td>
+<td>30.0%</td>
+<td>11.2%</td>
+<td>23.3%</td>
+<td>14.3%</td>
+<td>8.4%</td>
+<td>26.2%</td>
+<td>13.7%</td>
+<td>6.8%</td>
+<td>17.6%</td>
+<td>9.7%</td>
+<td>10.3%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">M/F L1</td>
+<td>14.5%</td>
+<td>15.5%</td>
+<td>12.5%</td>
+<td>9.8%</td>
+<td>16.5%</td>
+<td>18.6%</td>
+<td>19.0%</td>
+<td>16.2%</td>
+<td>6.2%</td>
+<td>13.7%</td>
+<td>19.5%</td>
+<td>35.3%</td>
+<td>21.2%</td>
+<td>18.1%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">M/F L2</td>
+<td>1.6%</td>
+<td>0.0%</td>
+<td>0.8%</td>
+<td>0.3%</td>
+<td>1.1%</td>
+<td>0.0%</td>
+<td>2.4%</td>
+<td>1.9%</td>
+<td>3.1%</td>
+<td>1.9%</td>
+<td>1.3%</td>
+<td>0.0%</td>
+<td>0.8%</td>
+<td>1.3%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">M/F L3</td>
+<td>3.2%</td>
+<td>1.7%</td>
+<td>0.8%</td>
+<td>0.0%</td>
+<td>0.5%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>1.3%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>0.6%</td>
+<td>0.0%</td>
+<td>0.4%</td>
+<td>0.6%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">M/F L4</td>
+<td>3.2%</td>
+<td>6.9%</td>
+<td>6.7%</td>
+<td>6.6%</td>
+<td>3.2%</td>
+<td>7.0%</td>
+<td>9.5%</td>
+<td>8.4%</td>
+<td>6.2%</td>
+<td>3.8%</td>
+<td>2.7%</td>
+<td>0.0%</td>
+<td>2.3%</td>
+<td>3.5%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">SU L1</td>
+<td>17.7%</td>
+<td>0.0%</td>
+<td>10.0%</td>
+<td>2.2%</td>
+<td>10.6%</td>
+<td>5.8%</td>
+<td>2.4%</td>
+<td>17.5%</td>
+<td>1.5%</td>
+<td>11.8%</td>
+<td>20.0%</td>
+<td>5.9%</td>
+<td>13.1%</td>
+<td>16.6%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">SU L2</td>
+<td>9.7%</td>
+<td>1.7%</td>
+<td>5.8%</td>
+<td>1.3%</td>
+<td>4.8%</td>
+<td>2.3%</td>
+<td>2.4%</td>
+<td>2.6%</td>
+<td>3.1%</td>
+<td>2.8%</td>
+<td>5.1%</td>
+<td>5.9%</td>
+<td>5.8%</td>
+<td>4.6%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of route outcomes after 3.08 years by ethnicity_detailed (n)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_detailed</th>
+<th data-quarto-table-cell-role="th">Any other Mixed/multiple ethnic background</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black/Black British - African</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Caribbean</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Other</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black African</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black Caribbean</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White British</th>
+<th data-quarto-table-cell-role="th">White Gypsy/Irish Traveller</th>
+<th data-quarto-table-cell-role="th">White Other</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">rt_outcome</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Died</td>
+<td>1</td>
+<td>0</td>
+<td>2</td>
+<td>3</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>62</td>
+<td>0</td>
+<td>6</td>
+<td>80</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Independent accommodation</td>
+<td>17</td>
+<td>28</td>
+<td>38</td>
+<td>123</td>
+<td>58</td>
+<td>24</td>
+<td>14</td>
+<td>34</td>
+<td>15</td>
+<td>42</td>
+<td>696</td>
+<td>4</td>
+<td>55</td>
+<td>1148</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td>14</td>
+<td>10</td>
+<td>26</td>
+<td>51</td>
+<td>41</td>
+<td>19</td>
+<td>10</td>
+<td>37</td>
+<td>9</td>
+<td>34</td>
+<td>795</td>
+<td>3</td>
+<td>44</td>
+<td>1093</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Returned to homelessness</td>
+<td>14</td>
+<td>2</td>
+<td>8</td>
+<td>30</td>
+<td>35</td>
+<td>10</td>
+<td>6</td>
+<td>31</td>
+<td>7</td>
+<td>28</td>
+<td>794</td>
+<td>1</td>
+<td>46</td>
+<td>1012</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>46</td>
+<td>40</td>
+<td>74</td>
+<td>207</td>
+<td>135</td>
+<td>55</td>
+<td>30</td>
+<td>102</td>
+<td>32</td>
+<td>106</td>
+<td>2347</td>
+<td>8</td>
+<td>151</td>
+<td>3333</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of route outcomes after 3.08 years by ethnicity_detailed (pct)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_detailed</th>
+<th data-quarto-table-cell-role="th">Any other Mixed/multiple ethnic background</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black/Black British - African</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Caribbean</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Other</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black African</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black Caribbean</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White British</th>
+<th data-quarto-table-cell-role="th">White Gypsy/Irish Traveller</th>
+<th data-quarto-table-cell-role="th">White Other</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">rt_outcome</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Died</td>
+<td>2.2%</td>
+<td>0.0%</td>
+<td>2.7%</td>
+<td>1.4%</td>
+<td>0.7%</td>
+<td>3.6%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>3.1%</td>
+<td>1.9%</td>
+<td>2.6%</td>
+<td>0.0%</td>
+<td>4.0%</td>
+<td>2.4%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Independent accommodation</td>
+<td>37.0%</td>
+<td>70.0%</td>
+<td>51.4%</td>
+<td>59.4%</td>
+<td>43.0%</td>
+<td>43.6%</td>
+<td>46.7%</td>
+<td>33.3%</td>
+<td>46.9%</td>
+<td>39.6%</td>
+<td>29.7%</td>
+<td>50.0%</td>
+<td>36.4%</td>
+<td>34.4%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td>30.4%</td>
+<td>25.0%</td>
+<td>35.1%</td>
+<td>24.6%</td>
+<td>30.4%</td>
+<td>34.5%</td>
+<td>33.3%</td>
+<td>36.3%</td>
+<td>28.1%</td>
+<td>32.1%</td>
+<td>33.9%</td>
+<td>37.5%</td>
+<td>29.1%</td>
+<td>32.8%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Returned to homelessness</td>
+<td>30.4%</td>
+<td>5.0%</td>
+<td>10.8%</td>
+<td>14.5%</td>
+<td>25.9%</td>
+<td>18.2%</td>
+<td>20.0%</td>
+<td>30.4%</td>
+<td>21.9%</td>
+<td>26.4%</td>
+<td>33.8%</td>
+<td>12.5%</td>
+<td>30.5%</td>
+<td>30.4%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of outcomes 3.08 years after a person’s first route started by ethnicity_detailed (n)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_detailed</th>
+<th data-quarto-table-cell-role="th">Any other Mixed/multiple ethnic background</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black/Black British - African</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Caribbean</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Other</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black African</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black Caribbean</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White British</th>
+<th data-quarto-table-cell-role="th">White Gypsy/Irish Traveller</th>
+<th data-quarto-table-cell-role="th">White Other</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">cli_outcome</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Died</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>3</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>53</td>
+<td>0</td>
+<td>4</td>
+<td>66</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Independent accommodation</td>
+<td>19</td>
+<td>30</td>
+<td>39</td>
+<td>130</td>
+<td>63</td>
+<td>27</td>
+<td>14</td>
+<td>39</td>
+<td>19</td>
+<td>46</td>
+<td>729</td>
+<td>4</td>
+<td>58</td>
+<td>1217</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td>11</td>
+<td>7</td>
+<td>24</td>
+<td>40</td>
+<td>27</td>
+<td>13</td>
+<td>8</td>
+<td>25</td>
+<td>5</td>
+<td>30</td>
+<td>602</td>
+<td>2</td>
+<td>38</td>
+<td>832</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Returned to homelessness</td>
+<td>7</td>
+<td>2</td>
+<td>3</td>
+<td>19</td>
+<td>15</td>
+<td>7</td>
+<td>3</td>
+<td>19</td>
+<td>4</td>
+<td>21</td>
+<td>392</td>
+<td>1</td>
+<td>24</td>
+<td>517</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>38</td>
+<td>39</td>
+<td>67</td>
+<td>192</td>
+<td>105</td>
+<td>48</td>
+<td>25</td>
+<td>83</td>
+<td>29</td>
+<td>99</td>
+<td>1776</td>
+<td>7</td>
+<td>124</td>
+<td>2632</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of outcomes 3.08 years after a person’s first route started by ethnicity_detailed (pct)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_detailed</th>
+<th data-quarto-table-cell-role="th">Any other Mixed/multiple ethnic background</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black/Black British - African</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Caribbean</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Other</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black African</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black Caribbean</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White British</th>
+<th data-quarto-table-cell-role="th">White Gypsy/Irish Traveller</th>
+<th data-quarto-table-cell-role="th">White Other</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">cli_outcome</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Died</td>
+<td>2.6%</td>
+<td>0.0%</td>
+<td>1.5%</td>
+<td>1.6%</td>
+<td>0.0%</td>
+<td>2.1%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>3.4%</td>
+<td>2.0%</td>
+<td>3.0%</td>
+<td>0.0%</td>
+<td>3.2%</td>
+<td>2.5%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Independent accommodation</td>
+<td>50.0%</td>
+<td>76.9%</td>
+<td>58.2%</td>
+<td>67.7%</td>
+<td>60.0%</td>
+<td>56.2%</td>
+<td>56.0%</td>
+<td>47.0%</td>
+<td>65.5%</td>
+<td>46.5%</td>
+<td>41.0%</td>
+<td>57.1%</td>
+<td>46.8%</td>
+<td>46.2%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Insecure outcome</td>
+<td>28.9%</td>
+<td>17.9%</td>
+<td>35.8%</td>
+<td>20.8%</td>
+<td>25.7%</td>
+<td>27.1%</td>
+<td>32.0%</td>
+<td>30.1%</td>
+<td>17.2%</td>
+<td>30.3%</td>
+<td>33.9%</td>
+<td>28.6%</td>
+<td>30.6%</td>
+<td>31.6%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Returned to homelessness</td>
+<td>18.4%</td>
+<td>5.1%</td>
+<td>4.5%</td>
+<td>9.9%</td>
+<td>14.3%</td>
+<td>14.6%</td>
+<td>12.0%</td>
+<td>22.9%</td>
+<td>13.8%</td>
+<td>21.2%</td>
+<td>22.1%</td>
+<td>14.3%</td>
+<td>19.4%</td>
+<td>19.6%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of people with multiple returns during 7.5 yrs by ethnicity_detailed (n)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_detailed</th>
+<th data-quarto-table-cell-role="th">Any other Mixed/multiple ethnic background</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black/Black British - African</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Caribbean</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Other</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black African</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black Caribbean</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White British</th>
+<th data-quarto-table-cell-role="th">White Gypsy/Irish Traveller</th>
+<th data-quarto-table-cell-role="th">White Other</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">multiple_returns</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">False</td>
+<td>44</td>
+<td>57</td>
+<td>102</td>
+<td>272</td>
+<td>135</td>
+<td>68</td>
+<td>35</td>
+<td>107</td>
+<td>51</td>
+<td>186</td>
+<td>2207</td>
+<td>13</td>
+<td>182</td>
+<td>3459</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">True</td>
+<td>2</td>
+<td>0</td>
+<td>3</td>
+<td>8</td>
+<td>10</td>
+<td>4</td>
+<td>0</td>
+<td>8</td>
+<td>2</td>
+<td>2</td>
+<td>240</td>
+<td>0</td>
+<td>16</td>
+<td>295</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>46</td>
+<td>57</td>
+<td>105</td>
+<td>280</td>
+<td>145</td>
+<td>72</td>
+<td>35</td>
+<td>115</td>
+<td>53</td>
+<td>188</td>
+<td>2447</td>
+<td>13</td>
+<td>198</td>
+<td>3754</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of people with multiple returns during 7.5 yrs by ethnicity_detailed (pct)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_detailed</th>
+<th data-quarto-table-cell-role="th">Any other Mixed/multiple ethnic background</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black/Black British - African</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Caribbean</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Other</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black African</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black Caribbean</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White British</th>
+<th data-quarto-table-cell-role="th">White Gypsy/Irish Traveller</th>
+<th data-quarto-table-cell-role="th">White Other</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">multiple_returns</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">False</td>
+<td>95.7%</td>
+<td>100.0%</td>
+<td>97.1%</td>
+<td>97.1%</td>
+<td>93.1%</td>
+<td>94.4%</td>
+<td>100.0%</td>
+<td>93.0%</td>
+<td>96.2%</td>
+<td>98.9%</td>
+<td>90.2%</td>
+<td>100.0%</td>
+<td>91.9%</td>
+<td>92.1%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">True</td>
+<td>4.3%</td>
+<td>0.0%</td>
+<td>2.9%</td>
+<td>2.9%</td>
+<td>6.9%</td>
+<td>5.6%</td>
+<td>0.0%</td>
+<td>7.0%</td>
+<td>3.8%</td>
+<td>1.1%</td>
+<td>9.8%</td>
+<td>0.0%</td>
+<td>8.1%</td>
+<td>7.9%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of people with a route in top 10% of route durations by ethnicity_detailed (n)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_detailed</th>
+<th data-quarto-table-cell-role="th">Any other Mixed/multiple ethnic background</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black/Black British - African</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Caribbean</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Other</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black African</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black Caribbean</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White British</th>
+<th data-quarto-table-cell-role="th">White Gypsy/Irish Traveller</th>
+<th data-quarto-table-cell-role="th">White Other</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">has_longer_term_rt</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">False</td>
+<td>34</td>
+<td>52</td>
+<td>89</td>
+<td>248</td>
+<td>119</td>
+<td>61</td>
+<td>32</td>
+<td>99</td>
+<td>49</td>
+<td>170</td>
+<td>2118</td>
+<td>12</td>
+<td>166</td>
+<td>3249</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">True</td>
+<td>12</td>
+<td>5</td>
+<td>16</td>
+<td>32</td>
+<td>26</td>
+<td>11</td>
+<td>3</td>
+<td>16</td>
+<td>4</td>
+<td>18</td>
+<td>329</td>
+<td>1</td>
+<td>32</td>
+<td>505</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>46</td>
+<td>57</td>
+<td>105</td>
+<td>280</td>
+<td>145</td>
+<td>72</td>
+<td>35</td>
+<td>115</td>
+<td>53</td>
+<td>188</td>
+<td>2447</td>
+<td>13</td>
+<td>198</td>
+<td>3754</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of people with a route in top 10% of route durations by ethnicity_detailed (pct)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_detailed</th>
+<th data-quarto-table-cell-role="th">Any other Mixed/multiple ethnic background</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black/Black British - African</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Caribbean</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Other</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black African</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black Caribbean</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White British</th>
+<th data-quarto-table-cell-role="th">White Gypsy/Irish Traveller</th>
+<th data-quarto-table-cell-role="th">White Other</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">has_longer_term_rt</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">False</td>
+<td>73.9%</td>
+<td>91.2%</td>
+<td>84.8%</td>
+<td>88.6%</td>
+<td>82.1%</td>
+<td>84.7%</td>
+<td>91.4%</td>
+<td>86.1%</td>
+<td>92.5%</td>
+<td>90.4%</td>
+<td>86.6%</td>
+<td>92.3%</td>
+<td>83.8%</td>
+<td>86.5%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">True</td>
+<td>26.1%</td>
+<td>8.8%</td>
+<td>15.2%</td>
+<td>11.4%</td>
+<td>17.9%</td>
+<td>15.3%</td>
+<td>8.6%</td>
+<td>13.9%</td>
+<td>7.5%</td>
+<td>9.6%</td>
+<td>13.4%</td>
+<td>7.7%</td>
+<td>16.2%</td>
+<td>13.5%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of returns within 2 years after moving to independent accommodation by ethnicity_detailed (n)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_detailed</th>
+<th data-quarto-table-cell-role="th">Any other Mixed/multiple ethnic background</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black/Black British - African</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Caribbean</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Other</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black African</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black Caribbean</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White British</th>
+<th data-quarto-table-cell-role="th">White Gypsy/Irish Traveller</th>
+<th data-quarto-table-cell-role="th">White Other</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">after_rt_ret_within_2y</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">No</td>
+<td>13</td>
+<td>25</td>
+<td>32</td>
+<td>109</td>
+<td>51</td>
+<td>21</td>
+<td>12</td>
+<td>27</td>
+<td>15</td>
+<td>39</td>
+<td>627</td>
+<td>4</td>
+<td>47</td>
+<td>1022</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Yes</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>18</td>
+<td>0</td>
+<td>3</td>
+<td>24</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>13</td>
+<td>25</td>
+<td>33</td>
+<td>109</td>
+<td>52</td>
+<td>21</td>
+<td>12</td>
+<td>28</td>
+<td>15</td>
+<td>39</td>
+<td>645</td>
+<td>4</td>
+<td>50</td>
+<td>1046</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of returns within 2 years after moving to independent accommodation by ethnicity_detailed (pct)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_detailed</th>
+<th data-quarto-table-cell-role="th">Any other Mixed/multiple ethnic background</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black/Black British - African</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Caribbean</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Other</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black African</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black Caribbean</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White British</th>
+<th data-quarto-table-cell-role="th">White Gypsy/Irish Traveller</th>
+<th data-quarto-table-cell-role="th">White Other</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">after_rt_ret_within_2y</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">No</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>97.0%</td>
+<td>100.0%</td>
+<td>98.1%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>96.4%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>97.2%</td>
+<td>100.0%</td>
+<td>94.0%</td>
+<td>97.7%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Yes</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>3.0%</td>
+<td>0.0%</td>
+<td>1.9%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>3.6%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>2.8%</td>
+<td>0.0%</td>
+<td>6.0%</td>
+<td>2.3%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">All</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of outcomes from individual placements by ethnicity_detailed (n)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_detailed</th>
+<th data-quarto-table-cell-role="th">Any other Mixed/multiple ethnic background</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black/Black British - African</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Caribbean</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Other</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black African</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black Caribbean</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White British</th>
+<th data-quarto-table-cell-role="th">White Gypsy/Irish Traveller</th>
+<th data-quarto-table-cell-role="th">White Other</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">pl_outcome</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Died</td>
+<td>3</td>
+<td>0</td>
+<td>3</td>
+<td>3</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>3</td>
+<td>90</td>
+<td>0</td>
+<td>10</td>
+<td>117</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Independent accommodation</td>
+<td>14</td>
+<td>30</td>
+<td>39</td>
+<td>130</td>
+<td>58</td>
+<td>31</td>
+<td>17</td>
+<td>33</td>
+<td>19</td>
+<td>45</td>
+<td>742</td>
+<td>5</td>
+<td>62</td>
+<td>1225</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
+<td>7</td>
+<td>7</td>
+<td>18</td>
+<td>34</td>
+<td>19</td>
+<td>9</td>
+<td>5</td>
+<td>23</td>
+<td>7</td>
+<td>24</td>
+<td>454</td>
+<td>3</td>
+<td>28</td>
+<td>638</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Internal move: backwards</td>
+<td>16</td>
+<td>3</td>
+<td>11</td>
+<td>29</td>
+<td>26</td>
+<td>9</td>
+<td>6</td>
+<td>16</td>
+<td>4</td>
+<td>23</td>
+<td>469</td>
+<td>3</td>
+<td>38</td>
+<td>653</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Internal move: forwards</td>
+<td>24</td>
+<td>23</td>
+<td>33</td>
+<td>87</td>
+<td>73</td>
+<td>17</td>
+<td>9</td>
+<td>37</td>
+<td>20</td>
+<td>57</td>
+<td>1087</td>
+<td>2</td>
+<td>93</td>
+<td>1562</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Internal move: sideways</td>
+<td>13</td>
+<td>5</td>
+<td>15</td>
+<td>32</td>
+<td>36</td>
+<td>9</td>
+<td>5</td>
+<td>38</td>
+<td>8</td>
+<td>26</td>
+<td>929</td>
+<td>0</td>
+<td>48</td>
+<td>1164</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Returned to homelessness</td>
+<td>7</td>
+<td>2</td>
+<td>14</td>
+<td>32</td>
+<td>25</td>
+<td>9</td>
+<td>6</td>
+<td>30</td>
+<td>4</td>
+<td>40</td>
+<td>540</td>
+<td>2</td>
+<td>33</td>
+<td>744</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">All</td>
+<td>84</td>
+<td>70</td>
+<td>133</td>
+<td>347</td>
+<td>238</td>
+<td>86</td>
+<td>48</td>
+<td>177</td>
+<td>64</td>
+<td>218</td>
+<td>4311</td>
+<td>15</td>
+<td>312</td>
+<td>6103</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<p>Cross-tabulation of outcomes from individual placements by ethnicity_detailed (pct)</p>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ethnicity_detailed</th>
+<th data-quarto-table-cell-role="th">Any other Mixed/multiple ethnic background</th>
+<th data-quarto-table-cell-role="th">Arab</th>
+<th data-quarto-table-cell-role="th">Asian/Asian British</th>
+<th data-quarto-table-cell-role="th">Black/Black British - African</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Caribbean</th>
+<th data-quarto-table-cell-role="th">Black/Black British - Other</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black African</th>
+<th data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black Caribbean</th>
+<th data-quarto-table-cell-role="th">Other</th>
+<th data-quarto-table-cell-role="th">Unknown</th>
+<th data-quarto-table-cell-role="th">White British</th>
+<th data-quarto-table-cell-role="th">White Gypsy/Irish Traveller</th>
+<th data-quarto-table-cell-role="th">White Other</th>
+<th data-quarto-table-cell-role="th">All</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">pl_outcome</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Died</td>
+<td>3.6%</td>
+<td>0.0%</td>
+<td>2.3%</td>
+<td>0.9%</td>
+<td>0.4%</td>
+<td>2.3%</td>
+<td>0.0%</td>
+<td>0.0%</td>
+<td>3.1%</td>
+<td>1.4%</td>
+<td>2.1%</td>
+<td>0.0%</td>
+<td>3.2%</td>
+<td>1.9%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Independent accommodation</td>
+<td>16.7%</td>
+<td>42.9%</td>
+<td>29.3%</td>
+<td>37.5%</td>
+<td>24.4%</td>
+<td>36.0%</td>
+<td>35.4%</td>
+<td>18.6%</td>
+<td>29.7%</td>
+<td>20.6%</td>
+<td>17.2%</td>
+<td>33.3%</td>
+<td>19.9%</td>
+<td>20.1%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Insecure outcome (external)</td>
+<td>8.3%</td>
+<td>10.0%</td>
+<td>13.5%</td>
+<td>9.8%</td>
+<td>8.0%</td>
+<td>10.5%</td>
+<td>10.4%</td>
+<td>13.0%</td>
+<td>10.9%</td>
+<td>11.0%</td>
+<td>10.5%</td>
+<td>20.0%</td>
+<td>9.0%</td>
+<td>10.5%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Internal move: backwards</td>
+<td>19.0%</td>
+<td>4.3%</td>
+<td>8.3%</td>
+<td>8.4%</td>
+<td>10.9%</td>
+<td>10.5%</td>
+<td>12.5%</td>
+<td>9.0%</td>
+<td>6.2%</td>
+<td>10.6%</td>
+<td>10.9%</td>
+<td>20.0%</td>
+<td>12.2%</td>
+<td>10.7%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Internal move: forwards</td>
+<td>28.6%</td>
+<td>32.9%</td>
+<td>24.8%</td>
+<td>25.1%</td>
+<td>30.7%</td>
+<td>19.8%</td>
+<td>18.8%</td>
+<td>20.9%</td>
+<td>31.2%</td>
+<td>26.1%</td>
+<td>25.2%</td>
+<td>13.3%</td>
+<td>29.8%</td>
+<td>25.6%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Internal move: sideways</td>
+<td>15.5%</td>
+<td>7.1%</td>
+<td>11.3%</td>
+<td>9.2%</td>
+<td>15.1%</td>
+<td>10.5%</td>
+<td>10.4%</td>
+<td>21.5%</td>
+<td>12.5%</td>
+<td>11.9%</td>
+<td>21.5%</td>
+<td>0.0%</td>
+<td>15.4%</td>
+<td>19.1%</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Returned to homelessness</td>
+<td>8.3%</td>
+<td>2.9%</td>
+<td>10.5%</td>
+<td>9.2%</td>
+<td>10.5%</td>
+<td>10.5%</td>
+<td>12.5%</td>
+<td>16.9%</td>
+<td>6.2%</td>
+<td>18.3%</td>
+<td>12.5%</td>
+<td>13.3%</td>
+<td>10.6%</td>
+<td>12.2%</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">All</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
+<td>100.0%</td>
 <td>100.0%</td>
 <td>100.0%</td>
 <td>100.0%</td>

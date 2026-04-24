@@ -4024,6 +4024,8 @@ vertical-align: -.125em;
   <ul class="collapse">
   <li><a href="#frequencies-for-gender" id="toc-frequencies-for-gender" class="nav-link" data-scroll-target="#frequencies-for-gender">Frequencies for gender</a></li>
   <li><a href="#frequencies-for-global_majority" id="toc-frequencies-for-global_majority" class="nav-link" data-scroll-target="#frequencies-for-global_majority">Frequencies for global_majority</a></li>
+  <li><a href="#frequencies-for-ethnicity_grouped" id="toc-frequencies-for-ethnicity_grouped" class="nav-link" data-scroll-target="#frequencies-for-ethnicity_grouped">Frequencies for ethnicity_grouped</a></li>
+  <li><a href="#frequencies-for-ethnicity_detailed" id="toc-frequencies-for-ethnicity_detailed" class="nav-link" data-scroll-target="#frequencies-for-ethnicity_detailed">Frequencies for ethnicity_detailed</a></li>
   <li><a href="#frequencies-for-age_cat" id="toc-frequencies-for-age_cat" class="nav-link" data-scroll-target="#frequencies-for-age_cat">Frequencies for age_cat</a></li>
   <li><a href="#frequencies-for-lgbtq_plus" id="toc-frequencies-for-lgbtq_plus" class="nav-link" data-scroll-target="#frequencies-for-lgbtq_plus">Frequencies for lgbtq_plus</a></li>
   <li><a href="#frequencies-for-offending" id="toc-frequencies-for-offending" class="nav-link" data-scroll-target="#frequencies-for-offending">Frequencies for offending</a></li>
@@ -4084,7 +4086,7 @@ vertical-align: -.125em;
 </header>
 
 
-<div id="21b6a181" class="cell" data-execution_count="1">
+<div id="60df4fba" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup code</span></span>
@@ -4161,96 +4163,190 @@ vertical-align: -.125em;
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;White Gypsy/Irish Traveller&quot;</span>: <span class="st">&quot;No&quot;</span>, <span class="st">&quot;Gypsy (inc English, Scottish or Roma Gypsy) or Irish Traveller&quot;</span>: <span class="st">&quot;No&quot;</span>,</span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;Don&#39;t know&quot;</span>: <span class="st">&quot;_Unknown&quot;</span>, <span class="st">&quot;Prefer not to say&quot;</span>: <span class="st">&quot;_Unknown&quot;</span>, <span class="st">&quot;Refused to answer question&quot;</span>: <span class="st">&quot;_Unknown&quot;</span></span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    }))</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;lgbtq_plus&quot;</span>] <span class="op">=</span> dpw_pls[<span class="st">&quot;sexual_orientation&quot;</span>].<span class="bu">map</span>({</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Bi-sexual&quot;</span>: <span class="st">&quot;Yes&quot;</span>, <span class="st">&quot;Gay/Lesbian&quot;</span>: <span class="st">&quot;Yes&quot;</span>, <span class="st">&quot;other&quot;</span>: <span class="st">&quot;Yes&quot;</span>, <span class="st">&quot;Lesbian&quot;</span>: <span class="st">&quot;Yes&quot;</span>,</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Heterosexual&quot;</span>: <span class="st">&quot;No&quot;</span>, <span class="st">&quot;Don&#39;t Know&quot;</span>: <span class="st">&quot;_Unknown&quot;</span>, <span class="st">&quot;Rather not state&quot;</span>: <span class="st">&quot;_Unknown&quot;</span>,</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;uk_immigration_status&quot;</span>] <span class="op">=</span> dpw_pls[<span class="st">&quot;uk_immigration_status&quot;</span>].<span class="bu">map</span>({</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Other Protection Leave to Remain&quot;</span>: <span class="st">&quot;Non-EEA National&quot;</span>,</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Indefinite Leave to Remain&quot;</span>: <span class="st">&quot;Non-EEA National&quot;</span>,</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Other Non-EEA National&quot;</span>: <span class="st">&quot;Non-EEA National&quot;</span>,</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Limited Leave to Remain&quot;</span>: <span class="st">&quot;Non-EEA National&quot;</span>,</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;EEA National&quot;</span>: <span class="st">&quot;EEA National&quot;</span>,</span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;UK/Irish National&quot;</span>: <span class="st">&quot;UK/Irish National&quot;</span>,</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>ref_cats <span class="op">=</span> dpw_pls[<span class="st">&quot;ref_agency&quot;</span>].cat.categories</span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>ref_cat_map <span class="op">=</span> {</span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Local authority (Housing Options)&quot;</span>: [<span class="st">&quot;B.C.C. Homelessness Prevention Team&quot;</span>],</span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Local authority (_other)&quot;</span>: <span class="bu">list</span>(ref_cats[ref_cats.<span class="bu">str</span>.startswith((<span class="st">&quot;B.C.C&quot;</span>, <span class="st">&quot;Bcc&quot;</span>))</span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>                                    <span class="op">&amp;</span> (ref_cats <span class="op">!=</span> <span class="st">&quot;B.C.C. Homelessness Prevention Team&quot;</span>)]),</span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Service provider (rough sleeping and SH)&quot;</span>: [<span class="st">&quot;St. Mungo&#39;s&quot;</span>, <span class="st">&quot;St Mungo&#39;s&quot;</span>, <span class="st">&quot;Outreach&quot;</span>],</span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Service provider (prison resettlement and SH)&quot;</span>: [<span class="st">&quot;A.R.A&quot;</span>],</span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Service provider (_other SH)&quot;</span>: [<span class="st">&quot;E.C.H.G. Riverside&quot;</span>, <span class="st">&quot;Elim&quot;</span>, <span class="st">&quot;Livewest&quot;</span>, <span class="st">&quot;Missing Link&quot;</span>, <span class="st">&quot;Places For People&quot;</span>,</span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>                                    <span class="st">&quot;Salvation Army&quot;</span>, <span class="st">&quot;Second Step&quot;</span>, <span class="st">&quot;Self Help&quot;</span>]</span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>ref_cat_map[<span class="st">&quot;_Others&quot;</span>] <span class="op">=</span> ref_cats[<span class="op">~</span>ref_cats.isin(<span class="bu">sum</span>(<span class="bu">list</span>(ref_cat_map.values()), []))]</span>
-<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>ref_agency_mapper <span class="op">=</span> {k: v <span class="cf">for</span> v, k <span class="kw">in</span> pd.Series(ref_cat_map).explode().items()}</span>
-<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;referral_agency&quot;</span>] <span class="op">=</span> (dpw_pls[<span class="st">&quot;ref_agency&quot;</span>].<span class="bu">map</span>(ref_agency_mapper)</span>
-<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>                              .fillna(<span class="st">&quot;_[Missing data]&quot;</span>))</span>
-<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>support_need_cols <span class="op">=</span> {</span>
-<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_prison_leaveron_probationrisk_of_offending&quot;</span>: <span class="st">&quot;offending&quot;</span>,</span>
-<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_physical_health&quot;</span>: <span class="st">&quot;physical_health&quot;</span>,</span>
-<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_mental_health&quot;</span>: <span class="st">&quot;mental_health&quot;</span>,</span>
-<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_rough_sleeper&quot;</span>: <span class="st">&quot;rough_sleeping&quot;</span>,</span>
-<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> hsn, ch_str <span class="kw">in</span> support_need_cols.items():</span>
-<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>    dpw_pls[ch_str] <span class="op">=</span> dpw_pls[hsn].astype(<span class="st">&quot;boolean&quot;</span>)</span>
-<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>gendered_support_need_cols <span class="op">=</span> {</span>
-<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_sex_working&quot;</span>: <span class="st">&quot;sex_working&quot;</span>,  <span class="co"># only women recorded as sex working</span></span>
-<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_risk_of_violenceabuse_victim&quot;</span>: <span class="st">&quot;risk_violence_abuse&quot;</span>,</span>
-<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_risk_of_exploitation&quot;</span>: <span class="st">&quot;risk_exploitation&quot;</span>,</span>
-<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> hsn, ch_str <span class="kw">in</span> gendered_support_need_cols.items():</span>
-<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>    dpw_pls[<span class="ss">f&quot;women_</span><span class="sc">{</span>ch_str<span class="sc">}</span><span class="ss">&quot;</span>] <span class="op">=</span> dpw_pls[hsn].where(dpw_pls[<span class="st">&quot;gender&quot;</span>] <span class="op">==</span> <span class="st">&quot;Female&quot;</span>)</span>
-<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>    dpw_pls[<span class="ss">f&quot;men_</span><span class="sc">{</span>ch_str<span class="sc">}</span><span class="ss">&quot;</span>] <span class="op">=</span> dpw_pls[hsn].where(dpw_pls[<span class="st">&quot;gender&quot;</span>] <span class="op">==</span> <span class="st">&quot;Male&quot;</span>)</span>
-<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>    dpw_pls[ch_str] <span class="op">=</span> dpw_pls[hsn]</span>
-<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;hsn_drug_or_alcohol_use&quot;</span>] <span class="op">=</span> (dpw_pls[<span class="st">&quot;hsn_drug_use&quot;</span>].astype(<span class="st">&quot;boolean&quot;</span>)</span>
-<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>                                      <span class="op">|</span> dpw_pls[<span class="st">&quot;hsn_alcohol_use&quot;</span>].astype(<span class="st">&quot;boolean&quot;</span>))</span>
-<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;multiple_disadvantage&quot;</span>] <span class="op">=</span> (  <span class="co"># Current support needs for 3 out of 5 SMD dimensions</span></span>
-<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>  dpw_pls[[<span class="st">&quot;hsn_prison_leaveron_probationrisk_of_offending&quot;</span>,</span>
-<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;hsn_drug_or_alcohol_use&quot;</span>,</span>
-<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;hsn_risk_of_violenceabuse_victim&quot;</span>,</span>
-<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;hsn_mental_health&quot;</span></span>
-<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>           ]].assign(hsn_homelessness<span class="op">=</span><span class="va">True</span>).astype(<span class="st">&quot;boolean&quot;</span>).<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>, skipna<span class="op">=</span><span class="va">False</span>) <span class="op">&gt;=</span> <span class="dv">3</span></span>
-<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;substance_use&quot;</span>] <span class="op">=</span> dpw_pls[<span class="st">&quot;hsn_drug_or_alcohol_use&quot;</span>]</span>
-<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>dpw_rt_starts <span class="op">=</span> dpw_pls.groupby(<span class="st">&quot;route_id&quot;</span>).head(<span class="dv">1</span>)</span>
-<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>dpw_rt_ends <span class="op">=</span> dpw_pls.groupby(<span class="st">&quot;route_id&quot;</span>).tail(<span class="dv">1</span>)</span>
-<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>dpw_clis <span class="op">=</span> dpw_pls.groupby([<span class="st">&quot;o_cli_id&quot;</span>]).head(<span class="dv">1</span>)  <span class="co"># 1 duplicate client but first entry has more detailed answers</span></span>
-<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ch <span class="kw">in</span> [</span>
-<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;gender&quot;</span>,</span>
-<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;global_majority&quot;</span>,</span>
-<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;age_cat&quot;</span>,</span>
-<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;lgbtq_plus&quot;</span>,</span>
-<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;offending&quot;</span>,</span>
-<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;physical_health&quot;</span>,</span>
-<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;mental_health&quot;</span>,</span>
-<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;substance_use&quot;</span>,</span>
-<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;multiple_disadvantage&quot;</span>,</span>
-<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;rough_sleeping&quot;</span>,</span>
-<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;sex_working&quot;</span>,</span>
-<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;women_sex_working&quot;</span>,</span>
-<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;men_sex_working&quot;</span>,</span>
-<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;risk_violence_abuse&quot;</span>,</span>
-<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;women_risk_violence_abuse&quot;</span>,</span>
-<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;men_risk_violence_abuse&quot;</span>,</span>
-<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;risk_exploitation&quot;</span>,</span>
-<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;women_risk_exploitation&quot;</span>,</span>
-<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;men_risk_exploitation&quot;</span>,</span>
-<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;uk_immigration_status&quot;</span>,</span>
-<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;english_2nd_language&quot;</span>,</span>
-<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;referral_agency&quot;</span></span>
-<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>]:</span>
-<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>    tbl_desc <span class="op">=</span> <span class="ss">f&quot;Frequencies for </span><span class="sc">{</span>ch<span class="sc">}</span><span class="ss">&quot;</span></span>
-<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>    tbl <span class="op">=</span> get_frequencies(dpw_clis[ch], sort<span class="op">=</span><span class="va">False</span>, dropna<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a>    excel_output[tbl_desc] <span class="op">=</span> tbl</span>
-<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> ch <span class="op">!=</span> <span class="st">&quot;age_cat&quot;</span>:</span>
-<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a>        tbl <span class="op">=</span> tbl.sort_index()</span>
-<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a>    tbl.index <span class="op">=</span> tbl.index.astype(<span class="st">&quot;object&quot;</span>).fillna(<span class="st">&quot;&lt;NA&gt;&quot;</span>)</span>
-<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;### &quot;</span> <span class="op">+</span> tbl_desc)</span>
-<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> pd.option_context(<span class="st">&quot;display.float_format&quot;</span>, <span class="st">&#39;</span><span class="sc">{:,.1f}</span><span class="st">&#39;</span>.<span class="bu">format</span>):</span>
-<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a>        display(tbl)</span>
-<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>eth_dtl_map <span class="op">=</span> {</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;White British&quot;</span>: [</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;English/Welsh/Scottish/Northern Irish/British&quot;</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Unknown&quot;</span>: [</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Don&#39;t know&quot;</span>,</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Prefer not to say&quot;</span>,</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Refused to answer question&quot;</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Black/Black British - African&quot;</span>: [</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;African (non Somali)&quot;</span>,</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Somali&quot;</span>,</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Black/Black British - Somali&quot;</span>,</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Black or Black British Ghanaian&quot;</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Black/Black British - Caribbean&quot;</span>: [</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Caribbean&quot;</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;White Other&quot;</span>: [</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;White Other Origin&quot;</span>,</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Any other White background&quot;</span>,</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;White Irish&quot;</span>,</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Irish&quot;</span>,</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;White European&quot;</span>,</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Eastern European&quot;</span>,</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Turkish&quot;</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Mixed/Dual Heritage - White+Black Caribbean&quot;</span>: [</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;White and Black Caribbean&quot;</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Black/Black British - Other&quot;</span>: [</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Black/Black British - Other&quot;</span>,</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Any other Black/African/Caribbean background&quot;</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Arab&quot;</span>: [</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Iranian&quot;</span>,</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Iraqi&quot;</span>,</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Asian/Asian British&quot;</span>: [</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Asian/Asian British - Other&quot;</span>,</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Pakistani&quot;</span>,</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Bangladeshi&quot;</span>,</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Asian/Asian British - Chinese&quot;</span>,</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Asian/Asian British - Bangladeshi&quot;</span>,</span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Asian/Asian British - Indian&quot;</span>,</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Indian&quot;</span>,</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Asian/Asian British - Asian African&quot;</span>,</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Chinese&quot;</span>,</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Asian/Asian British - Pakistani&quot;</span>,</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Asian or Asian British Sri Lankan&quot;</span>,</span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Any other Asian background&quot;</span>,</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Any other Mixed/multiple ethnic background&quot;</span>: [</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Mixed/Dual Heritage - White+Asian&quot;</span>,</span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Mixed/Dual Heritage - Other&quot;</span>,</span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;White and Asian&quot;</span>,</span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Mixed/Dual Heritage - White+Chinese&quot;</span></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Mixed/Dual Heritage - White+Black African&quot;</span>: [</span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;White and Black African (non Somali)&quot;</span></span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Other&quot;</span>: [</span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Any other ethnic group&quot;</span>,</span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Kurdish&quot;</span></span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;White Gypsy/Irish Traveller&quot;</span>: [</span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Gypsy (inc English, Scottish or Roma Gypsy) or Irish Traveller&quot;</span></span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>mapper <span class="op">=</span> {k: v <span class="cf">for</span> v,k <span class="kw">in</span> pd.Series(eth_dtl_map).explode().items()}</span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;ethnicity_detailed&quot;</span>] <span class="op">=</span> dpw_pls[<span class="st">&quot;ethnicity&quot;</span>].replace(mapper).astype(<span class="st">&quot;string&quot;</span>).astype(<span class="st">&quot;category&quot;</span>)</span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>eth_grp_map <span class="op">=</span> {</span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;White&quot;</span>: [</span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;White British&quot;</span>,</span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;White Other&quot;</span>,</span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;White Gypsy/Irish Traveller&quot;</span>,</span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Black&quot;</span>: [</span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Black/Black British - African&quot;</span>,</span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Black/Black British - Caribbean&quot;</span>,</span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Black/Black British - Other&quot;</span>,</span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Mixed Heritage&quot;</span>: [</span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Mixed/Dual Heritage - White+Black African&quot;</span>,</span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Mixed/Dual Heritage - White+Black Caribbean&quot;</span>,</span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Any other Mixed/multiple ethnic background&quot;</span>,</span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a>mapper <span class="op">=</span> {k: v <span class="cf">for</span> v,k <span class="kw">in</span> pd.Series(eth_grp_map).explode().items()}</span>
+<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;ethnicity_grouped&quot;</span>] <span class="op">=</span> dpw_pls[<span class="st">&quot;ethnicity_detailed&quot;</span>].replace(mapper).astype(<span class="st">&quot;string&quot;</span>).astype(<span class="st">&quot;category&quot;</span>)</span>
+<span id="cb2-109"><a href="#cb2-109" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;lgbtq_plus&quot;</span>] <span class="op">=</span> dpw_pls[<span class="st">&quot;sexual_orientation&quot;</span>].<span class="bu">map</span>({</span>
+<span id="cb2-110"><a href="#cb2-110" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Bi-sexual&quot;</span>: <span class="st">&quot;Yes&quot;</span>, <span class="st">&quot;Gay/Lesbian&quot;</span>: <span class="st">&quot;Yes&quot;</span>, <span class="st">&quot;other&quot;</span>: <span class="st">&quot;Yes&quot;</span>, <span class="st">&quot;Lesbian&quot;</span>: <span class="st">&quot;Yes&quot;</span>,</span>
+<span id="cb2-111"><a href="#cb2-111" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Heterosexual&quot;</span>: <span class="st">&quot;No&quot;</span>, <span class="st">&quot;Don&#39;t Know&quot;</span>: <span class="st">&quot;_Unknown&quot;</span>, <span class="st">&quot;Rather not state&quot;</span>: <span class="st">&quot;_Unknown&quot;</span>,</span>
+<span id="cb2-112"><a href="#cb2-112" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb2-113"><a href="#cb2-113" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;uk_immigration_status&quot;</span>] <span class="op">=</span> dpw_pls[<span class="st">&quot;uk_immigration_status&quot;</span>].<span class="bu">map</span>({</span>
+<span id="cb2-114"><a href="#cb2-114" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Other Protection Leave to Remain&quot;</span>: <span class="st">&quot;Non-EEA National&quot;</span>,</span>
+<span id="cb2-115"><a href="#cb2-115" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Indefinite Leave to Remain&quot;</span>: <span class="st">&quot;Non-EEA National&quot;</span>,</span>
+<span id="cb2-116"><a href="#cb2-116" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Other Non-EEA National&quot;</span>: <span class="st">&quot;Non-EEA National&quot;</span>,</span>
+<span id="cb2-117"><a href="#cb2-117" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Limited Leave to Remain&quot;</span>: <span class="st">&quot;Non-EEA National&quot;</span>,</span>
+<span id="cb2-118"><a href="#cb2-118" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;EEA National&quot;</span>: <span class="st">&quot;EEA National&quot;</span>,</span>
+<span id="cb2-119"><a href="#cb2-119" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;UK/Irish National&quot;</span>: <span class="st">&quot;UK/Irish National&quot;</span>,</span>
+<span id="cb2-120"><a href="#cb2-120" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb2-121"><a href="#cb2-121" aria-hidden="true" tabindex="-1"></a>ref_cats <span class="op">=</span> dpw_pls[<span class="st">&quot;ref_agency&quot;</span>].cat.categories</span>
+<span id="cb2-122"><a href="#cb2-122" aria-hidden="true" tabindex="-1"></a>ref_cat_map <span class="op">=</span> {</span>
+<span id="cb2-123"><a href="#cb2-123" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Local authority (Housing Options)&quot;</span>: [<span class="st">&quot;B.C.C. Homelessness Prevention Team&quot;</span>],</span>
+<span id="cb2-124"><a href="#cb2-124" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Local authority (_other)&quot;</span>: <span class="bu">list</span>(ref_cats[ref_cats.<span class="bu">str</span>.startswith((<span class="st">&quot;B.C.C&quot;</span>, <span class="st">&quot;Bcc&quot;</span>))</span>
+<span id="cb2-125"><a href="#cb2-125" aria-hidden="true" tabindex="-1"></a>                                    <span class="op">&amp;</span> (ref_cats <span class="op">!=</span> <span class="st">&quot;B.C.C. Homelessness Prevention Team&quot;</span>)]),</span>
+<span id="cb2-126"><a href="#cb2-126" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Service provider (rough sleeping and SH)&quot;</span>: [<span class="st">&quot;St. Mungo&#39;s&quot;</span>, <span class="st">&quot;St Mungo&#39;s&quot;</span>, <span class="st">&quot;Outreach&quot;</span>],</span>
+<span id="cb2-127"><a href="#cb2-127" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Service provider (prison resettlement and SH)&quot;</span>: [<span class="st">&quot;A.R.A&quot;</span>],</span>
+<span id="cb2-128"><a href="#cb2-128" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Service provider (_other SH)&quot;</span>: [<span class="st">&quot;E.C.H.G. Riverside&quot;</span>, <span class="st">&quot;Elim&quot;</span>, <span class="st">&quot;Livewest&quot;</span>, <span class="st">&quot;Missing Link&quot;</span>, <span class="st">&quot;Places For People&quot;</span>,</span>
+<span id="cb2-129"><a href="#cb2-129" aria-hidden="true" tabindex="-1"></a>                                    <span class="st">&quot;Salvation Army&quot;</span>, <span class="st">&quot;Second Step&quot;</span>, <span class="st">&quot;Self Help&quot;</span>]</span>
+<span id="cb2-130"><a href="#cb2-130" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-131"><a href="#cb2-131" aria-hidden="true" tabindex="-1"></a>ref_cat_map[<span class="st">&quot;_Others&quot;</span>] <span class="op">=</span> ref_cats[<span class="op">~</span>ref_cats.isin(<span class="bu">sum</span>(<span class="bu">list</span>(ref_cat_map.values()), []))]</span>
+<span id="cb2-132"><a href="#cb2-132" aria-hidden="true" tabindex="-1"></a>ref_agency_mapper <span class="op">=</span> {k: v <span class="cf">for</span> v, k <span class="kw">in</span> pd.Series(ref_cat_map).explode().items()}</span>
+<span id="cb2-133"><a href="#cb2-133" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;referral_agency&quot;</span>] <span class="op">=</span> (dpw_pls[<span class="st">&quot;ref_agency&quot;</span>].<span class="bu">map</span>(ref_agency_mapper)</span>
+<span id="cb2-134"><a href="#cb2-134" aria-hidden="true" tabindex="-1"></a>                              .fillna(<span class="st">&quot;_[Missing data]&quot;</span>))</span>
+<span id="cb2-135"><a href="#cb2-135" aria-hidden="true" tabindex="-1"></a>support_need_cols <span class="op">=</span> {</span>
+<span id="cb2-136"><a href="#cb2-136" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_prison_leaveron_probationrisk_of_offending&quot;</span>: <span class="st">&quot;offending&quot;</span>,</span>
+<span id="cb2-137"><a href="#cb2-137" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_physical_health&quot;</span>: <span class="st">&quot;physical_health&quot;</span>,</span>
+<span id="cb2-138"><a href="#cb2-138" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_mental_health&quot;</span>: <span class="st">&quot;mental_health&quot;</span>,</span>
+<span id="cb2-139"><a href="#cb2-139" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_rough_sleeper&quot;</span>: <span class="st">&quot;rough_sleeping&quot;</span>,</span>
+<span id="cb2-140"><a href="#cb2-140" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-141"><a href="#cb2-141" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> hsn, ch_str <span class="kw">in</span> support_need_cols.items():</span>
+<span id="cb2-142"><a href="#cb2-142" aria-hidden="true" tabindex="-1"></a>    dpw_pls[ch_str] <span class="op">=</span> dpw_pls[hsn].astype(<span class="st">&quot;boolean&quot;</span>)</span>
+<span id="cb2-143"><a href="#cb2-143" aria-hidden="true" tabindex="-1"></a>gendered_support_need_cols <span class="op">=</span> {</span>
+<span id="cb2-144"><a href="#cb2-144" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_sex_working&quot;</span>: <span class="st">&quot;sex_working&quot;</span>,  <span class="co"># only women recorded as sex working</span></span>
+<span id="cb2-145"><a href="#cb2-145" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_risk_of_violenceabuse_victim&quot;</span>: <span class="st">&quot;risk_violence_abuse&quot;</span>,</span>
+<span id="cb2-146"><a href="#cb2-146" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;hsn_risk_of_exploitation&quot;</span>: <span class="st">&quot;risk_exploitation&quot;</span>,</span>
+<span id="cb2-147"><a href="#cb2-147" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-148"><a href="#cb2-148" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> hsn, ch_str <span class="kw">in</span> gendered_support_need_cols.items():</span>
+<span id="cb2-149"><a href="#cb2-149" aria-hidden="true" tabindex="-1"></a>    dpw_pls[<span class="ss">f&quot;women_</span><span class="sc">{</span>ch_str<span class="sc">}</span><span class="ss">&quot;</span>] <span class="op">=</span> dpw_pls[hsn].where(dpw_pls[<span class="st">&quot;gender&quot;</span>] <span class="op">==</span> <span class="st">&quot;Female&quot;</span>)</span>
+<span id="cb2-150"><a href="#cb2-150" aria-hidden="true" tabindex="-1"></a>    dpw_pls[<span class="ss">f&quot;men_</span><span class="sc">{</span>ch_str<span class="sc">}</span><span class="ss">&quot;</span>] <span class="op">=</span> dpw_pls[hsn].where(dpw_pls[<span class="st">&quot;gender&quot;</span>] <span class="op">==</span> <span class="st">&quot;Male&quot;</span>)</span>
+<span id="cb2-151"><a href="#cb2-151" aria-hidden="true" tabindex="-1"></a>    dpw_pls[ch_str] <span class="op">=</span> dpw_pls[hsn]</span>
+<span id="cb2-152"><a href="#cb2-152" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;hsn_drug_or_alcohol_use&quot;</span>] <span class="op">=</span> (dpw_pls[<span class="st">&quot;hsn_drug_use&quot;</span>].astype(<span class="st">&quot;boolean&quot;</span>)</span>
+<span id="cb2-153"><a href="#cb2-153" aria-hidden="true" tabindex="-1"></a>                                      <span class="op">|</span> dpw_pls[<span class="st">&quot;hsn_alcohol_use&quot;</span>].astype(<span class="st">&quot;boolean&quot;</span>))</span>
+<span id="cb2-154"><a href="#cb2-154" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;multiple_disadvantage&quot;</span>] <span class="op">=</span> (  <span class="co"># Current support needs for 3 out of 5 SMD dimensions</span></span>
+<span id="cb2-155"><a href="#cb2-155" aria-hidden="true" tabindex="-1"></a>  dpw_pls[[<span class="st">&quot;hsn_prison_leaveron_probationrisk_of_offending&quot;</span>,</span>
+<span id="cb2-156"><a href="#cb2-156" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;hsn_drug_or_alcohol_use&quot;</span>,</span>
+<span id="cb2-157"><a href="#cb2-157" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;hsn_risk_of_violenceabuse_victim&quot;</span>,</span>
+<span id="cb2-158"><a href="#cb2-158" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;hsn_mental_health&quot;</span></span>
+<span id="cb2-159"><a href="#cb2-159" aria-hidden="true" tabindex="-1"></a>           ]].assign(hsn_homelessness<span class="op">=</span><span class="va">True</span>).astype(<span class="st">&quot;boolean&quot;</span>).<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>, skipna<span class="op">=</span><span class="va">False</span>) <span class="op">&gt;=</span> <span class="dv">3</span></span>
+<span id="cb2-160"><a href="#cb2-160" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-161"><a href="#cb2-161" aria-hidden="true" tabindex="-1"></a>dpw_pls[<span class="st">&quot;substance_use&quot;</span>] <span class="op">=</span> dpw_pls[<span class="st">&quot;hsn_drug_or_alcohol_use&quot;</span>]</span>
+<span id="cb2-162"><a href="#cb2-162" aria-hidden="true" tabindex="-1"></a>dpw_rt_starts <span class="op">=</span> dpw_pls.groupby(<span class="st">&quot;route_id&quot;</span>).head(<span class="dv">1</span>)</span>
+<span id="cb2-163"><a href="#cb2-163" aria-hidden="true" tabindex="-1"></a>dpw_rt_ends <span class="op">=</span> dpw_pls.groupby(<span class="st">&quot;route_id&quot;</span>).tail(<span class="dv">1</span>)</span>
+<span id="cb2-164"><a href="#cb2-164" aria-hidden="true" tabindex="-1"></a>dpw_clis <span class="op">=</span> dpw_pls.groupby([<span class="st">&quot;o_cli_id&quot;</span>]).head(<span class="dv">1</span>)  <span class="co"># 1 duplicate client but first entry has more detailed answers</span></span>
+<span id="cb2-165"><a href="#cb2-165" aria-hidden="true" tabindex="-1"></a>ivs <span class="op">=</span> {}</span>
+<span id="cb2-166"><a href="#cb2-166" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ch <span class="kw">in</span> [</span>
+<span id="cb2-167"><a href="#cb2-167" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;gender&quot;</span>,</span>
+<span id="cb2-168"><a href="#cb2-168" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;global_majority&quot;</span>,</span>
+<span id="cb2-169"><a href="#cb2-169" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;ethnicity_grouped&quot;</span>,</span>
+<span id="cb2-170"><a href="#cb2-170" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;ethnicity_detailed&quot;</span>,</span>
+<span id="cb2-171"><a href="#cb2-171" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;age_cat&quot;</span>,</span>
+<span id="cb2-172"><a href="#cb2-172" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;lgbtq_plus&quot;</span>,</span>
+<span id="cb2-173"><a href="#cb2-173" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;offending&quot;</span>,</span>
+<span id="cb2-174"><a href="#cb2-174" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;physical_health&quot;</span>,</span>
+<span id="cb2-175"><a href="#cb2-175" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;mental_health&quot;</span>,</span>
+<span id="cb2-176"><a href="#cb2-176" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;substance_use&quot;</span>,</span>
+<span id="cb2-177"><a href="#cb2-177" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;multiple_disadvantage&quot;</span>,</span>
+<span id="cb2-178"><a href="#cb2-178" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;rough_sleeping&quot;</span>,</span>
+<span id="cb2-179"><a href="#cb2-179" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;sex_working&quot;</span>,</span>
+<span id="cb2-180"><a href="#cb2-180" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;women_sex_working&quot;</span>,</span>
+<span id="cb2-181"><a href="#cb2-181" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;men_sex_working&quot;</span>,</span>
+<span id="cb2-182"><a href="#cb2-182" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;risk_violence_abuse&quot;</span>,</span>
+<span id="cb2-183"><a href="#cb2-183" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;women_risk_violence_abuse&quot;</span>,</span>
+<span id="cb2-184"><a href="#cb2-184" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;men_risk_violence_abuse&quot;</span>,</span>
+<span id="cb2-185"><a href="#cb2-185" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;risk_exploitation&quot;</span>,</span>
+<span id="cb2-186"><a href="#cb2-186" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;women_risk_exploitation&quot;</span>,</span>
+<span id="cb2-187"><a href="#cb2-187" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;men_risk_exploitation&quot;</span>,</span>
+<span id="cb2-188"><a href="#cb2-188" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;uk_immigration_status&quot;</span>,</span>
+<span id="cb2-189"><a href="#cb2-189" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;english_2nd_language&quot;</span>,</span>
+<span id="cb2-190"><a href="#cb2-190" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;referral_agency&quot;</span></span>
+<span id="cb2-191"><a href="#cb2-191" aria-hidden="true" tabindex="-1"></a>]:</span>
+<span id="cb2-192"><a href="#cb2-192" aria-hidden="true" tabindex="-1"></a>    tbl_desc <span class="op">=</span> <span class="ss">f&quot;Frequencies for </span><span class="sc">{</span>ch<span class="sc">}</span><span class="ss">&quot;</span></span>
+<span id="cb2-193"><a href="#cb2-193" aria-hidden="true" tabindex="-1"></a>    ivs[ch] <span class="op">=</span> <span class="bu">list</span>(dpw_clis[ch].astype(<span class="st">&quot;string&quot;</span>).fillna(<span class="st">&quot;&lt;N/A&gt;&quot;</span>).unique())</span>
+<span id="cb2-194"><a href="#cb2-194" aria-hidden="true" tabindex="-1"></a>    tbl <span class="op">=</span> get_frequencies(dpw_clis[ch], sort<span class="op">=</span><span class="va">False</span>, dropna<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb2-195"><a href="#cb2-195" aria-hidden="true" tabindex="-1"></a>    excel_output[tbl_desc] <span class="op">=</span> tbl</span>
+<span id="cb2-196"><a href="#cb2-196" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> ch <span class="op">!=</span> <span class="st">&quot;age_cat&quot;</span>:</span>
+<span id="cb2-197"><a href="#cb2-197" aria-hidden="true" tabindex="-1"></a>        tbl <span class="op">=</span> tbl.sort_index()</span>
+<span id="cb2-198"><a href="#cb2-198" aria-hidden="true" tabindex="-1"></a>    tbl.index <span class="op">=</span> tbl.index.astype(<span class="st">&quot;object&quot;</span>).fillna(<span class="st">&quot;&lt;NA&gt;&quot;</span>)</span>
+<span id="cb2-199"><a href="#cb2-199" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;### &quot;</span> <span class="op">+</span> tbl_desc)</span>
+<span id="cb2-200"><a href="#cb2-200" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> pd.option_context(<span class="st">&quot;display.float_format&quot;</span>, <span class="st">&#39;</span><span class="sc">{:,.1f}</span><span class="st">&#39;</span>.<span class="bu">format</span>):</span>
+<span id="cb2-201"><a href="#cb2-201" aria-hidden="true" tabindex="-1"></a>        display(tbl)</span>
+<span id="cb2-202"><a href="#cb2-202" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">&quot;&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <section id="frequencies-for-gender" class="level3">
 <h3 class="anchored" data-anchor-id="frequencies-for-gender">Frequencies for gender</h3>
@@ -4334,6 +4430,164 @@ vertical-align: -.125em;
 <td data-quarto-table-cell-role="th">_Unknown</td>
 <td>188</td>
 <td>5.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">&lt;NA&gt;</td>
+<td>1</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</section>
+<section id="frequencies-for-ethnicity_grouped" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-ethnicity_grouped">Frequencies for ethnicity_grouped</h3>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">n</th>
+<th data-quarto-table-cell-role="th">pct</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">ethnicity_grouped</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Arab</td>
+<td>57</td>
+<td>1.5</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Asian/Asian British</td>
+<td>105</td>
+<td>2.8</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Black</td>
+<td>497</td>
+<td>13.2</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Mixed Heritage</td>
+<td>196</td>
+<td>5.2</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Other</td>
+<td>53</td>
+<td>1.4</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Unknown</td>
+<td>188</td>
+<td>5.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">White</td>
+<td>2658</td>
+<td>70.8</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">&lt;NA&gt;</td>
+<td>1</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</section>
+<section id="frequencies-for-ethnicity_detailed" class="level3">
+<h3 class="anchored" data-anchor-id="frequencies-for-ethnicity_detailed">Frequencies for ethnicity_detailed</h3>
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">n</th>
+<th data-quarto-table-cell-role="th">pct</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">ethnicity_detailed</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Any other Mixed/multiple ethnic background</td>
+<td>46</td>
+<td>1.2</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Arab</td>
+<td>57</td>
+<td>1.5</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Asian/Asian British</td>
+<td>105</td>
+<td>2.8</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Black/Black British - African</td>
+<td>280</td>
+<td>7.5</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Black/Black British - Caribbean</td>
+<td>145</td>
+<td>3.9</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Black/Black British - Other</td>
+<td>72</td>
+<td>1.9</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black African</td>
+<td>35</td>
+<td>0.9</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Mixed/Dual Heritage - White+Black Caribbean</td>
+<td>115</td>
+<td>3.1</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Other</td>
+<td>53</td>
+<td>1.4</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Unknown</td>
+<td>188</td>
+<td>5.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">White British</td>
+<td>2447</td>
+<td>65.2</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">White Gypsy/Irish Traveller</td>
+<td>13</td>
+<td>0.3</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">White Other</td>
+<td>198</td>
+<td>5.3</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">&lt;NA&gt;</td>

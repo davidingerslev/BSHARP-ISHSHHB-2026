@@ -271,7 +271,8 @@ dpw_pls["gender"] = dpw_pls["gender"].map({
     "Prefer not to say": "_Unknown", "Transgender": "Non-Binary",
     "Non-Binary": "Non-Binary"
 })
-dpw_pls["age_cat"] = helper.age_cats(dpw_pls["pl_start_dt"].dt.year - dpw_pls["yob"])
+dpw_pls["age_cat"] = (dpw_pls["pl_start_dt"].dt.year - dpw_pls["yob"]>= 35).map({True: "35+", False: "34-"})
+
 dpw_pls["global_majority"] = dpw_pls["ethnicity"].map(defaultdict(
     lambda: "Yes",
     {
@@ -457,13 +458,17 @@ characteristics = [
 display(characteristics)
 ```
 
-## Start with one dependent variable
+## Start with one dependent variable and one IV
 
 ```{python}
 import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor as sm_vif
+
 # Get DV
 dv = dv_dict["Route outcomes after 3.08 years"].iloc[:, 0].astype("category")
 dv = dv.cat.reorder_categories(['Independent accommodation', 'Insecure outcome', 'Returned to homelessness', 'Died'])
+died_dv = (dv == "Died").rename("Died")
+dv = dv.cat.remove_categories("Died")
 
 # Get relevant IVs
 idx_type = dv.index.name
@@ -476,44 +481,122 @@ match idx_type:
         iv_df = dpw_clis
 iv_df = iv_df[[idx_type] + characteristics].set_index(idx_type).loc[dv.index]
 
-# Start with two IVs
+Xarr = []
+
 ch = "gender"
 # Exclude non-binary because there are very few cases and some outcomes with no cases
-X1 = iv_df[ch].replace(["Non-Binary", "_Unknown"], pd.NA).astype("category")
+Xn = iv_df[ch].replace(["Non-Binary", "_Unknown"], pd.NA).astype("category")
 # Make the reference category the most common one
-X1 = X1.cat.reorder_categories(list(X1.value_counts().index))
+Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
 # Get dummies for this characteristic
-X1 = pd.get_dummies(X1, prefix=ch, drop_first=True)
+Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+Xarr.append(Xn)
 
 ch = "global_majority"
-X2 = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
+Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
 # Make the reference category the most common one
-X2 = X2.cat.reorder_categories(list(X2.value_counts().index))
+Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
 # Get dummies for this characteristic
-X2 = pd.get_dummies(X2, prefix=ch, drop_first=True)
+Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+Xarr.append(Xn)
+
+ch = "uk_immigration_status"
+Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
+# Make the reference category the most common one
+Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
+# Get dummies for this characteristic
+Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+Xarr.append(Xn)
+
+ch = "age_cat"
+Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
+# Make the reference category the most common one
+Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
+# Get dummies for this characteristic
+Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+Xarr.append(Xn)
+
+ch = "lgbtq_plus"
+Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
+# Make the reference category the most common one
+Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
+# Get dummies for this characteristic
+Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+Xarr.append(Xn)
 
 ch = "multiple_disadvantage"
-X3 = iv_df[ch].astype("category")
+Xn = iv_df[ch].astype("category")
 # Make the reference category the most common one
-# X3 = X3.cat.reorder_categories(list(X3.value_counts().index))
+# Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
 # Get dummies for this characteristic
-X3 = pd.get_dummies(X3, prefix=ch, drop_first=True)
+Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+Xarr.append(Xn)
 
-X = pd.concat([X1, X2, X3], axis=1)
+for ch in ["offending", "physical_health", "mental_health", "substance_use"]:
+    Xn = iv_df[ch].astype("category")
+    Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+    Xarr.append(Xn)
+
+for ch in ["rough_sleeping", "sex_working", "risk_violence_abuse", "risk_exploitation"]:
+    Xn = iv_df[ch].astype("category")
+    Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+    Xarr.append(Xn)
+
+X = pd.concat(Xarr, axis=1)
 
 # Add a constant to ensure intercept is calculated
 Xc = sm.add_constant(X).rename(columns={"const": "(Intercept)"})
 
+# Alpha
+alpha = 0.05
+
+# Complete a binomial logistic regression for the category "Died"
+# Columns removed iteratively for parsimony:
+cols_to_remove = ["uk_immigration_status_Non-EEA National", "uk_immigration_status_EEA National",
+                  "lgbtq_plus_Yes",  "substance_use_True", "gender_Female", "physical_health_True",
+                  "risk_exploitation_True", "sex_working_True", "global_majority_Yes"]
+died_X = Xc[[col for col in Xc.columns if col not in cols_to_remove]]
+results = sm.Logit(died_dv, died_X.astype("float")).fit()
+display(pd.Series(cols_to_remove).rename("Variables removed iteratively for parsimony").to_frame())
+display(results.summary(alpha=alpha))
+
+coef = results.params.rename("coef")
+ci = results.conf_int()
+ci.columns = [f"[{alpha/2:.3f}", f"{1-alpha/2:.3f}]"]
+odds_ratios = np.exp(pd.concat([coef, ci], axis=1))
+pvalues = results.pvalues.rename("p")
+pvalues_sig = (pvalues <= alpha).map({True: "*", False: ""}).rename("*")
+results_or = pd.concat([pvalues, pvalues_sig, odds_ratios], axis=1)
+results_or.columns.name = "Odds Ratios"
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(results_or)
+
 # Complete the multinomial logistic regression
 results = sm.MNLogit(dv, Xc.astype("float")).fit()
+display(results.summary(alpha=alpha))
 
-display(results.summary())
 params = results.params
 params.columns = list(dv.cat.categories[1:])
-params = (np.exp(params) - 1)
-with pd.option_context("display.float_format", "{:,.1%}".format):
-    print("Odds ratios")
-    display(params)
+coef = params.unstack().rename("coef")
+ci = results.conf_int()
+ci.columns = [f"[{alpha/2:.3f}", f"{1-alpha/2:.3f}]"]
+odds_ratios = np.exp(pd.concat([coef, ci], axis=1))
+pvalues = results.pvalues
+pvalues.columns = list(dv.cat.categories[1:])
+pvalues = pvalues.unstack().rename("p")
+pvalues_sig = (pvalues <= 0.05).map({True: "*", False: ""}).rename("*")
+psummary = pd.concat([pvalues, pvalues_sig], axis=1).unstack(0).swaplevel(axis=1).sort_index(axis=1, ascending=[True, False])
+results_or = pd.concat([pvalues, pvalues_sig, odds_ratios], axis=1)
+results_or.columns.name = "Odds Ratios"
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(results_or)
+
+vif_data = pd.DataFrame()
+vif_data["Feature"] = X.columns
+vif_data["VIF"] = [sm_vif(X.values, i) for i in range(len(X.columns))]
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+    display(psummary)
 ```
 
 

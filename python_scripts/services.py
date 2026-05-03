@@ -34,6 +34,19 @@ def _get_services_real(basePath="./Original-CSVs", verbose=True, do_cleaning=Tru
     df_svc["svc_type_short_padded"] = helper.col_padded(df_svc["svc_type_short"])
     # Add data about levels under pre-distinct Pathways and post-distinct Pathways models
     df_svc = add_apwlvl(df_svc)
+    if verbose:
+        print("Loading Service addresses.csv...")
+    df_svc_addr = pd.read_csv(
+        dir / "Service addresses.csv",
+        dtype={"Pseudo service ID": "Int64", "Outward code": "string"},
+    )
+    df_svc_addr = helper.short_cols(df_svc_addr)
+    addr_per_svc = (
+        df_svc_addr.groupby("svc_id")["outward_code"]
+        .apply(lambda x: x.dropna().size)
+        .rename("svc_addresses")
+    )
+    df_svc = df_svc.join(addr_per_svc, on="svc_id")
     return df_svc
 
 

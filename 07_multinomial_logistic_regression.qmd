@@ -1,0 +1,538 @@
+---
+title: "07. Multinomial logistic regression modelling"
+date: 2026-05-03
+warning: false
+toc: true
+---
+
+```{python}
+# Setup code
+import pandas as pd
+from python_scripts import setup
+from python_scripts import services
+from python_scripts import helper
+df, dffp = setup.setup(verbose=False)
+
+from python_scripts import distinct_pathways
+dpw_pls = distinct_pathways.get_distinct_pathways_routes(dffp)
+qrows = dpw_pls["rt_end_cat"] == "[Not ended or invalid end reason]"
+dpw_pls.loc[dpw_pls.pl_end_dt > distinct_pathways.dpw_end_dt, ["pl_end_dt", "pl_end_reason", "dur"]] = pd.NA
+dpw_pls.loc[qrows, "rt_end_cat"] = dpw_pls.loc[qrows, "pl_end_dt"].isna().map({True: "[Not ended]", False: "Missing data/error"})
+dpw_pls["rt_end_cat"] = dpw_pls["rt_end_cat"].str.replace("To care/hosp.", "To care/hospital")
+dpw_rt_starts = dpw_pls.groupby("route_id").head(1)
+dpw_rt_ends = dpw_pls.groupby("route_id").tail(1)
+dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1)  # 1 duplicate client but first entry has more detailed answers
+
+import matplotlib
+import matplotlib.pyplot as plt
+matplotlib.rcParams.update({
+    'figure.figsize': (6.2, 4.1),
+    'font.size': 12,
+    'figure.constrained_layout.use': True
+})
+
+asset_themes = {"opaque": "assets_output/",
+                "transparent_lightbg": "assets_transparent_lightbg/",
+                "transparent_darkbg": "assets_transparent_darkbg/"}
+assets_output = asset_themes["opaque"]
+output_dir = assets_output
+transparent = False
+excel_output = {}
+dpw_pls_orig = dpw_pls
+
+
+def get_frequencies(series, sort=True, dropna=True, dropna_pct=True):
+    n = series.value_counts(sort=sort, dropna=dropna).rename("n")
+    pct = 100 * series.value_counts(sort=sort, dropna=(dropna or dropna_pct), normalize=True).rename("pct")
+    fq_tbl = pd.concat([n, pct], axis=1)
+    return fq_tbl
+```
+
+## Collect dependent variables
+
+```{python}
+#| output: asis
+dv_dict = {}
+#####################################
+# 3.1 Entry point into BAHSA services
+#####################################
+rt_entries = dpw_rt_starts.copy()
+rt_entries["pathway"] = rt_entries["svc_type_short"]
+rt_entries["pathway_type"] = (rt_entries["pathway"] == "Substance Misuse Pathway").map({True: "Substance Misuse", False: "Homelessness"})
+dv_dict["Entry point into BAHSA services (pathway type and level)"] = (
+    rt_entries[["route_id", "pathway_type", "pathway_level"]].set_index("route_id"))
+#################################################
+# 3.1.1 Entry point into BAHSA: pathway and level
+#################################################
+rt_entries = dpw_rt_starts.copy()
+print(f"Routes: {len(rt_entries):,}")
+rt_entries["pway_and_lvl"] = rt_entries["svc_typelvl"]
+dv_dict["Entry point into BAHSA services (pathway and level)"] = (
+    rt_entries[["route_id", "pway_and_lvl"]].set_index("route_id"))
+#####################################
+# 3.2 Route outcomes after 3.08 years
+#####################################
+periodMult = {"d": 1, "m": 365.25/12, "y": 365.25}
+years = periodMult["y"]
+time_measure = pd.Timedelta(days=(3.08 * years))
+dpw_rt_ends = dpw_pls.groupby("route_id").tail(1)
+dpw_rt_ends = dpw_rt_ends.set_index("route_id", drop=False)
+end_cols_to_drop = dpw_rt_ends.columns[
+    (
+        dpw_rt_ends.columns.isin(["gap", "dur"])
+        | dpw_rt_ends.columns.str.startswith("prev_")
+        | dpw_rt_ends.columns.str.startswith("vac_")
+        | dpw_rt_ends.columns.str.startswith("pl_")
+    )]
+dpw_routes = dpw_rt_ends.drop(columns=end_cols_to_drop)
+dpw_routes["rt_start_dt"] = dpw_rt_starts.set_index("route_id")["pl_start_dt"].rename("rt_start_dt")
+dpw_routes["rt_end_dt"] = dpw_rt_ends["pl_end_dt"].rename("rt_end_dt")
+# Set up map from categories to outcomes
+rt_outcomes_map = {
+    'Independent accommodation': ['To social housing', 'To private rented'],
+    'Insecure outcome': ['To friends/family', 'Custody', '[Not ended]', 'To care/hospital', 'To external supported'],
+    'Returned to homelessness': ['Evicted', 'Abandoned'],
+    'Died': ['Died'],
+    # '_excluded': ['Other', 'Missing data/error']
+}
+rt_end_cat_map = {cat: outcome for outcome in rt_outcomes_map.keys() for cat in rt_outcomes_map[outcome]}
+dpw_rt_outcomes = dpw_routes[
+    # Only include routes where there has been long enough for the outcome to happen
+    (dpw_routes["rt_start_dt"] <= distinct_pathways.dpw_end_dt - time_measure)
+    # Only include routes that have a rt_end_cat that corresponds to an outcome
+    & (dpw_routes["rt_end_cat"].isin(rt_end_cat_map.keys()))]
+dpw_rt_outcomes["rt_outcome"] = dpw_rt_outcomes["rt_end_cat"].map(rt_end_cat_map)
+# Still being in supported accommodation is generally an insecure outcome
+dpw_rt_outcomes.loc[
+    (dpw_rt_outcomes["rt_end_dt"] > (dpw_rt_outcomes["rt_start_dt"] + time_measure)),
+    "rt_outcome"] = "Insecure outcome"
+# But being in level 3 or 4 of the homelessness pathways in self-contained (not shared)
+# means having your own flat with support staff occasionally visiting, i.e. similar
+# to independent accommdoation
+dpw_rt_timemeasure_dt = (dpw_rt_outcomes["rt_start_dt"] + time_measure).rename("rt_timemeasure_dt")
+rt_pls = dpw_pls.join(dpw_rt_timemeasure_dt, on="route_id", how="inner")
+rt_pls_at_timemeasures = rt_pls[(rt_pls["pl_start_dt"] < rt_pls["rt_timemeasure_dt"])
+                                & (
+                                    rt_pls["pl_end_dt"].isna()
+                                    | (rt_pls["pl_end_dt"] > rt_pls["rt_timemeasure_dt"])
+                                )].set_index("route_id")
+dpw_rt_outcomes.loc[
+    (dpw_rt_outcomes["rt_end_dt"] > (dpw_rt_outcomes["rt_start_dt"] + time_measure))
+    & (rt_pls_at_timemeasures["pathway_level"].isin(["3", "4"]))
+    & (rt_pls_at_timemeasures["shared"] == "No"),
+    "rt_outcome"] = "Independent accommodation"
+dv_dict["Route outcomes after 3.08 years"] = (
+                          dpw_rt_outcomes[["route_id", "rt_outcome"]].set_index("route_id"))
+#######################################################################
+# 3.3 Outcomes at a period of time after a person's first route started
+#######################################################################
+# dpw_cli_outcomes is the dpw_rt_outcome that is active after the measured time since the person's first route started
+time_measure = pd.Timedelta(days=(3.08 * years))
+# Relevant date for each client is their first route start date plus the time measure period
+dpw_cli_timemeasure_dt = (dpw_rt_outcomes
+                          .set_index("o_cli_id")
+                          .groupby("o_cli_id")
+                          .head(1)
+                          ["rt_start_dt"]
+                          + time_measure).rename("cli_timemeasure_dt")
+dpw_cli_outcomes = dpw_rt_outcomes.join(dpw_cli_timemeasure_dt, on="o_cli_id").set_index("o_cli_id")
+# Select the latest route that started before the outcome date
+dpw_cli_outcomes = ((dpw_cli_outcomes[dpw_cli_outcomes["rt_start_dt"] <= dpw_cli_outcomes["cli_timemeasure_dt"]])
+                    .groupby("o_cli_id").tail(1)).rename(columns={"rt_outcome": "cli_outcome"})
+cli_pls = dpw_pls.join(dpw_cli_timemeasure_dt, on="o_cli_id")
+cli_pls_at_timemeasures = cli_pls[(cli_pls["pl_start_dt"] < cli_pls["cli_timemeasure_dt"])
+                                  & (
+                                      cli_pls["pl_end_dt"].isna()
+                                      | (cli_pls["pl_end_dt"] > cli_pls["cli_timemeasure_dt"])
+                                  )].set_index("o_cli_id")
+# Still being in supported accommodation is generally an insecure outcome
+dpw_cli_outcomes.loc[cli_pls_at_timemeasures.index, "cli_outcome"] = "Insecure outcome"
+# But being in level 3 or 4 of the homelessness pathways in self-contained (not shared)
+# means having your own flat with support staff occasionally visiting, i.e. similar
+# to independent accommdoation
+equiv_ind_at_time = cli_pls_at_timemeasures[
+    (cli_pls_at_timemeasures["shared"] == "No")
+    & cli_pls_at_timemeasures["pathway_level"].isin(["3", "4"])]
+dpw_cli_outcomes.loc[equiv_ind_at_time.index, "cli_outcome"] = "Independent accommodation"
+dpw_cli_outcomes["cli_start_dt"] = (dpw_rt_starts.set_index("o_cli_id")
+                                    .groupby("o_cli_id").head(1)["pl_start_dt"])
+dpw_cli_outcomes["cli_end_dt"] = (dpw_rt_ends.set_index("o_cli_id")
+                                  .groupby("o_cli_id").tail(1)["pl_end_dt"])
+dv_dict["Outcomes 3.08 years after a person's first route started"] = (
+                          dpw_cli_outcomes[["cli_outcome"]])
+##############################################
+# 3.4 Returning to use services multiple times
+##############################################
+dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1).set_index("o_cli_id")
+dpw_clis["multiple_returns"] = (dpw_rt_starts.groupby(['o_cli_id']).size() >= 3).rename("multiple_returns")
+dv_dict["People with multiple returns during 7.5 yrs"] = (
+                          dpw_clis[["multiple_returns"]])
+################################
+# 3.5 Using services longer-term
+################################
+durations = dpw_pls.set_index(["o_cli_id", "route_id"])[["dur", "pl_start_dt"]]
+durations["dur_days"] = durations["dur"].dt.days
+durations["dur_days"] = durations["dur_days"].fillna(1 + (distinct_pathways.dpw_end_dt - durations.pl_start_dt).dt.days)
+durations = durations.drop(columns=["dur", "pl_start_dt"]).groupby(["o_cli_id", "route_id"]).sum()
+# Set threshold to top 10% of route durations
+longer_term_threshold_days = durations.quantile(0.9)
+dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1).set_index("o_cli_id")
+dpw_clis["has_longer_term_rt"] = ((durations > longer_term_threshold_days)
+                                  .groupby("o_cli_id").any())
+dv_dict["People with a route in top 10% of route durations"] = (
+                          dpw_clis[["has_longer_term_rt"]])
+######################################################################
+# 3.6 Returns within 2 years after moving to independent accommodation
+######################################################################
+# Note: Not enough returns after moves to independent accommodation to analyse much further.
+# time_measure options: ['90d', '6m', '15m', '18m', '2y', '5y']
+time_measure = "2y"
+time_offset = distinct_pathways.stable_offsets[time_measure]
+return_col = f"after_rt_ret_within_{time_measure}"
+eligible_route_ends = dpw_rt_ends[
+    # Only include routes that have a rt_end_cat that corresponds to independent accommodation
+    dpw_rt_ends["rt_end_cat"].isin(["To social housing", "To private rented"])
+    # Only include routes where there has been long enough for the outcome to happen
+    & (dpw_rt_ends["pl_end_dt"] < distinct_pathways.dpw_end_dt - time_offset)]
+dv_dict["Returns within 2 years after moving to independent accommodation"] = (
+                          eligible_route_ends[["route_id", return_col]].set_index("route_id"))
+#########################################
+# 3.7 Outcomes from individual placements
+#########################################
+import numpy as np
+from python_scripts import routes
+pl_excluded = {}
+pl_end_cat_map = routes.get_end_cats_map()
+pl_outcomes = dpw_pls.set_index("vac_id")
+pl_outcomes["pl_end_cat"] = pl_outcomes["pl_end_reason"].map(pl_end_cat_map)
+next_pls = (dpw_pls.loc[dpw_pls["prev_vac_id"].notna()]
+            .rename(columns={"vac_id": "next_vac_id", "prev_vac_id": "vac_id", "svc_type_short": "pathway"})
+            .set_index("vac_id"))
+next_pls["pathway"] = next_pls["pathway"].cat.remove_unused_categories()
+pl_outcomes.loc[next_pls.index, "pl_end_cat"] = "Internal move"
+pl_outcomes.loc[dpw_pls.loc[dpw_pls["prev_svc_id"] == dpw_pls["svc_id"], "prev_vac_id"].values, "pl_end_cat"] = "Internal move: same service"
+pl_outcomes["pathway"] = pl_outcomes["svc_type_short"].cat.remove_unused_categories()
+pl_outcomes["pathway_type"] = (pl_outcomes["pathway"] == "Substance Misuse Pathway").map({True: "Substance Misuse", False: "Homelessness"})
+pl_outcomes["ended"] = pl_outcomes["pl_end_dt"].isna().map({True: "Current", False: "Ended"})
+level_diff = (pl_outcomes.loc[pl_outcomes["pl_end_cat"] == "Internal move", ["pathway", "pathway_level"]]
+              .join(next_pls[["pathway", "pathway_level"]].add_prefix("next_"))
+              .assign(level_diff=lambda df: df[["pathway_level", "next_pathway_level"]]
+              .astype("Int64").diff(axis=1).iloc[:, -1]))
+# Difference in level is meaningful except that moves to/from SU pathway are different..
+pl_outcomes = pl_outcomes.join((level_diff[["next_pathway_level", "level_diff"]]
+                                .where((level_diff["pathway"] == level_diff["next_pathway"])
+                                       | (level_diff["pathway"] != "Substance Misuse Pathway")
+                                       | (level_diff["next_pathway"] != "Substance Misuse Pathway"))))
+pl_outcomes.loc[pl_outcomes["level_diff"].notna(), "pl_end_cat"] = (
+    "Internal move: " + np.sign(pl_outcomes.level_diff).map({-1: "backwards", 0: "sideways", 1: "forwards"})
+)
+# Exclude 738 placements that have not ended
+pl_outcomes = pl_outcomes[pl_outcomes["dur"].notna()]
+# Exclude 42 0-day placements
+pl_outcomes = pl_outcomes[pl_outcomes["dur"] > pd.Timedelta(days=0)]
+pl_outcomes_map = {
+    'Independent accommodation': ['To social housing', 'To private rented'],
+    'Insecure outcome (external)': ['To friends/family', 'Custody', '[Not ended]', 'To care/hospital', 'To external supported'],
+    'Returned to homelessness': ['Evicted', 'Abandoned'],
+    'Died': ['Died'],
+    # '_excluded': ['Other', 'Missing data/error']
+}
+pl_end_cat_map = {cat: outcome for outcome in pl_outcomes_map.keys() for cat in pl_outcomes_map[outcome]}
+pl_outcomes["pl_outcome"] = pl_outcomes["pl_end_cat"].map(pl_end_cat_map)
+pl_outcomes.loc[
+    pl_outcomes["pl_end_cat"].fillna("").str.startswith("Internal move"),
+    "pl_outcome"] = pl_outcomes["pl_end_cat"]
+# Exclude 1,310 moves within the same service
+pl_outcomes_excl_same_svc = pl_outcomes[pl_outcomes["pl_end_cat"] != "Internal move: same service"]
+# Exclude 277 moves due to end reasons: 53 missing reaons, 200 "Other"
+# TODO: Should "Other" really be excluded?
+pl_outcomes_excl_same_svc = pl_outcomes_excl_same_svc[pl_outcomes_excl_same_svc["pl_outcome"].notna()]
+dv_dict["Outcomes from individual placements"] = (
+                              pl_outcomes_excl_same_svc[["pl_outcome"]])
+dv_dict_desc = list(dv_dict.keys())
+dv_dict_cats = {k: list(v.iloc[:, 0].astype("string").fillna("<N/A>").unique()) for k, v in dv_dict.items()}
+display(dv_dict_desc)
+```
+
+## Collect independent variables
+```{python}
+#| output: asis
+from collections import defaultdict
+dpw_pls = dpw_pls_orig
+# Add route entry point as an IV as well as a DV
+#TODO:
+tdf = dv_dict["Entry point into BAHSA services (pathway type and level)"]
+rt_entry_point = (tdf["pathway_type"].map({"Homelessness": "H ", "Substance Misuse": "SU "})
+                  + tdf["pathway_level"].astype("string")).rename("rt_entry_point")
+dpw_pls = dpw_pls.join(rt_entry_point, on="route_id")
+# Age category at year of first route during studied period
+dpw_pls["gender"] = dpw_pls["gender"].map({
+    "Male": "Male", "Female": "Female", "Don't Know": "_Unknown",
+    "Prefer not to say": "_Unknown", "Transgender": "Non-Binary",
+    "Non-Binary": "Non-Binary"
+})
+dpw_pls["age_cat"] = helper.age_cats(dpw_pls["pl_start_dt"].dt.year - dpw_pls["yob"])
+dpw_pls["global_majority"] = dpw_pls["ethnicity"].map(defaultdict(
+    lambda: "Yes",
+    {
+      "English/Welsh/Scottish/Northern Irish/British": "No", "White British": "No",
+      "White Other Origin": "No", "Any other White background": "No", "White European": "No",
+      "Eastern European": "No", "Turkish": "No", "White Irish": "No", "Irish": "No",
+      "White Gypsy/Irish Traveller": "No", "Gypsy (inc English, Scottish or Roma Gypsy) or Irish Traveller": "No",
+      "Don't know": "_Unknown", "Prefer not to say": "_Unknown", "Refused to answer question": "_Unknown"
+    }))
+eth_dtl_map = {
+    "White British": [
+        "English/Welsh/Scottish/Northern Irish/British"
+    ],
+    "Unknown": [
+        "Don't know",
+        "Prefer not to say",
+        "Refused to answer question"
+    ],
+    "Black/Black British - African": [
+        "African (non Somali)",
+        "Somali",
+        "Black/Black British - Somali",
+        "Black or Black British Ghanaian"
+    ],
+    "Black/Black British - Caribbean": [
+        "Caribbean"
+    ],
+    "White Other": [
+        "White Other Origin",
+        "Any other White background",
+        "White Irish",
+        "Irish",
+        "White European",
+        "Eastern European",
+        "Turkish"
+    ],
+    "Mixed/Dual Heritage - White+Black Caribbean": [
+        "White and Black Caribbean"
+    ],
+    "Black/Black British - Other": [
+        "Black/Black British - Other",
+        "Any other Black/African/Caribbean background"
+    ],
+    "Arab": [
+        "Iranian",
+        "Iraqi",
+    ],
+    "Asian/Asian British": [
+        "Asian/Asian British - Other",
+        "Pakistani",
+        "Bangladeshi",
+        "Asian/Asian British - Chinese",
+        "Asian/Asian British - Bangladeshi",
+        "Asian/Asian British - Indian",
+        "Indian",
+        "Asian/Asian British - Asian African",
+        "Chinese",
+        "Asian/Asian British - Pakistani",
+        "Asian or Asian British Sri Lankan",
+        "Any other Asian background",
+    ],
+    "Any other Mixed/multiple ethnic background": [
+        "Mixed/Dual Heritage - White+Asian",
+        "Mixed/Dual Heritage - Other",
+        "White and Asian",
+        "Mixed/Dual Heritage - White+Chinese"
+    ],
+    "Mixed/Dual Heritage - White+Black African": [
+        "White and Black African (non Somali)"
+    ],
+    "Other": [
+        "Any other ethnic group",
+        "Kurdish"
+    ],
+    "White Gypsy/Irish Traveller": [
+        "Gypsy (inc English, Scottish or Roma Gypsy) or Irish Traveller"
+    ]
+}
+mapper = {k: v for v,k in pd.Series(eth_dtl_map).explode().items()}
+dpw_pls["ethnicity_detailed"] = dpw_pls["ethnicity"].replace(mapper).astype("string").astype("category")
+eth_grp_map = {
+    "White": [
+        "White British",
+        "White Other",
+        "White Gypsy/Irish Traveller",
+    ],
+    "Black": [
+        "Black/Black British - African",
+        "Black/Black British - Caribbean",
+        "Black/Black British - Other",
+    ],
+    "Mixed Heritage": [
+        "Mixed/Dual Heritage - White+Black African",
+        "Mixed/Dual Heritage - White+Black Caribbean",
+        "Any other Mixed/multiple ethnic background",
+    ]
+}
+mapper = {k: v for v,k in pd.Series(eth_grp_map).explode().items()}
+dpw_pls["ethnicity_grouped"] = dpw_pls["ethnicity_detailed"].replace(mapper).astype("string").astype("category")
+dpw_pls["lgbtq_plus"] = dpw_pls["sexual_orientation"].map({
+    "Bi-sexual": "Yes", "Gay/Lesbian": "Yes", "other": "Yes", "Lesbian": "Yes",
+    "Heterosexual": "No", "Don't Know": "_Unknown", "Rather not state": "_Unknown",
+})
+dpw_pls["uk_immigration_status"] = dpw_pls["uk_immigration_status"].map({
+    "Other Protection Leave to Remain": "Non-EEA National",
+    "Indefinite Leave to Remain": "Non-EEA National",
+    "Other Non-EEA National": "Non-EEA National",
+    "Limited Leave to Remain": "Non-EEA National",
+    "EEA National": "EEA National",
+    "UK/Irish National": "UK/Irish National",
+})
+ref_cats = dpw_pls["ref_agency"].cat.categories
+ref_cat_map = {
+    "Local authority (Housing Options)": ["B.C.C. Homelessness Prevention Team"],
+    "Local authority (_other)": list(ref_cats[ref_cats.str.startswith(("B.C.C", "Bcc"))
+                                    & (ref_cats != "B.C.C. Homelessness Prevention Team")]),
+    "Service provider (rough sleeping and SH)": ["St. Mungo's", "St Mungo's", "Outreach"],
+    "Service provider (prison resettlement and SH)": ["A.R.A"],
+    "Service provider (_other SH)": ["E.C.H.G. Riverside", "Elim", "Livewest", "Missing Link", "Places For People",
+                                    "Salvation Army", "Second Step", "Self Help"]
+}
+ref_cat_map["_Others"] = ref_cats[~ref_cats.isin(sum(list(ref_cat_map.values()), []))]
+ref_agency_mapper = {k: v for v, k in pd.Series(ref_cat_map).explode().items()}
+dpw_pls["referral_agency"] = (dpw_pls["ref_agency"].map(ref_agency_mapper)
+                              .fillna("_[Missing data]"))
+support_need_cols = {
+    "hsn_prison_leaveron_probationrisk_of_offending": "offending",
+    "hsn_physical_health": "physical_health",
+    "hsn_mental_health": "mental_health",
+    "hsn_rough_sleeper": "rough_sleeping",
+}
+for hsn, ch_str in support_need_cols.items():
+    dpw_pls[ch_str] = dpw_pls[hsn].astype("boolean")
+gendered_support_need_cols = {
+    "hsn_sex_working": "sex_working",  # only women recorded as sex working
+    "hsn_risk_of_violenceabuse_victim": "risk_violence_abuse",
+    "hsn_risk_of_exploitation": "risk_exploitation",
+}
+for hsn, ch_str in gendered_support_need_cols.items():
+    dpw_pls[f"women_{ch_str}"] = dpw_pls[hsn].where(dpw_pls["gender"] == "Female")
+    dpw_pls[f"men_{ch_str}"] = dpw_pls[hsn].where(dpw_pls["gender"] == "Male")
+    dpw_pls[ch_str] = dpw_pls[hsn]
+dpw_pls["hsn_drug_or_alcohol_use"] = (dpw_pls["hsn_drug_use"].astype("boolean")
+                                      | dpw_pls["hsn_alcohol_use"].astype("boolean"))
+dpw_pls["multiple_disadvantage"] = (  # Current support needs for 3 out of 5 SMD dimensions
+  dpw_pls[["hsn_prison_leaveron_probationrisk_of_offending",
+           "hsn_drug_or_alcohol_use",
+           "hsn_risk_of_violenceabuse_victim",
+           "hsn_mental_health"
+           ]].assign(hsn_homelessness=True).astype("boolean").sum(axis=1, skipna=False) >= 3
+  )
+dpw_pls["substance_use"] = dpw_pls["hsn_drug_or_alcohol_use"]
+dpw_rt_starts = dpw_pls.groupby("route_id").head(1)
+dpw_rt_ends = dpw_pls.groupby("route_id").tail(1)
+dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1)  # 1 duplicate client but first entry has more detailed answers
+characteristics = [
+    "rt_entry_point",
+    "gender",
+    "global_majority",
+    "ethnicity_grouped",
+    "ethnicity_detailed",
+    "age_cat",
+    "lgbtq_plus",
+    "offending",
+    "physical_health",
+    "mental_health",
+    "substance_use",
+    "multiple_disadvantage",
+    "rough_sleeping",
+    "sex_working",
+    "women_sex_working",
+    "men_sex_working",
+    "risk_violence_abuse",
+    "women_risk_violence_abuse",
+    "men_risk_violence_abuse",
+    "risk_exploitation",
+    "women_risk_exploitation",
+    "men_risk_exploitation",
+    "uk_immigration_status",
+    "english_2nd_language",
+    "referral_agency"
+]
+display(characteristics)
+```
+
+## Start with one dependent variable
+
+```{python}
+import statsmodels.api as sm
+# Get DV
+dv = dv_dict["Route outcomes after 3.08 years"].iloc[:, 0].astype("category")
+dv = dv.cat.reorder_categories(['Independent accommodation', 'Insecure outcome', 'Returned to homelessness', 'Died'])
+
+# Get relevant IVs
+idx_type = dv.index.name
+match idx_type:
+    case "vac_id":
+        iv_df = dpw_pls
+    case "route_id":
+        iv_df = dpw_rt_starts
+    case "o_cli_id":
+        iv_df = dpw_clis
+iv_df = iv_df[[idx_type] + characteristics].set_index(idx_type).loc[dv.index]
+
+# Start with two IVs
+ch = "gender"
+# Exclude non-binary because there are very few cases and some outcomes with no cases
+X1 = iv_df[ch].replace(["Non-Binary", "_Unknown"], pd.NA).astype("category")
+# Make the reference category the most common one
+X1 = X1.cat.reorder_categories(list(X1.value_counts().index))
+# Get dummies for this characteristic
+X1 = pd.get_dummies(X1, prefix=ch, drop_first=True)
+
+ch = "global_majority"
+X2 = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
+# Make the reference category the most common one
+X2 = X2.cat.reorder_categories(list(X2.value_counts().index))
+# Get dummies for this characteristic
+X2 = pd.get_dummies(X2, prefix=ch, drop_first=True)
+
+ch = "multiple_disadvantage"
+X3 = iv_df[ch].astype("category")
+# Make the reference category the most common one
+# X3 = X3.cat.reorder_categories(list(X3.value_counts().index))
+# Get dummies for this characteristic
+X3 = pd.get_dummies(X3, prefix=ch, drop_first=True)
+
+X = pd.concat([X1, X2, X3], axis=1)
+
+# Add a constant to ensure intercept is calculated
+Xc = sm.add_constant(X).rename(columns={"const": "(Intercept)"})
+
+# Complete the multinomial logistic regression
+results = sm.MNLogit(dv, Xc.astype("float")).fit()
+
+display(results.summary())
+params = results.params
+params.columns = list(dv.cat.categories[1:])
+params = (np.exp(params) - 1)
+with pd.option_context("display.float_format", "{:,.1%}".format):
+    print("Odds ratios")
+    display(params)
+```
+
+
+## Tables in an Excel file
+
+```{python}
+#| output: asis
+import os
+sheetname = "Sheet1"
+qmdfile = os.getenv("QUARTO_DOCUMENT_FILE")
+filename = assets_output + qmdfile[:-4]+".xlsx"
+with pd.ExcelWriter(filename) as writer:
+    next_row = 0
+    for k, v in excel_output.items():
+        pd.DataFrame([k]).to_excel(writer, sheet_name=sheetname, header=False, index=False, startrow=next_row)
+        next_row += 1
+        v.to_excel(writer, sheet_name=sheetname, startrow=next_row, float_format="%.1f")
+        next_row += (
+            (1 if not isinstance(v.columns, pd.MultiIndex) else 1 + len(v.columns.levels))
+            + len(v) + 1)
+print(f"[Excel file](./{filename})")
+```

@@ -89,8 +89,8 @@ excel_output[tbl_desc] = tbl
 print("### " + tbl_desc)
 with pd.option_context("display.precision", 1):
     display(tbl)
-level_diff = (pl_outcomes.loc[pl_outcomes["pl_end_cat"] == "Internal move", ["pathway", "pathway_level"]]
-              .join(next_pls[["pathway", "pathway_level"]].add_prefix("next_")))
+level_diff = (pl_outcomes.loc[pl_outcomes["pl_end_cat"] == "Internal move", ["pathway", "pathway_level", "vac_address_outward_code"]]
+              .join(next_pls[["pathway", "pathway_level", "vac_address_outward_code"]].add_prefix("next_")))
 level_diff[["pathway_level", "next_pathway_level"]] = level_diff[["pathway_level", "next_pathway_level"]].astype("Float64")
 # Difference in level is meaningful except that moves to/from SU pathway are different..
 for prefix in ["", "next_"]:
@@ -137,7 +137,7 @@ pl_outcomes["pl_outcome"] = pl_outcomes["pl_outcome"].fillna("Other")
 ### (SSTS) BCC Emergency Accommodation (FOR SSTS USE ONLY)      1
 ### Name: count, dtype: Int64
 ### pl_excluded["Unclear end categories"] = pl_outcomes[pl_outcomes["pl_outcome"].isna()]
-pl_outcomes_excl_same_svc = pl_outcomes[pl_outcomes["pl_end_cat"] != "Internal move: same service"]
+pl_outcomes_excl_same_svc = ((pl_outcomes[pl_outcomes["pl_end_cat"] != "Internal move: same service"]))
 ```
 
 ```{python}
@@ -327,8 +327,8 @@ p = (so.Plot(data=tbl_pct.iloc[:-1, :].unstack().to_frame(name="pct").rename(ind
      .plot()
      )
 legend = f.legends.pop(0)
-zw_legendHandles = legend.legendHandles.copy()
-f.legend(legend.legendHandles, [t.get_text() for t in legend.texts],
+zw_legendHandles = legend.legend_handles.copy()
+f.legend(legend.legend_handles, [t.get_text() for t in legend.texts],
          loc="lower left", bbox_to_anchor=(0, 0.05),
          title="Pathway", fontsize="small")
 legend = f.legends[0]

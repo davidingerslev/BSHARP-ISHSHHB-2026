@@ -4021,7 +4021,13 @@ vertical-align: -.125em;
   <ul>
   <li><a href="#collect-dependent-variables" id="toc-collect-dependent-variables" class="nav-link active" data-scroll-target="#collect-dependent-variables">Collect dependent variables</a></li>
   <li><a href="#collect-independent-variables" id="toc-collect-independent-variables" class="nav-link" data-scroll-target="#collect-independent-variables">Collect independent variables</a></li>
-  <li><a href="#start-with-one-dependent-variable-and-one-iv" id="toc-start-with-one-dependent-variable-and-one-iv" class="nav-link" data-scroll-target="#start-with-one-dependent-variable-and-one-iv">Start with one dependent variable and one IV</a></li>
+  <li><a href="#prepare-one-dv-and-relevant-ivs" id="toc-prepare-one-dv-and-relevant-ivs" class="nav-link" data-scroll-target="#prepare-one-dv-and-relevant-ivs">Prepare one DV and relevant IVs</a></li>
+  <li><a href="#binomial-logistic-regression-for-the-category-died" id="toc-binomial-logistic-regression-for-the-category-died" class="nav-link" data-scroll-target="#binomial-logistic-regression-for-the-category-died">Binomial logistic regression for the category “Died”</a>
+  <ul class="collapse">
+  <li><a href="#iterative-model-development" id="toc-iterative-model-development" class="nav-link" data-scroll-target="#iterative-model-development">Iterative model development</a></li>
+  <li><a href="#final-model" id="toc-final-model" class="nav-link" data-scroll-target="#final-model">Final model</a></li>
+  </ul></li>
+  <li><a href="#multinomial-logistic-regression-for-categories-other-than-died" id="toc-multinomial-logistic-regression-for-categories-other-than-died" class="nav-link" data-scroll-target="#multinomial-logistic-regression-for-categories-other-than-died">Multinomial logistic regression for categories other than “Died”</a></li>
   <li><a href="#tables-in-an-excel-file" id="toc-tables-in-an-excel-file" class="nav-link" data-scroll-target="#tables-in-an-excel-file">Tables in an Excel file</a></li>
   </ul>
 </nav>
@@ -4061,7 +4067,7 @@ vertical-align: -.125em;
 </header>
 
 
-<div id="e41b4aaf" class="cell" data-execution_count="1">
+<div id="6ebdb4d5" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup code</span></span>
@@ -4551,9 +4557,9 @@ vertical-align: -.125em;
  &#39;english_2nd_language&#39;,
  &#39;referral_agency&#39;]</code></pre>
 </section>
-<section id="start-with-one-dependent-variable-and-one-iv" class="level2">
-<h2 class="anchored" data-anchor-id="start-with-one-dependent-variable-and-one-iv">Start with one dependent variable and one IV</h2>
-<div id="21279b00" class="cell" data-execution_count="4">
+<section id="prepare-one-dv-and-relevant-ivs" class="level2">
+<h2 class="anchored" data-anchor-id="prepare-one-dv-and-relevant-ivs">Prepare one DV and relevant IVs</h2>
+<div id="d4367c9d" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.api <span class="im">as</span> sm</span>
@@ -4640,63 +4646,648 @@ vertical-align: -.125em;
 <span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> pd.concat(Xarr, axis<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a><span class="co"># Add a constant to ensure intercept is calculated</span></span>
-<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a>Xc <span class="op">=</span> sm.add_constant(X).rename(columns<span class="op">=</span>{<span class="st">&quot;const&quot;</span>: <span class="st">&quot;(Intercept)&quot;</span>})</span>
-<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a><span class="co"># Alpha</span></span>
-<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a>alpha <span class="op">=</span> <span class="fl">0.05</span></span>
-<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a><span class="co"># Complete a binomial logistic regression for the category &quot;Died&quot;</span></span>
-<span id="cb6-91"><a href="#cb6-91" aria-hidden="true" tabindex="-1"></a><span class="co"># Columns removed iteratively for parsimony:</span></span>
-<span id="cb6-92"><a href="#cb6-92" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">=</span> [<span class="st">&quot;uk_immigration_status_Non-EEA National&quot;</span>, <span class="st">&quot;uk_immigration_status_EEA National&quot;</span>,</span>
-<span id="cb6-93"><a href="#cb6-93" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;lgbtq_plus_Yes&quot;</span>,  <span class="st">&quot;substance_use_True&quot;</span>, <span class="st">&quot;gender_Female&quot;</span>, <span class="st">&quot;physical_health_True&quot;</span>,</span>
-<span id="cb6-94"><a href="#cb6-94" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;risk_exploitation_True&quot;</span>, <span class="st">&quot;sex_working_True&quot;</span>, <span class="st">&quot;global_majority_Yes&quot;</span>]</span>
-<span id="cb6-95"><a href="#cb6-95" aria-hidden="true" tabindex="-1"></a>died_X <span class="op">=</span> Xc[[col <span class="cf">for</span> col <span class="kw">in</span> Xc.columns <span class="cf">if</span> col <span class="kw">not</span> <span class="kw">in</span> cols_to_remove]]</span>
-<span id="cb6-96"><a href="#cb6-96" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> sm.Logit(died_dv, died_X.astype(<span class="st">&quot;float&quot;</span>)).fit()</span>
-<span id="cb6-97"><a href="#cb6-97" aria-hidden="true" tabindex="-1"></a>display(pd.Series(cols_to_remove).rename(<span class="st">&quot;Variables removed iteratively for parsimony&quot;</span>).to_frame())</span>
-<span id="cb6-98"><a href="#cb6-98" aria-hidden="true" tabindex="-1"></a>display(results.summary(alpha<span class="op">=</span>alpha))</span>
-<span id="cb6-99"><a href="#cb6-99" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-100"><a href="#cb6-100" aria-hidden="true" tabindex="-1"></a>coef <span class="op">=</span> results.params.rename(<span class="st">&quot;coef&quot;</span>)</span>
-<span id="cb6-101"><a href="#cb6-101" aria-hidden="true" tabindex="-1"></a>ci <span class="op">=</span> results.conf_int()</span>
-<span id="cb6-102"><a href="#cb6-102" aria-hidden="true" tabindex="-1"></a>ci.columns <span class="op">=</span> [<span class="ss">f&quot;[</span><span class="sc">{</span>alpha<span class="op">/</span><span class="dv">2</span><span class="sc">:.3f}</span><span class="ss">&quot;</span>, <span class="ss">f&quot;</span><span class="sc">{</span><span class="dv">1</span><span class="op">-</span>alpha<span class="op">/</span><span class="dv">2</span><span class="sc">:.3f}</span><span class="ss">]&quot;</span>]</span>
-<span id="cb6-103"><a href="#cb6-103" aria-hidden="true" tabindex="-1"></a>odds_ratios <span class="op">=</span> np.exp(pd.concat([coef, ci], axis<span class="op">=</span><span class="dv">1</span>))</span>
-<span id="cb6-104"><a href="#cb6-104" aria-hidden="true" tabindex="-1"></a>pvalues <span class="op">=</span> results.pvalues.rename(<span class="st">&quot;p&quot;</span>)</span>
-<span id="cb6-105"><a href="#cb6-105" aria-hidden="true" tabindex="-1"></a>pvalues_sig <span class="op">=</span> (pvalues <span class="op">&lt;=</span> alpha).<span class="bu">map</span>({<span class="va">True</span>: <span class="st">&quot;*&quot;</span>, <span class="va">False</span>: <span class="st">&quot;&quot;</span>}).rename(<span class="st">&quot;*&quot;</span>)</span>
-<span id="cb6-106"><a href="#cb6-106" aria-hidden="true" tabindex="-1"></a>results_or <span class="op">=</span> pd.concat([pvalues, pvalues_sig, odds_ratios], axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb6-107"><a href="#cb6-107" aria-hidden="true" tabindex="-1"></a>results_or.columns.name <span class="op">=</span> <span class="st">&quot;Odds Ratios&quot;</span></span>
-<span id="cb6-108"><a href="#cb6-108" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">&quot;display.float_format&quot;</span>, <span class="st">&quot;</span><span class="sc">{:,.3f}</span><span class="st">&quot;</span>.<span class="bu">format</span>):</span>
-<span id="cb6-109"><a href="#cb6-109" aria-hidden="true" tabindex="-1"></a>    display(results_or)</span>
-<span id="cb6-110"><a href="#cb6-110" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-111"><a href="#cb6-111" aria-hidden="true" tabindex="-1"></a><span class="co"># Complete the multinomial logistic regression</span></span>
-<span id="cb6-112"><a href="#cb6-112" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> sm.MNLogit(dv, Xc.astype(<span class="st">&quot;float&quot;</span>)).fit()</span>
-<span id="cb6-113"><a href="#cb6-113" aria-hidden="true" tabindex="-1"></a>display(results.summary(alpha<span class="op">=</span>alpha))</span>
-<span id="cb6-114"><a href="#cb6-114" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-115"><a href="#cb6-115" aria-hidden="true" tabindex="-1"></a>params <span class="op">=</span> results.params</span>
-<span id="cb6-116"><a href="#cb6-116" aria-hidden="true" tabindex="-1"></a>params.columns <span class="op">=</span> <span class="bu">list</span>(dv.cat.categories[<span class="dv">1</span>:])</span>
-<span id="cb6-117"><a href="#cb6-117" aria-hidden="true" tabindex="-1"></a>coef <span class="op">=</span> params.unstack().rename(<span class="st">&quot;coef&quot;</span>)</span>
-<span id="cb6-118"><a href="#cb6-118" aria-hidden="true" tabindex="-1"></a>ci <span class="op">=</span> results.conf_int()</span>
-<span id="cb6-119"><a href="#cb6-119" aria-hidden="true" tabindex="-1"></a>ci.columns <span class="op">=</span> [<span class="ss">f&quot;[</span><span class="sc">{</span>alpha<span class="op">/</span><span class="dv">2</span><span class="sc">:.3f}</span><span class="ss">&quot;</span>, <span class="ss">f&quot;</span><span class="sc">{</span><span class="dv">1</span><span class="op">-</span>alpha<span class="op">/</span><span class="dv">2</span><span class="sc">:.3f}</span><span class="ss">]&quot;</span>]</span>
-<span id="cb6-120"><a href="#cb6-120" aria-hidden="true" tabindex="-1"></a>odds_ratios <span class="op">=</span> np.exp(pd.concat([coef, ci], axis<span class="op">=</span><span class="dv">1</span>))</span>
-<span id="cb6-121"><a href="#cb6-121" aria-hidden="true" tabindex="-1"></a>pvalues <span class="op">=</span> results.pvalues</span>
-<span id="cb6-122"><a href="#cb6-122" aria-hidden="true" tabindex="-1"></a>pvalues.columns <span class="op">=</span> <span class="bu">list</span>(dv.cat.categories[<span class="dv">1</span>:])</span>
-<span id="cb6-123"><a href="#cb6-123" aria-hidden="true" tabindex="-1"></a>pvalues <span class="op">=</span> pvalues.unstack().rename(<span class="st">&quot;p&quot;</span>)</span>
-<span id="cb6-124"><a href="#cb6-124" aria-hidden="true" tabindex="-1"></a>pvalues_sig <span class="op">=</span> (pvalues <span class="op">&lt;=</span> <span class="fl">0.05</span>).<span class="bu">map</span>({<span class="va">True</span>: <span class="st">&quot;*&quot;</span>, <span class="va">False</span>: <span class="st">&quot;&quot;</span>}).rename(<span class="st">&quot;*&quot;</span>)</span>
-<span id="cb6-125"><a href="#cb6-125" aria-hidden="true" tabindex="-1"></a>psummary <span class="op">=</span> pd.concat([pvalues, pvalues_sig], axis<span class="op">=</span><span class="dv">1</span>).unstack(<span class="dv">0</span>).swaplevel(axis<span class="op">=</span><span class="dv">1</span>).sort_index(axis<span class="op">=</span><span class="dv">1</span>, ascending<span class="op">=</span>[<span class="va">True</span>, <span class="va">False</span>])</span>
-<span id="cb6-126"><a href="#cb6-126" aria-hidden="true" tabindex="-1"></a>results_or <span class="op">=</span> pd.concat([pvalues, pvalues_sig, odds_ratios], axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb6-127"><a href="#cb6-127" aria-hidden="true" tabindex="-1"></a>results_or.columns.name <span class="op">=</span> <span class="st">&quot;Odds Ratios&quot;</span></span>
-<span id="cb6-128"><a href="#cb6-128" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">&quot;display.float_format&quot;</span>, <span class="st">&quot;</span><span class="sc">{:,.3f}</span><span class="st">&quot;</span>.<span class="bu">format</span>):</span>
-<span id="cb6-129"><a href="#cb6-129" aria-hidden="true" tabindex="-1"></a>    display(results_or)</span>
-<span id="cb6-130"><a href="#cb6-130" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-131"><a href="#cb6-131" aria-hidden="true" tabindex="-1"></a>vif_data <span class="op">=</span> pd.DataFrame()</span>
-<span id="cb6-132"><a href="#cb6-132" aria-hidden="true" tabindex="-1"></a>vif_data[<span class="st">&quot;Feature&quot;</span>] <span class="op">=</span> X.columns</span>
-<span id="cb6-133"><a href="#cb6-133" aria-hidden="true" tabindex="-1"></a>vif_data[<span class="st">&quot;VIF&quot;</span>] <span class="op">=</span> [sm_vif(X.values, i) <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(X.columns))]</span>
-<span id="cb6-134"><a href="#cb6-134" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">&quot;display.float_format&quot;</span>, <span class="st">&quot;</span><span class="sc">{:,.3f}</span><span class="st">&quot;</span>.<span class="bu">format</span>):</span>
-<span id="cb6-135"><a href="#cb6-135" aria-hidden="true" tabindex="-1"></a>    display(vif_data)</span>
-<span id="cb6-136"><a href="#cb6-136" aria-hidden="true" tabindex="-1"></a>    display(psummary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a>Xc <span class="op">=</span> sm.add_constant(X).rename(columns<span class="op">=</span>{<span class="st">&quot;const&quot;</span>: <span class="st">&quot;(Intercept)&quot;</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="binomial-logistic-regression-for-the-category-died" class="level2">
+<h2 class="anchored" data-anchor-id="binomial-logistic-regression-for-the-category-died">Binomial logistic regression for the category “Died”</h2>
+<p>This category had substantial differences from other outcomes.</p>
+<section id="iterative-model-development" class="level3">
+<h3 class="anchored" data-anchor-id="iterative-model-development">Iterative model development</h3>
+<div id="c03dbfe8" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Alpha</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>alpha <span class="op">=</span> <span class="fl">0.05</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> binomial_regression(died_dv, Xc, cols_to_remove):</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">global</span> prev_results</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    died_X <span class="op">=</span> Xc[[col <span class="cf">for</span> col <span class="kw">in</span> Xc.columns <span class="cf">if</span> col <span class="kw">not</span> <span class="kw">in</span> cols_to_remove]]</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    results <span class="op">=</span> sm.Logit(died_dv, died_X.astype(<span class="st">&quot;float&quot;</span>)).fit()</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    summary <span class="op">=</span> results.summary(alpha<span class="op">=</span>alpha)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    coef <span class="op">=</span> results.params.rename(<span class="st">&quot;odds_r&quot;</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    ci <span class="op">=</span> results.conf_int()</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    ci.columns <span class="op">=</span> [<span class="ss">f&quot;[</span><span class="sc">{</span>alpha<span class="op">/</span><span class="dv">2</span><span class="sc">:.3f}</span><span class="ss">&quot;</span>, <span class="ss">f&quot;</span><span class="sc">{</span><span class="dv">1</span><span class="op">-</span>alpha<span class="op">/</span><span class="dv">2</span><span class="sc">:.3f}</span><span class="ss">]&quot;</span>]</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    odds_ratios <span class="op">=</span> np.exp(pd.concat([coef, ci], axis<span class="op">=</span><span class="dv">1</span>))</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    pvalues <span class="op">=</span> results.pvalues.rename(<span class="st">&quot;p&quot;</span>)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    pvalues_sig <span class="op">=</span> (pvalues <span class="op">&lt;=</span> alpha).<span class="bu">map</span>({<span class="va">True</span>: <span class="st">&quot;*&quot;</span>, <span class="va">False</span>: <span class="st">&quot;&quot;</span>}).rename(<span class="st">&quot;*&quot;</span>)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    results_or <span class="op">=</span> pd.concat([pvalues, pvalues_sig, odds_ratios], axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    results_or.columns.name <span class="op">=</span> <span class="st">&quot;Odds Ratios&quot;</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(cols_to_remove) <span class="op">!=</span> <span class="dv">0</span>:</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>        prev_results <span class="op">=</span> results</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>        summary.add_extra_txt([<span class="ss">f&quot;Variables removed: </span><span class="sc">{</span>cols_to_remove<span class="sc">}</span><span class="ss">&quot;</span>])</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>        diff <span class="op">=</span> (pd.concat([prev_results.params.rename(<span class="st">&quot;prev_coef&quot;</span>), results.params.rename(<span class="st">&quot;coef&quot;</span>)], axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>                .assign(diff_pct<span class="op">=</span><span class="kw">lambda</span> x: <span class="dv">100</span><span class="op">*</span>(x.diff(axis<span class="op">=</span><span class="dv">1</span>).iloc[:, <span class="op">-</span><span class="dv">1</span>]<span class="op">/</span>x[<span class="st">&quot;prev_coef&quot;</span>]).<span class="bu">round</span>(<span class="dv">3</span>)))</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>        results_or <span class="op">=</span> pd.concat([results_or, diff], axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    display(summary)</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> pd.option_context(<span class="st">&quot;display.float_format&quot;</span>, <span class="st">&quot;</span><span class="sc">{:,.3f}</span><span class="st">&quot;</span>.<span class="bu">format</span>):</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>        display(results_or.sort_values(<span class="st">&quot;p&quot;</span>, ascending<span class="op">=</span><span class="va">False</span>))</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;Psuedo R^2: </span><span class="sc">{</span>results<span class="sc">.</span>prsquared<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> results, summary, results_or</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">=</span> []</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> binomial_regression(died_dv, Xc, cols_to_remove)</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>cols_to_remove.append(<span class="st">&quot;lgbtq_plus_Yes&quot;</span>)</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> binomial_regression(died_dv, Xc, cols_to_remove)</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>cols_to_remove.append(<span class="st">&quot;substance_use_True&quot;</span>)</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> binomial_regression(died_dv, Xc, cols_to_remove)</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>cols_to_remove.append(<span class="st">&quot;gender_Female&quot;</span>)</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> binomial_regression(died_dv, Xc, cols_to_remove)</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>cols_to_remove.append(<span class="st">&quot;uk_immigration_status_Non-EEA National&quot;</span>)</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>cols_to_remove.append(<span class="st">&quot;uk_immigration_status_EEA National&quot;</span>)</span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> binomial_regression(died_dv, Xc, cols_to_remove)</span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>cols_to_remove.append(<span class="st">&quot;physical_health_True&quot;</span>)</span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> binomial_regression(died_dv, Xc, cols_to_remove)</span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>cols_to_remove.append(<span class="st">&quot;risk_exploitation_True&quot;</span>)</span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> binomial_regression(died_dv, Xc, cols_to_remove)</span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>cols_to_remove.append(<span class="st">&quot;sex_working_True&quot;</span>)</span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> binomial_regression(died_dv, Xc, cols_to_remove)</span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>cols_to_remove.append(<span class="st">&quot;global_majority_Yes&quot;</span>)</span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> binomial_regression(died_dv, Xc, cols_to_remove)</span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> (cols_to_remove <span class="op">==</span></span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>        [<span class="st">&#39;lgbtq_plus_Yes&#39;</span>, <span class="st">&#39;substance_use_True&#39;</span>, <span class="st">&#39;gender_Female&#39;</span>, <span class="st">&#39;uk_immigration_status_Non-EEA National&#39;</span>,</span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>         <span class="st">&#39;uk_immigration_status_EEA National&#39;</span>, <span class="st">&#39;physical_health_True&#39;</span>, <span class="st">&#39;risk_exploitation_True&#39;</span>,</span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>         <span class="st">&#39;sex_working_True&#39;</span>, <span class="st">&#39;global_majority_Yes&#39;</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Optimization terminated successfully.
-         Current function value: 0.105908
+         Current function value: 0.104027
          Iterations 9</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<table class="simpletable caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Logit Regression Results</caption>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Dep. Variable:</td>
+<td>Died</td>
+<td data-quarto-table-cell-role="th">No. Observations:</td>
+<td>3333</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Model:</td>
+<td>Logit</td>
+<td data-quarto-table-cell-role="th">Df Residuals:</td>
+<td>3317</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Method:</td>
+<td>MLE</td>
+<td data-quarto-table-cell-role="th">Df Model:</td>
+<td>15</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Date:</td>
+<td>Mon, 04 May 2026</td>
+<td data-quarto-table-cell-role="th">Pseudo R-squ.:</td>
+<td>0.08128</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Time:</td>
+<td>09:57:47</td>
+<td data-quarto-table-cell-role="th">Log-Likelihood:</td>
+<td>-346.72</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">converged:</td>
+<td>True</td>
+<td data-quarto-table-cell-role="th">LL-Null:</td>
+<td>-377.40</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Covariance Type:</td>
+<td>nonrobust</td>
+<td data-quarto-table-cell-role="th">LLR p-value:</td>
+<td>1.474e-07</td>
+</tr>
+</tbody>
+</table>
+
+
+<table class="simpletable caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<tbody>
+<tr class="odd">
+<td></td>
+<td data-quarto-table-cell-role="th">coef</td>
+<td data-quarto-table-cell-role="th">std err</td>
+<td data-quarto-table-cell-role="th">z</td>
+<td data-quarto-table-cell-role="th">P&gt;|z|</td>
+<td data-quarto-table-cell-role="th">[0.025</td>
+<td data-quarto-table-cell-role="th">0.975]</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">(Intercept)</td>
+<td>-2.7911</td>
+<td>0.202</td>
+<td>-13.833</td>
+<td>0.000</td>
+<td>-3.187</td>
+<td>-2.396</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">gender_Female</td>
+<td>-0.1857</td>
+<td>0.317</td>
+<td>-0.586</td>
+<td>0.558</td>
+<td>-0.807</td>
+<td>0.435</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">global_majority_Yes</td>
+<td>-0.6555</td>
+<td>0.362</td>
+<td>-1.809</td>
+<td>0.070</td>
+<td>-1.366</td>
+<td>0.055</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">uk_immigration_status_Non-EEA National</td>
+<td>-0.0900</td>
+<td>0.630</td>
+<td>-0.143</td>
+<td>0.886</td>
+<td>-1.326</td>
+<td>1.146</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">uk_immigration_status_EEA National</td>
+<td>0.5834</td>
+<td>0.614</td>
+<td>0.950</td>
+<td>0.342</td>
+<td>-0.621</td>
+<td>1.788</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">age_cat_34-</td>
+<td>-1.0096</td>
+<td>0.313</td>
+<td>-3.227</td>
+<td>0.001</td>
+<td>-1.623</td>
+<td>-0.396</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">lgbtq_plus_Yes</td>
+<td>-0.1872</td>
+<td>0.602</td>
+<td>-0.311</td>
+<td>0.756</td>
+<td>-1.366</td>
+<td>0.992</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">multiple_disadvantage_True</td>
+<td>1.2609</td>
+<td>0.568</td>
+<td>2.219</td>
+<td>0.026</td>
+<td>0.147</td>
+<td>2.374</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">offending_True</td>
+<td>-1.4033</td>
+<td>0.487</td>
+<td>-2.882</td>
+<td>0.004</td>
+<td>-2.358</td>
+<td>-0.449</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">physical_health_True</td>
+<td>0.3507</td>
+<td>0.263</td>
+<td>1.332</td>
+<td>0.183</td>
+<td>-0.165</td>
+<td>0.867</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">mental_health_True</td>
+<td>-1.3212</td>
+<td>0.419</td>
+<td>-3.153</td>
+<td>0.002</td>
+<td>-2.142</td>
+<td>-0.500</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">substance_use_True</td>
+<td>-0.1849</td>
+<td>0.371</td>
+<td>-0.499</td>
+<td>0.618</td>
+<td>-0.912</td>
+<td>0.542</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">rough_sleeping_True</td>
+<td>-0.9754</td>
+<td>0.418</td>
+<td>-2.333</td>
+<td>0.020</td>
+<td>-1.795</td>
+<td>-0.156</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">sex_working_True</td>
+<td>1.7953</td>
+<td>0.844</td>
+<td>2.128</td>
+<td>0.033</td>
+<td>0.142</td>
+<td>3.449</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">risk_violence_abuse_True</td>
+<td>-1.5536</td>
+<td>0.658</td>
+<td>-2.359</td>
+<td>0.018</td>
+<td>-2.844</td>
+<td>-0.263</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">risk_exploitation_True</td>
+<td>-1.0459</td>
+<td>0.742</td>
+<td>-1.409</td>
+<td>0.159</td>
+<td>-2.501</td>
+<td>0.409</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">Odds Ratios</th>
+<th data-quarto-table-cell-role="th">p</th>
+<th data-quarto-table-cell-role="th">*</th>
+<th data-quarto-table-cell-role="th">odds_r</th>
+<th data-quarto-table-cell-role="th">[0.025</th>
+<th data-quarto-table-cell-role="th">0.975]</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">uk_immigration_status_Non-EEA National</td>
+<td>0.886</td>
+<td></td>
+<td>0.914</td>
+<td>0.266</td>
+<td>3.144</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">lgbtq_plus_Yes</td>
+<td>0.756</td>
+<td></td>
+<td>0.829</td>
+<td>0.255</td>
+<td>2.696</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">substance_use_True</td>
+<td>0.618</td>
+<td></td>
+<td>0.831</td>
+<td>0.402</td>
+<td>1.719</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">gender_Female</td>
+<td>0.558</td>
+<td></td>
+<td>0.830</td>
+<td>0.446</td>
+<td>1.545</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">uk_immigration_status_EEA National</td>
+<td>0.342</td>
+<td></td>
+<td>1.792</td>
+<td>0.538</td>
+<td>5.975</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">physical_health_True</td>
+<td>0.183</td>
+<td></td>
+<td>1.420</td>
+<td>0.847</td>
+<td>2.379</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">risk_exploitation_True</td>
+<td>0.159</td>
+<td></td>
+<td>0.351</td>
+<td>0.082</td>
+<td>1.505</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">global_majority_Yes</td>
+<td>0.070</td>
+<td></td>
+<td>0.519</td>
+<td>0.255</td>
+<td>1.056</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">sex_working_True</td>
+<td>0.033</td>
+<td>*</td>
+<td>6.021</td>
+<td>1.152</td>
+<td>31.459</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">multiple_disadvantage_True</td>
+<td>0.026</td>
+<td>*</td>
+<td>3.529</td>
+<td>1.159</td>
+<td>10.744</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">rough_sleeping_True</td>
+<td>0.020</td>
+<td>*</td>
+<td>0.377</td>
+<td>0.166</td>
+<td>0.856</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">risk_violence_abuse_True</td>
+<td>0.018</td>
+<td>*</td>
+<td>0.211</td>
+<td>0.058</td>
+<td>0.769</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">offending_True</td>
+<td>0.004</td>
+<td>*</td>
+<td>0.246</td>
+<td>0.095</td>
+<td>0.638</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">mental_health_True</td>
+<td>0.002</td>
+<td>*</td>
+<td>0.267</td>
+<td>0.117</td>
+<td>0.607</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">age_cat_34-</td>
+<td>0.001</td>
+<td>*</td>
+<td>0.364</td>
+<td>0.197</td>
+<td>0.673</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">(Intercept)</td>
+<td>0.000</td>
+<td>*</td>
+<td>0.061</td>
+<td>0.041</td>
+<td>0.091</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Psuedo R^2: 0.08128445132670625
+Optimization terminated successfully.
+         Current function value: 0.104043
+         Iterations 9</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<table class="simpletable caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Logit Regression Results</caption>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Dep. Variable:</td>
+<td>Died</td>
+<td data-quarto-table-cell-role="th">No. Observations:</td>
+<td>3333</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Model:</td>
+<td>Logit</td>
+<td data-quarto-table-cell-role="th">Df Residuals:</td>
+<td>3318</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Method:</td>
+<td>MLE</td>
+<td data-quarto-table-cell-role="th">Df Model:</td>
+<td>14</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Date:</td>
+<td>Mon, 04 May 2026</td>
+<td data-quarto-table-cell-role="th">Pseudo R-squ.:</td>
+<td>0.08115</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Time:</td>
+<td>09:57:48</td>
+<td data-quarto-table-cell-role="th">Log-Likelihood:</td>
+<td>-346.77</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">converged:</td>
+<td>True</td>
+<td data-quarto-table-cell-role="th">LL-Null:</td>
+<td>-377.40</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Covariance Type:</td>
+<td>nonrobust</td>
+<td data-quarto-table-cell-role="th">LLR p-value:</td>
+<td>7.070e-08</td>
+</tr>
+</tbody>
+</table>
+
+
+<table class="simpletable caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<tbody>
+<tr class="odd">
+<td></td>
+<td data-quarto-table-cell-role="th">coef</td>
+<td data-quarto-table-cell-role="th">std err</td>
+<td data-quarto-table-cell-role="th">z</td>
+<td data-quarto-table-cell-role="th">P&gt;|z|</td>
+<td data-quarto-table-cell-role="th">[0.025</td>
+<td data-quarto-table-cell-role="th">0.975]</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">(Intercept)</td>
+<td>-2.7994</td>
+<td>0.200</td>
+<td>-13.993</td>
+<td>0.000</td>
+<td>-3.192</td>
+<td>-2.407</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">gender_Female</td>
+<td>-0.1869</td>
+<td>0.317</td>
+<td>-0.590</td>
+<td>0.555</td>
+<td>-0.808</td>
+<td>0.434</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">global_majority_Yes</td>
+<td>-0.6501</td>
+<td>0.362</td>
+<td>-1.796</td>
+<td>0.073</td>
+<td>-1.360</td>
+<td>0.060</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">uk_immigration_status_Non-EEA National</td>
+<td>-0.0892</td>
+<td>0.631</td>
+<td>-0.142</td>
+<td>0.887</td>
+<td>-1.325</td>
+<td>1.147</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">uk_immigration_status_EEA National</td>
+<td>0.5757</td>
+<td>0.614</td>
+<td>0.938</td>
+<td>0.348</td>
+<td>-0.627</td>
+<td>1.779</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">age_cat_34-</td>
+<td>-1.0161</td>
+<td>0.312</td>
+<td>-3.255</td>
+<td>0.001</td>
+<td>-1.628</td>
+<td>-0.404</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">multiple_disadvantage_True</td>
+<td>1.2618</td>
+<td>0.568</td>
+<td>2.221</td>
+<td>0.026</td>
+<td>0.148</td>
+<td>2.375</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">offending_True</td>
+<td>-1.4017</td>
+<td>0.487</td>
+<td>-2.879</td>
+<td>0.004</td>
+<td>-2.356</td>
+<td>-0.447</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">physical_health_True</td>
+<td>0.3509</td>
+<td>0.263</td>
+<td>1.332</td>
+<td>0.183</td>
+<td>-0.165</td>
+<td>0.867</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">mental_health_True</td>
+<td>-1.3233</td>
+<td>0.419</td>
+<td>-3.159</td>
+<td>0.002</td>
+<td>-2.144</td>
+<td>-0.502</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">substance_use_True</td>
+<td>-0.1811</td>
+<td>0.371</td>
+<td>-0.489</td>
+<td>0.625</td>
+<td>-0.908</td>
+<td>0.545</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">rough_sleeping_True</td>
+<td>-0.9762</td>
+<td>0.418</td>
+<td>-2.335</td>
+<td>0.020</td>
+<td>-1.796</td>
+<td>-0.157</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">sex_working_True</td>
+<td>1.7993</td>
+<td>0.843</td>
+<td>2.133</td>
+<td>0.033</td>
+<td>0.146</td>
+<td>3.452</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">risk_violence_abuse_True</td>
+<td>-1.5518</td>
+<td>0.658</td>
+<td>-2.358</td>
+<td>0.018</td>
+<td>-2.841</td>
+<td>-0.262</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">risk_exploitation_True</td>
+<td>-1.0503</td>
+<td>0.742</td>
+<td>-1.415</td>
+<td>0.157</td>
+<td>-2.505</td>
+<td>0.404</td>
+</tr>
+</tbody>
+</table>
+<br><br>Variables removed: [&#39;lgbtq_plus_Yes&#39;]
 </div>
 <div class="cell-output cell-output-display">
 <div>
@@ -4706,50 +5297,2062 @@ vertical-align: -.125em;
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">Variables removed iteratively for parsimony</th>
+<th data-quarto-table-cell-role="th">p</th>
+<th data-quarto-table-cell-role="th">*</th>
+<th data-quarto-table-cell-role="th">odds_r</th>
+<th data-quarto-table-cell-role="th">[0.025</th>
+<th data-quarto-table-cell-role="th">0.975]</th>
+<th data-quarto-table-cell-role="th">prev_coef</th>
+<th data-quarto-table-cell-role="th">coef</th>
+<th data-quarto-table-cell-role="th">diff_pct</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
-<td>uk_immigration_status_Non-EEA National</td>
+<td data-quarto-table-cell-role="th">uk_immigration_status_Non-EEA National</td>
+<td>0.887</td>
+<td></td>
+<td>0.915</td>
+<td>0.266</td>
+<td>3.148</td>
+<td>-0.089</td>
+<td>-0.089</td>
+<td>-0.000</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">1</td>
-<td>uk_immigration_status_EEA National</td>
+<td data-quarto-table-cell-role="th">substance_use_True</td>
+<td>0.625</td>
+<td></td>
+<td>0.834</td>
+<td>0.404</td>
+<td>1.725</td>
+<td>-0.181</td>
+<td>-0.181</td>
+<td>-0.000</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
-<td>lgbtq_plus_Yes</td>
+<td data-quarto-table-cell-role="th">gender_Female</td>
+<td>0.555</td>
+<td></td>
+<td>0.830</td>
+<td>0.446</td>
+<td>1.543</td>
+<td>-0.187</td>
+<td>-0.187</td>
+<td>-0.000</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
-<td>substance_use_True</td>
+<td data-quarto-table-cell-role="th">uk_immigration_status_EEA National</td>
+<td>0.348</td>
+<td></td>
+<td>1.778</td>
+<td>0.534</td>
+<td>5.923</td>
+<td>0.576</td>
+<td>0.576</td>
+<td>0.000</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4</td>
-<td>gender_Female</td>
+<td data-quarto-table-cell-role="th">physical_health_True</td>
+<td>0.183</td>
+<td></td>
+<td>1.420</td>
+<td>0.848</td>
+<td>2.380</td>
+<td>0.351</td>
+<td>0.351</td>
+<td>0.000</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">5</td>
-<td>physical_health_True</td>
+<td data-quarto-table-cell-role="th">risk_exploitation_True</td>
+<td>0.157</td>
+<td></td>
+<td>0.350</td>
+<td>0.082</td>
+<td>1.498</td>
+<td>-1.050</td>
+<td>-1.050</td>
+<td>-0.000</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">6</td>
-<td>risk_exploitation_True</td>
+<td data-quarto-table-cell-role="th">global_majority_Yes</td>
+<td>0.073</td>
+<td></td>
+<td>0.522</td>
+<td>0.257</td>
+<td>1.061</td>
+<td>-0.650</td>
+<td>-0.650</td>
+<td>-0.000</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">7</td>
-<td>sex_working_True</td>
+<td data-quarto-table-cell-role="th">sex_working_True</td>
+<td>0.033</td>
+<td>*</td>
+<td>6.046</td>
+<td>1.157</td>
+<td>31.578</td>
+<td>1.799</td>
+<td>1.799</td>
+<td>0.000</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">8</td>
-<td>global_majority_Yes</td>
+<td data-quarto-table-cell-role="th">multiple_disadvantage_True</td>
+<td>0.026</td>
+<td>*</td>
+<td>3.532</td>
+<td>1.160</td>
+<td>10.754</td>
+<td>1.262</td>
+<td>1.262</td>
+<td>0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">rough_sleeping_True</td>
+<td>0.020</td>
+<td>*</td>
+<td>0.377</td>
+<td>0.166</td>
+<td>0.855</td>
+<td>-0.976</td>
+<td>-0.976</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">risk_violence_abuse_True</td>
+<td>0.018</td>
+<td>*</td>
+<td>0.212</td>
+<td>0.058</td>
+<td>0.769</td>
+<td>-1.552</td>
+<td>-1.552</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">offending_True</td>
+<td>0.004</td>
+<td>*</td>
+<td>0.246</td>
+<td>0.095</td>
+<td>0.639</td>
+<td>-1.402</td>
+<td>-1.402</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">mental_health_True</td>
+<td>0.002</td>
+<td>*</td>
+<td>0.266</td>
+<td>0.117</td>
+<td>0.605</td>
+<td>-1.323</td>
+<td>-1.323</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">age_cat_34-</td>
+<td>0.001</td>
+<td>*</td>
+<td>0.362</td>
+<td>0.196</td>
+<td>0.668</td>
+<td>-1.016</td>
+<td>-1.016</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">(Intercept)</td>
+<td>0.000</td>
+<td>*</td>
+<td>0.061</td>
+<td>0.041</td>
+<td>0.090</td>
+<td>-2.799</td>
+<td>-2.799</td>
+<td>-0.000</td>
 </tr>
 </tbody>
 </table>
 
 </div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Psuedo R^2: 0.08114914831104703
+Optimization terminated successfully.
+         Current function value: 0.104079
+         Iterations 9</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<table class="simpletable caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Logit Regression Results</caption>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Dep. Variable:</td>
+<td>Died</td>
+<td data-quarto-table-cell-role="th">No. Observations:</td>
+<td>3333</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Model:</td>
+<td>Logit</td>
+<td data-quarto-table-cell-role="th">Df Residuals:</td>
+<td>3319</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Method:</td>
+<td>MLE</td>
+<td data-quarto-table-cell-role="th">Df Model:</td>
+<td>13</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Date:</td>
+<td>Mon, 04 May 2026</td>
+<td data-quarto-table-cell-role="th">Pseudo R-squ.:</td>
+<td>0.08083</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Time:</td>
+<td>09:57:48</td>
+<td data-quarto-table-cell-role="th">Log-Likelihood:</td>
+<td>-346.90</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">converged:</td>
+<td>True</td>
+<td data-quarto-table-cell-role="th">LL-Null:</td>
+<td>-377.40</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Covariance Type:</td>
+<td>nonrobust</td>
+<td data-quarto-table-cell-role="th">LLR p-value:</td>
+<td>3.467e-08</td>
+</tr>
+</tbody>
+</table>
+
+
+<table class="simpletable caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<tbody>
+<tr class="odd">
+<td></td>
+<td data-quarto-table-cell-role="th">coef</td>
+<td data-quarto-table-cell-role="th">std err</td>
+<td data-quarto-table-cell-role="th">z</td>
+<td data-quarto-table-cell-role="th">P&gt;|z|</td>
+<td data-quarto-table-cell-role="th">[0.025</td>
+<td data-quarto-table-cell-role="th">0.975]</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">(Intercept)</td>
+<td>-2.8358</td>
+<td>0.188</td>
+<td>-15.114</td>
+<td>0.000</td>
+<td>-3.204</td>
+<td>-2.468</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">gender_Female</td>
+<td>-0.1822</td>
+<td>0.316</td>
+<td>-0.576</td>
+<td>0.565</td>
+<td>-0.802</td>
+<td>0.438</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">global_majority_Yes</td>
+<td>-0.6353</td>
+<td>0.361</td>
+<td>-1.761</td>
+<td>0.078</td>
+<td>-1.342</td>
+<td>0.072</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">uk_immigration_status_Non-EEA National</td>
+<td>-0.0874</td>
+<td>0.630</td>
+<td>-0.139</td>
+<td>0.890</td>
+<td>-1.323</td>
+<td>1.148</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">uk_immigration_status_EEA National</td>
+<td>0.5543</td>
+<td>0.612</td>
+<td>0.905</td>
+<td>0.365</td>
+<td>-0.646</td>
+<td>1.754</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">age_cat_34-</td>
+<td>-1.0094</td>
+<td>0.312</td>
+<td>-3.236</td>
+<td>0.001</td>
+<td>-1.621</td>
+<td>-0.398</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">multiple_disadvantage_True</td>
+<td>1.0898</td>
+<td>0.444</td>
+<td>2.454</td>
+<td>0.014</td>
+<td>0.219</td>
+<td>1.960</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">offending_True</td>
+<td>-1.3646</td>
+<td>0.480</td>
+<td>-2.841</td>
+<td>0.004</td>
+<td>-2.306</td>
+<td>-0.423</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">physical_health_True</td>
+<td>0.3245</td>
+<td>0.257</td>
+<td>1.262</td>
+<td>0.207</td>
+<td>-0.180</td>
+<td>0.829</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">mental_health_True</td>
+<td>-1.2803</td>
+<td>0.410</td>
+<td>-3.121</td>
+<td>0.002</td>
+<td>-2.084</td>
+<td>-0.476</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">rough_sleeping_True</td>
+<td>-0.9932</td>
+<td>0.416</td>
+<td>-2.388</td>
+<td>0.017</td>
+<td>-1.809</td>
+<td>-0.178</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">sex_working_True</td>
+<td>1.7833</td>
+<td>0.844</td>
+<td>2.114</td>
+<td>0.035</td>
+<td>0.130</td>
+<td>3.437</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">risk_violence_abuse_True</td>
+<td>-1.5063</td>
+<td>0.653</td>
+<td>-2.308</td>
+<td>0.021</td>
+<td>-2.786</td>
+<td>-0.227</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">risk_exploitation_True</td>
+<td>-1.0671</td>
+<td>0.741</td>
+<td>-1.441</td>
+<td>0.150</td>
+<td>-2.519</td>
+<td>0.385</td>
+</tr>
+</tbody>
+</table>
+<br><br>Variables removed: [&#39;lgbtq_plus_Yes&#39;, &#39;substance_use_True&#39;]
+</div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">p</th>
+<th data-quarto-table-cell-role="th">*</th>
+<th data-quarto-table-cell-role="th">odds_r</th>
+<th data-quarto-table-cell-role="th">[0.025</th>
+<th data-quarto-table-cell-role="th">0.975]</th>
+<th data-quarto-table-cell-role="th">prev_coef</th>
+<th data-quarto-table-cell-role="th">coef</th>
+<th data-quarto-table-cell-role="th">diff_pct</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">uk_immigration_status_Non-EEA National</td>
+<td>0.890</td>
+<td></td>
+<td>0.916</td>
+<td>0.266</td>
+<td>3.152</td>
+<td>-0.087</td>
+<td>-0.087</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">gender_Female</td>
+<td>0.565</td>
+<td></td>
+<td>0.833</td>
+<td>0.448</td>
+<td>1.550</td>
+<td>-0.182</td>
+<td>-0.182</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">uk_immigration_status_EEA National</td>
+<td>0.365</td>
+<td></td>
+<td>1.741</td>
+<td>0.524</td>
+<td>5.780</td>
+<td>0.554</td>
+<td>0.554</td>
+<td>0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">physical_health_True</td>
+<td>0.207</td>
+<td></td>
+<td>1.383</td>
+<td>0.836</td>
+<td>2.290</td>
+<td>0.325</td>
+<td>0.325</td>
+<td>0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">risk_exploitation_True</td>
+<td>0.150</td>
+<td></td>
+<td>0.344</td>
+<td>0.081</td>
+<td>1.469</td>
+<td>-1.067</td>
+<td>-1.067</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">global_majority_Yes</td>
+<td>0.078</td>
+<td></td>
+<td>0.530</td>
+<td>0.261</td>
+<td>1.075</td>
+<td>-0.635</td>
+<td>-0.635</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">sex_working_True</td>
+<td>0.035</td>
+<td>*</td>
+<td>5.949</td>
+<td>1.139</td>
+<td>31.087</td>
+<td>1.783</td>
+<td>1.783</td>
+<td>0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">risk_violence_abuse_True</td>
+<td>0.021</td>
+<td>*</td>
+<td>0.222</td>
+<td>0.062</td>
+<td>0.797</td>
+<td>-1.506</td>
+<td>-1.506</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">rough_sleeping_True</td>
+<td>0.017</td>
+<td>*</td>
+<td>0.370</td>
+<td>0.164</td>
+<td>0.837</td>
+<td>-0.993</td>
+<td>-0.993</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">multiple_disadvantage_True</td>
+<td>0.014</td>
+<td>*</td>
+<td>2.974</td>
+<td>1.245</td>
+<td>7.101</td>
+<td>1.090</td>
+<td>1.090</td>
+<td>0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">offending_True</td>
+<td>0.004</td>
+<td>*</td>
+<td>0.255</td>
+<td>0.100</td>
+<td>0.655</td>
+<td>-1.365</td>
+<td>-1.365</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">mental_health_True</td>
+<td>0.002</td>
+<td>*</td>
+<td>0.278</td>
+<td>0.124</td>
+<td>0.621</td>
+<td>-1.280</td>
+<td>-1.280</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">age_cat_34-</td>
+<td>0.001</td>
+<td>*</td>
+<td>0.364</td>
+<td>0.198</td>
+<td>0.672</td>
+<td>-1.009</td>
+<td>-1.009</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">(Intercept)</td>
+<td>0.000</td>
+<td>*</td>
+<td>0.059</td>
+<td>0.041</td>
+<td>0.085</td>
+<td>-2.836</td>
+<td>-2.836</td>
+<td>-0.000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Psuedo R^2: 0.0808260552930834
+Optimization terminated successfully.
+         Current function value: 0.104131
+         Iterations 9</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<table class="simpletable caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Logit Regression Results</caption>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Dep. Variable:</td>
+<td>Died</td>
+<td data-quarto-table-cell-role="th">No. Observations:</td>
+<td>3333</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Model:</td>
+<td>Logit</td>
+<td data-quarto-table-cell-role="th">Df Residuals:</td>
+<td>3320</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Method:</td>
+<td>MLE</td>
+<td data-quarto-table-cell-role="th">Df Model:</td>
+<td>12</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Date:</td>
+<td>Mon, 04 May 2026</td>
+<td data-quarto-table-cell-role="th">Pseudo R-squ.:</td>
+<td>0.08037</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Time:</td>
+<td>09:57:48</td>
+<td data-quarto-table-cell-role="th">Log-Likelihood:</td>
+<td>-347.07</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">converged:</td>
+<td>True</td>
+<td data-quarto-table-cell-role="th">LL-Null:</td>
+<td>-377.40</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Covariance Type:</td>
+<td>nonrobust</td>
+<td data-quarto-table-cell-role="th">LLR p-value:</td>
+<td>1.707e-08</td>
+</tr>
+</tbody>
+</table>
+
+
+<table class="simpletable caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<tbody>
+<tr class="odd">
+<td></td>
+<td data-quarto-table-cell-role="th">coef</td>
+<td data-quarto-table-cell-role="th">std err</td>
+<td data-quarto-table-cell-role="th">z</td>
+<td data-quarto-table-cell-role="th">P&gt;|z|</td>
+<td data-quarto-table-cell-role="th">[0.025</td>
+<td data-quarto-table-cell-role="th">0.975]</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">(Intercept)</td>
+<td>-2.8656</td>
+<td>0.181</td>
+<td>-15.805</td>
+<td>0.000</td>
+<td>-3.221</td>
+<td>-2.510</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">global_majority_Yes</td>
+<td>-0.6389</td>
+<td>0.361</td>
+<td>-1.772</td>
+<td>0.076</td>
+<td>-1.346</td>
+<td>0.068</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">uk_immigration_status_Non-EEA National</td>
+<td>-0.0760</td>
+<td>0.630</td>
+<td>-0.121</td>
+<td>0.904</td>
+<td>-1.310</td>
+<td>1.158</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">uk_immigration_status_EEA National</td>
+<td>0.5569</td>
+<td>0.612</td>
+<td>0.910</td>
+<td>0.363</td>
+<td>-0.643</td>
+<td>1.757</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">age_cat_34-</td>
+<td>-1.0282</td>
+<td>0.310</td>
+<td>-3.314</td>
+<td>0.001</td>
+<td>-1.636</td>
+<td>-0.420</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">multiple_disadvantage_True</td>
+<td>1.0975</td>
+<td>0.443</td>
+<td>2.478</td>
+<td>0.013</td>
+<td>0.229</td>
+<td>1.966</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">offending_True</td>
+<td>-1.3425</td>
+<td>0.479</td>
+<td>-2.802</td>
+<td>0.005</td>
+<td>-2.282</td>
+<td>-0.404</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">physical_health_True</td>
+<td>0.3290</td>
+<td>0.257</td>
+<td>1.280</td>
+<td>0.201</td>
+<td>-0.175</td>
+<td>0.833</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">mental_health_True</td>
+<td>-1.2925</td>
+<td>0.408</td>
+<td>-3.164</td>
+<td>0.002</td>
+<td>-2.093</td>
+<td>-0.492</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">rough_sleeping_True</td>
+<td>-0.9853</td>
+<td>0.416</td>
+<td>-2.368</td>
+<td>0.018</td>
+<td>-1.801</td>
+<td>-0.170</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">sex_working_True</td>
+<td>1.6548</td>
+<td>0.811</td>
+<td>2.040</td>
+<td>0.041</td>
+<td>0.065</td>
+<td>3.245</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">risk_violence_abuse_True</td>
+<td>-1.5633</td>
+<td>0.644</td>
+<td>-2.428</td>
+<td>0.015</td>
+<td>-2.825</td>
+<td>-0.301</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">risk_exploitation_True</td>
+<td>-1.0710</td>
+<td>0.740</td>
+<td>-1.446</td>
+<td>0.148</td>
+<td>-2.522</td>
+<td>0.380</td>
+</tr>
+</tbody>
+</table>
+<br><br>Variables removed: [&#39;lgbtq_plus_Yes&#39;, &#39;substance_use_True&#39;, &#39;gender_Female&#39;]
+</div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">p</th>
+<th data-quarto-table-cell-role="th">*</th>
+<th data-quarto-table-cell-role="th">odds_r</th>
+<th data-quarto-table-cell-role="th">[0.025</th>
+<th data-quarto-table-cell-role="th">0.975]</th>
+<th data-quarto-table-cell-role="th">prev_coef</th>
+<th data-quarto-table-cell-role="th">coef</th>
+<th data-quarto-table-cell-role="th">diff_pct</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">uk_immigration_status_Non-EEA National</td>
+<td>0.904</td>
+<td></td>
+<td>0.927</td>
+<td>0.270</td>
+<td>3.185</td>
+<td>-0.076</td>
+<td>-0.076</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">uk_immigration_status_EEA National</td>
+<td>0.363</td>
+<td></td>
+<td>1.745</td>
+<td>0.526</td>
+<td>5.794</td>
+<td>0.557</td>
+<td>0.557</td>
+<td>0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">physical_health_True</td>
+<td>0.201</td>
+<td></td>
+<td>1.390</td>
+<td>0.839</td>
+<td>2.300</td>
+<td>0.329</td>
+<td>0.329</td>
+<td>0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">risk_exploitation_True</td>
+<td>0.148</td>
+<td></td>
+<td>0.343</td>
+<td>0.080</td>
+<td>1.463</td>
+<td>-1.071</td>
+<td>-1.071</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">global_majority_Yes</td>
+<td>0.076</td>
+<td></td>
+<td>0.528</td>
+<td>0.260</td>
+<td>1.070</td>
+<td>-0.639</td>
+<td>-0.639</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">sex_working_True</td>
+<td>0.041</td>
+<td>*</td>
+<td>5.232</td>
+<td>1.067</td>
+<td>25.664</td>
+<td>1.655</td>
+<td>1.655</td>
+<td>0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">rough_sleeping_True</td>
+<td>0.018</td>
+<td>*</td>
+<td>0.373</td>
+<td>0.165</td>
+<td>0.844</td>
+<td>-0.985</td>
+<td>-0.985</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">risk_violence_abuse_True</td>
+<td>0.015</td>
+<td>*</td>
+<td>0.209</td>
+<td>0.059</td>
+<td>0.740</td>
+<td>-1.563</td>
+<td>-1.563</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">multiple_disadvantage_True</td>
+<td>0.013</td>
+<td>*</td>
+<td>2.997</td>
+<td>1.258</td>
+<td>7.139</td>
+<td>1.097</td>
+<td>1.097</td>
+<td>0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">offending_True</td>
+<td>0.005</td>
+<td>*</td>
+<td>0.261</td>
+<td>0.102</td>
+<td>0.668</td>
+<td>-1.343</td>
+<td>-1.343</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">mental_health_True</td>
+<td>0.002</td>
+<td>*</td>
+<td>0.275</td>
+<td>0.123</td>
+<td>0.611</td>
+<td>-1.293</td>
+<td>-1.293</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">age_cat_34-</td>
+<td>0.001</td>
+<td>*</td>
+<td>0.358</td>
+<td>0.195</td>
+<td>0.657</td>
+<td>-1.028</td>
+<td>-1.028</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">(Intercept)</td>
+<td>0.000</td>
+<td>*</td>
+<td>0.057</td>
+<td>0.040</td>
+<td>0.081</td>
+<td>-2.866</td>
+<td>-2.866</td>
+<td>-0.000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Psuedo R^2: 0.0803720462467521
+Optimization terminated successfully.
+         Current function value: 0.104242
+         Iterations 9</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<table class="simpletable caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Logit Regression Results</caption>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Dep. Variable:</td>
+<td>Died</td>
+<td data-quarto-table-cell-role="th">No. Observations:</td>
+<td>3333</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Model:</td>
+<td>Logit</td>
+<td data-quarto-table-cell-role="th">Df Residuals:</td>
+<td>3322</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Method:</td>
+<td>MLE</td>
+<td data-quarto-table-cell-role="th">Df Model:</td>
+<td>10</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Date:</td>
+<td>Mon, 04 May 2026</td>
+<td data-quarto-table-cell-role="th">Pseudo R-squ.:</td>
+<td>0.07939</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Time:</td>
+<td>09:57:48</td>
+<td data-quarto-table-cell-role="th">Log-Likelihood:</td>
+<td>-347.44</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">converged:</td>
+<td>True</td>
+<td data-quarto-table-cell-role="th">LL-Null:</td>
+<td>-377.40</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Covariance Type:</td>
+<td>nonrobust</td>
+<td data-quarto-table-cell-role="th">LLR p-value:</td>
+<td>3.750e-09</td>
+</tr>
+</tbody>
+</table>
+
+
+<table class="simpletable caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<tbody>
+<tr class="odd">
+<td></td>
+<td data-quarto-table-cell-role="th">coef</td>
+<td data-quarto-table-cell-role="th">std err</td>
+<td data-quarto-table-cell-role="th">z</td>
+<td data-quarto-table-cell-role="th">P&gt;|z|</td>
+<td data-quarto-table-cell-role="th">[0.025</td>
+<td data-quarto-table-cell-role="th">0.975]</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">(Intercept)</td>
+<td>-2.8508</td>
+<td>0.180</td>
+<td>-15.846</td>
+<td>0.000</td>
+<td>-3.203</td>
+<td>-2.498</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">global_majority_Yes</td>
+<td>-0.6436</td>
+<td>0.347</td>
+<td>-1.857</td>
+<td>0.063</td>
+<td>-1.323</td>
+<td>0.036</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">age_cat_34-</td>
+<td>-1.0254</td>
+<td>0.310</td>
+<td>-3.306</td>
+<td>0.001</td>
+<td>-1.633</td>
+<td>-0.417</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">multiple_disadvantage_True</td>
+<td>1.0955</td>
+<td>0.443</td>
+<td>2.474</td>
+<td>0.013</td>
+<td>0.228</td>
+<td>1.963</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">offending_True</td>
+<td>-1.3472</td>
+<td>0.479</td>
+<td>-2.815</td>
+<td>0.005</td>
+<td>-2.285</td>
+<td>-0.409</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">physical_health_True</td>
+<td>0.3330</td>
+<td>0.256</td>
+<td>1.303</td>
+<td>0.193</td>
+<td>-0.168</td>
+<td>0.834</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">mental_health_True</td>
+<td>-1.2976</td>
+<td>0.409</td>
+<td>-3.172</td>
+<td>0.002</td>
+<td>-2.099</td>
+<td>-0.496</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">rough_sleeping_True</td>
+<td>-0.9803</td>
+<td>0.416</td>
+<td>-2.356</td>
+<td>0.018</td>
+<td>-1.796</td>
+<td>-0.165</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">sex_working_True</td>
+<td>1.6362</td>
+<td>0.811</td>
+<td>2.018</td>
+<td>0.044</td>
+<td>0.047</td>
+<td>3.226</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">risk_violence_abuse_True</td>
+<td>-1.5582</td>
+<td>0.644</td>
+<td>-2.421</td>
+<td>0.015</td>
+<td>-2.819</td>
+<td>-0.297</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">risk_exploitation_True</td>
+<td>-1.0701</td>
+<td>0.740</td>
+<td>-1.447</td>
+<td>0.148</td>
+<td>-2.520</td>
+<td>0.380</td>
+</tr>
+</tbody>
+</table>
+<br><br>Variables removed: [&#39;lgbtq_plus_Yes&#39;, &#39;substance_use_True&#39;, &#39;gender_Female&#39;, &#39;uk_immigration_status_Non-EEA National&#39;, &#39;uk_immigration_status_EEA National&#39;]
+</div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">p</th>
+<th data-quarto-table-cell-role="th">*</th>
+<th data-quarto-table-cell-role="th">odds_r</th>
+<th data-quarto-table-cell-role="th">[0.025</th>
+<th data-quarto-table-cell-role="th">0.975]</th>
+<th data-quarto-table-cell-role="th">prev_coef</th>
+<th data-quarto-table-cell-role="th">coef</th>
+<th data-quarto-table-cell-role="th">diff_pct</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">physical_health_True</td>
+<td>0.193</td>
+<td></td>
+<td>1.395</td>
+<td>0.845</td>
+<td>2.302</td>
+<td>0.333</td>
+<td>0.333</td>
+<td>0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">risk_exploitation_True</td>
+<td>0.148</td>
+<td></td>
+<td>0.343</td>
+<td>0.080</td>
+<td>1.462</td>
+<td>-1.070</td>
+<td>-1.070</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">global_majority_Yes</td>
+<td>0.063</td>
+<td></td>
+<td>0.525</td>
+<td>0.266</td>
+<td>1.036</td>
+<td>-0.644</td>
+<td>-0.644</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">sex_working_True</td>
+<td>0.044</td>
+<td>*</td>
+<td>5.136</td>
+<td>1.048</td>
+<td>25.168</td>
+<td>1.636</td>
+<td>1.636</td>
+<td>0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">rough_sleeping_True</td>
+<td>0.018</td>
+<td>*</td>
+<td>0.375</td>
+<td>0.166</td>
+<td>0.848</td>
+<td>-0.980</td>
+<td>-0.980</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">risk_violence_abuse_True</td>
+<td>0.015</td>
+<td>*</td>
+<td>0.211</td>
+<td>0.060</td>
+<td>0.743</td>
+<td>-1.558</td>
+<td>-1.558</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">multiple_disadvantage_True</td>
+<td>0.013</td>
+<td>*</td>
+<td>2.991</td>
+<td>1.256</td>
+<td>7.123</td>
+<td>1.095</td>
+<td>1.095</td>
+<td>0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">offending_True</td>
+<td>0.005</td>
+<td>*</td>
+<td>0.260</td>
+<td>0.102</td>
+<td>0.664</td>
+<td>-1.347</td>
+<td>-1.347</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">mental_health_True</td>
+<td>0.002</td>
+<td>*</td>
+<td>0.273</td>
+<td>0.123</td>
+<td>0.609</td>
+<td>-1.298</td>
+<td>-1.298</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">age_cat_34-</td>
+<td>0.001</td>
+<td>*</td>
+<td>0.359</td>
+<td>0.195</td>
+<td>0.659</td>
+<td>-1.025</td>
+<td>-1.025</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">(Intercept)</td>
+<td>0.000</td>
+<td>*</td>
+<td>0.058</td>
+<td>0.041</td>
+<td>0.082</td>
+<td>-2.851</td>
+<td>-2.851</td>
+<td>-0.000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Psuedo R^2: 0.07938777920078721
+Optimization terminated successfully.
+         Current function value: 0.104490
+         Iterations 9</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<table class="simpletable caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Logit Regression Results</caption>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Dep. Variable:</td>
+<td>Died</td>
+<td data-quarto-table-cell-role="th">No. Observations:</td>
+<td>3333</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Model:</td>
+<td>Logit</td>
+<td data-quarto-table-cell-role="th">Df Residuals:</td>
+<td>3323</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Method:</td>
+<td>MLE</td>
+<td data-quarto-table-cell-role="th">Df Model:</td>
+<td>9</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Date:</td>
+<td>Mon, 04 May 2026</td>
+<td data-quarto-table-cell-role="th">Pseudo R-squ.:</td>
+<td>0.07720</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Time:</td>
+<td>09:57:48</td>
+<td data-quarto-table-cell-role="th">Log-Likelihood:</td>
+<td>-348.27</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">converged:</td>
+<td>True</td>
+<td data-quarto-table-cell-role="th">LL-Null:</td>
+<td>-377.40</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Covariance Type:</td>
+<td>nonrobust</td>
+<td data-quarto-table-cell-role="th">LLR p-value:</td>
+<td>2.888e-09</td>
+</tr>
+</tbody>
+</table>
+
+
+<table class="simpletable caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<tbody>
+<tr class="odd">
+<td></td>
+<td data-quarto-table-cell-role="th">coef</td>
+<td data-quarto-table-cell-role="th">std err</td>
+<td data-quarto-table-cell-role="th">z</td>
+<td data-quarto-table-cell-role="th">P&gt;|z|</td>
+<td data-quarto-table-cell-role="th">[0.025</td>
+<td data-quarto-table-cell-role="th">0.975]</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">(Intercept)</td>
+<td>-2.7763</td>
+<td>0.168</td>
+<td>-16.531</td>
+<td>0.000</td>
+<td>-3.106</td>
+<td>-2.447</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">global_majority_Yes</td>
+<td>-0.6504</td>
+<td>0.346</td>
+<td>-1.879</td>
+<td>0.060</td>
+<td>-1.329</td>
+<td>0.028</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">age_cat_34-</td>
+<td>-1.0773</td>
+<td>0.307</td>
+<td>-3.506</td>
+<td>0.000</td>
+<td>-1.680</td>
+<td>-0.475</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">multiple_disadvantage_True</td>
+<td>1.1012</td>
+<td>0.446</td>
+<td>2.472</td>
+<td>0.013</td>
+<td>0.228</td>
+<td>1.974</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">offending_True</td>
+<td>-1.3241</td>
+<td>0.477</td>
+<td>-2.778</td>
+<td>0.005</td>
+<td>-2.258</td>
+<td>-0.390</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">mental_health_True</td>
+<td>-1.2240</td>
+<td>0.407</td>
+<td>-3.004</td>
+<td>0.003</td>
+<td>-2.023</td>
+<td>-0.425</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">rough_sleeping_True</td>
+<td>-0.9413</td>
+<td>0.417</td>
+<td>-2.260</td>
+<td>0.024</td>
+<td>-1.758</td>
+<td>-0.125</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">sex_working_True</td>
+<td>1.6653</td>
+<td>0.809</td>
+<td>2.058</td>
+<td>0.040</td>
+<td>0.079</td>
+<td>3.251</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">risk_violence_abuse_True</td>
+<td>-1.5045</td>
+<td>0.642</td>
+<td>-2.342</td>
+<td>0.019</td>
+<td>-2.763</td>
+<td>-0.246</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">risk_exploitation_True</td>
+<td>-1.0281</td>
+<td>0.742</td>
+<td>-1.385</td>
+<td>0.166</td>
+<td>-2.483</td>
+<td>0.426</td>
+</tr>
+</tbody>
+</table>
+<br><br>Variables removed: [&#39;lgbtq_plus_Yes&#39;, &#39;substance_use_True&#39;, &#39;gender_Female&#39;, &#39;uk_immigration_status_Non-EEA National&#39;, &#39;uk_immigration_status_EEA National&#39;, &#39;physical_health_True&#39;]
+</div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">p</th>
+<th data-quarto-table-cell-role="th">*</th>
+<th data-quarto-table-cell-role="th">odds_r</th>
+<th data-quarto-table-cell-role="th">[0.025</th>
+<th data-quarto-table-cell-role="th">0.975]</th>
+<th data-quarto-table-cell-role="th">prev_coef</th>
+<th data-quarto-table-cell-role="th">coef</th>
+<th data-quarto-table-cell-role="th">diff_pct</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">risk_exploitation_True</td>
+<td>0.166</td>
+<td></td>
+<td>0.358</td>
+<td>0.084</td>
+<td>1.532</td>
+<td>-1.028</td>
+<td>-1.028</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">global_majority_Yes</td>
+<td>0.060</td>
+<td></td>
+<td>0.522</td>
+<td>0.265</td>
+<td>1.029</td>
+<td>-0.650</td>
+<td>-0.650</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">sex_working_True</td>
+<td>0.040</td>
+<td>*</td>
+<td>5.287</td>
+<td>1.083</td>
+<td>25.823</td>
+<td>1.665</td>
+<td>1.665</td>
+<td>0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">rough_sleeping_True</td>
+<td>0.024</td>
+<td>*</td>
+<td>0.390</td>
+<td>0.172</td>
+<td>0.883</td>
+<td>-0.941</td>
+<td>-0.941</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">risk_violence_abuse_True</td>
+<td>0.019</td>
+<td>*</td>
+<td>0.222</td>
+<td>0.063</td>
+<td>0.782</td>
+<td>-1.504</td>
+<td>-1.504</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">multiple_disadvantage_True</td>
+<td>0.013</td>
+<td>*</td>
+<td>3.008</td>
+<td>1.256</td>
+<td>7.202</td>
+<td>1.101</td>
+<td>1.101</td>
+<td>0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">offending_True</td>
+<td>0.005</td>
+<td>*</td>
+<td>0.266</td>
+<td>0.105</td>
+<td>0.677</td>
+<td>-1.324</td>
+<td>-1.324</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">mental_health_True</td>
+<td>0.003</td>
+<td>*</td>
+<td>0.294</td>
+<td>0.132</td>
+<td>0.653</td>
+<td>-1.224</td>
+<td>-1.224</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">age_cat_34-</td>
+<td>0.000</td>
+<td>*</td>
+<td>0.341</td>
+<td>0.186</td>
+<td>0.622</td>
+<td>-1.077</td>
+<td>-1.077</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">(Intercept)</td>
+<td>0.000</td>
+<td>*</td>
+<td>0.062</td>
+<td>0.045</td>
+<td>0.087</td>
+<td>-2.776</td>
+<td>-2.776</td>
+<td>-0.000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Psuedo R^2: 0.07719563580593714
+Optimization terminated successfully.
+         Current function value: 0.104876
+         Iterations 9</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<table class="simpletable caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Logit Regression Results</caption>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Dep. Variable:</td>
+<td>Died</td>
+<td data-quarto-table-cell-role="th">No. Observations:</td>
+<td>3333</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Model:</td>
+<td>Logit</td>
+<td data-quarto-table-cell-role="th">Df Residuals:</td>
+<td>3324</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Method:</td>
+<td>MLE</td>
+<td data-quarto-table-cell-role="th">Df Model:</td>
+<td>8</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Date:</td>
+<td>Mon, 04 May 2026</td>
+<td data-quarto-table-cell-role="th">Pseudo R-squ.:</td>
+<td>0.07379</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Time:</td>
+<td>09:57:48</td>
+<td data-quarto-table-cell-role="th">Log-Likelihood:</td>
+<td>-349.55</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">converged:</td>
+<td>True</td>
+<td data-quarto-table-cell-role="th">LL-Null:</td>
+<td>-377.40</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Covariance Type:</td>
+<td>nonrobust</td>
+<td data-quarto-table-cell-role="th">LLR p-value:</td>
+<td>3.231e-09</td>
+</tr>
+</tbody>
+</table>
+
+
+<table class="simpletable caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<tbody>
+<tr class="odd">
+<td></td>
+<td data-quarto-table-cell-role="th">coef</td>
+<td data-quarto-table-cell-role="th">std err</td>
+<td data-quarto-table-cell-role="th">z</td>
+<td data-quarto-table-cell-role="th">P&gt;|z|</td>
+<td data-quarto-table-cell-role="th">[0.025</td>
+<td data-quarto-table-cell-role="th">0.975]</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">(Intercept)</td>
+<td>-2.7929</td>
+<td>0.168</td>
+<td>-16.653</td>
+<td>0.000</td>
+<td>-3.122</td>
+<td>-2.464</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">global_majority_Yes</td>
+<td>-0.6497</td>
+<td>0.346</td>
+<td>-1.878</td>
+<td>0.060</td>
+<td>-1.328</td>
+<td>0.028</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">age_cat_34-</td>
+<td>-1.0677</td>
+<td>0.307</td>
+<td>-3.476</td>
+<td>0.001</td>
+<td>-1.670</td>
+<td>-0.466</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">multiple_disadvantage_True</td>
+<td>1.0277</td>
+<td>0.442</td>
+<td>2.326</td>
+<td>0.020</td>
+<td>0.162</td>
+<td>1.894</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">offending_True</td>
+<td>-1.2765</td>
+<td>0.476</td>
+<td>-2.683</td>
+<td>0.007</td>
+<td>-2.209</td>
+<td>-0.344</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">mental_health_True</td>
+<td>-1.2119</td>
+<td>0.405</td>
+<td>-2.995</td>
+<td>0.003</td>
+<td>-2.005</td>
+<td>-0.419</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">rough_sleeping_True</td>
+<td>-0.9336</td>
+<td>0.418</td>
+<td>-2.234</td>
+<td>0.025</td>
+<td>-1.753</td>
+<td>-0.114</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">sex_working_True</td>
+<td>1.5043</td>
+<td>0.801</td>
+<td>1.878</td>
+<td>0.060</td>
+<td>-0.066</td>
+<td>3.075</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">risk_violence_abuse_True</td>
+<td>-1.6381</td>
+<td>0.641</td>
+<td>-2.554</td>
+<td>0.011</td>
+<td>-2.895</td>
+<td>-0.381</td>
+</tr>
+</tbody>
+</table>
+<br><br>Variables removed: [&#39;lgbtq_plus_Yes&#39;, &#39;substance_use_True&#39;, &#39;gender_Female&#39;, &#39;uk_immigration_status_Non-EEA National&#39;, &#39;uk_immigration_status_EEA National&#39;, &#39;physical_health_True&#39;, &#39;risk_exploitation_True&#39;]
+</div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">p</th>
+<th data-quarto-table-cell-role="th">*</th>
+<th data-quarto-table-cell-role="th">odds_r</th>
+<th data-quarto-table-cell-role="th">[0.025</th>
+<th data-quarto-table-cell-role="th">0.975]</th>
+<th data-quarto-table-cell-role="th">prev_coef</th>
+<th data-quarto-table-cell-role="th">coef</th>
+<th data-quarto-table-cell-role="th">diff_pct</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">sex_working_True</td>
+<td>0.060</td>
+<td></td>
+<td>4.501</td>
+<td>0.936</td>
+<td>21.641</td>
+<td>1.504</td>
+<td>1.504</td>
+<td>0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">global_majority_Yes</td>
+<td>0.060</td>
+<td></td>
+<td>0.522</td>
+<td>0.265</td>
+<td>1.029</td>
+<td>-0.650</td>
+<td>-0.650</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">rough_sleeping_True</td>
+<td>0.025</td>
+<td>*</td>
+<td>0.393</td>
+<td>0.173</td>
+<td>0.892</td>
+<td>-0.934</td>
+<td>-0.934</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">multiple_disadvantage_True</td>
+<td>0.020</td>
+<td>*</td>
+<td>2.795</td>
+<td>1.176</td>
+<td>6.644</td>
+<td>1.028</td>
+<td>1.028</td>
+<td>0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">risk_violence_abuse_True</td>
+<td>0.011</td>
+<td>*</td>
+<td>0.194</td>
+<td>0.055</td>
+<td>0.683</td>
+<td>-1.638</td>
+<td>-1.638</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">offending_True</td>
+<td>0.007</td>
+<td>*</td>
+<td>0.279</td>
+<td>0.110</td>
+<td>0.709</td>
+<td>-1.277</td>
+<td>-1.277</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">mental_health_True</td>
+<td>0.003</td>
+<td>*</td>
+<td>0.298</td>
+<td>0.135</td>
+<td>0.658</td>
+<td>-1.212</td>
+<td>-1.212</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">age_cat_34-</td>
+<td>0.001</td>
+<td>*</td>
+<td>0.344</td>
+<td>0.188</td>
+<td>0.628</td>
+<td>-1.068</td>
+<td>-1.068</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">(Intercept)</td>
+<td>0.000</td>
+<td>*</td>
+<td>0.061</td>
+<td>0.044</td>
+<td>0.085</td>
+<td>-2.793</td>
+<td>-2.793</td>
+<td>-0.000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Psuedo R^2: 0.07379021984567524
+Optimization terminated successfully.
+         Current function value: 0.105265
+         Iterations 9</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<table class="simpletable caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Logit Regression Results</caption>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Dep. Variable:</td>
+<td>Died</td>
+<td data-quarto-table-cell-role="th">No. Observations:</td>
+<td>3333</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Model:</td>
+<td>Logit</td>
+<td data-quarto-table-cell-role="th">Df Residuals:</td>
+<td>3325</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Method:</td>
+<td>MLE</td>
+<td data-quarto-table-cell-role="th">Df Model:</td>
+<td>7</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Date:</td>
+<td>Mon, 04 May 2026</td>
+<td data-quarto-table-cell-role="th">Pseudo R-squ.:</td>
+<td>0.07035</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Time:</td>
+<td>09:57:48</td>
+<td data-quarto-table-cell-role="th">Log-Likelihood:</td>
+<td>-350.85</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">converged:</td>
+<td>True</td>
+<td data-quarto-table-cell-role="th">LL-Null:</td>
+<td>-377.40</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Covariance Type:</td>
+<td>nonrobust</td>
+<td data-quarto-table-cell-role="th">LLR p-value:</td>
+<td>3.536e-09</td>
+</tr>
+</tbody>
+</table>
+
+
+<table class="simpletable caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<tbody>
+<tr class="odd">
+<td></td>
+<td data-quarto-table-cell-role="th">coef</td>
+<td data-quarto-table-cell-role="th">std err</td>
+<td data-quarto-table-cell-role="th">z</td>
+<td data-quarto-table-cell-role="th">P&gt;|z|</td>
+<td data-quarto-table-cell-role="th">[0.025</td>
+<td data-quarto-table-cell-role="th">0.975]</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">(Intercept)</td>
+<td>-2.7975</td>
+<td>0.168</td>
+<td>-16.685</td>
+<td>0.000</td>
+<td>-3.126</td>
+<td>-2.469</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">global_majority_Yes</td>
+<td>-0.6642</td>
+<td>0.345</td>
+<td>-1.923</td>
+<td>0.054</td>
+<td>-1.341</td>
+<td>0.013</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">age_cat_34-</td>
+<td>-1.0668</td>
+<td>0.307</td>
+<td>-3.475</td>
+<td>0.001</td>
+<td>-1.669</td>
+<td>-0.465</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">multiple_disadvantage_True</td>
+<td>1.0057</td>
+<td>0.437</td>
+<td>2.300</td>
+<td>0.021</td>
+<td>0.149</td>
+<td>1.863</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">offending_True</td>
+<td>-1.2735</td>
+<td>0.476</td>
+<td>-2.675</td>
+<td>0.007</td>
+<td>-2.207</td>
+<td>-0.340</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">mental_health_True</td>
+<td>-1.1586</td>
+<td>0.398</td>
+<td>-2.912</td>
+<td>0.004</td>
+<td>-1.938</td>
+<td>-0.379</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">rough_sleeping_True</td>
+<td>-0.8654</td>
+<td>0.411</td>
+<td>-2.105</td>
+<td>0.035</td>
+<td>-1.671</td>
+<td>-0.059</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">risk_violence_abuse_True</td>
+<td>-1.4307</td>
+<td>0.616</td>
+<td>-2.321</td>
+<td>0.020</td>
+<td>-2.639</td>
+<td>-0.222</td>
+</tr>
+</tbody>
+</table>
+<br><br>Variables removed: [&#39;lgbtq_plus_Yes&#39;, &#39;substance_use_True&#39;, &#39;gender_Female&#39;, &#39;uk_immigration_status_Non-EEA National&#39;, &#39;uk_immigration_status_EEA National&#39;, &#39;physical_health_True&#39;, &#39;risk_exploitation_True&#39;, &#39;sex_working_True&#39;]
+</div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">p</th>
+<th data-quarto-table-cell-role="th">*</th>
+<th data-quarto-table-cell-role="th">odds_r</th>
+<th data-quarto-table-cell-role="th">[0.025</th>
+<th data-quarto-table-cell-role="th">0.975]</th>
+<th data-quarto-table-cell-role="th">prev_coef</th>
+<th data-quarto-table-cell-role="th">coef</th>
+<th data-quarto-table-cell-role="th">diff_pct</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">global_majority_Yes</td>
+<td>0.054</td>
+<td></td>
+<td>0.515</td>
+<td>0.262</td>
+<td>1.013</td>
+<td>-0.664</td>
+<td>-0.664</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">rough_sleeping_True</td>
+<td>0.035</td>
+<td>*</td>
+<td>0.421</td>
+<td>0.188</td>
+<td>0.942</td>
+<td>-0.865</td>
+<td>-0.865</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">multiple_disadvantage_True</td>
+<td>0.021</td>
+<td>*</td>
+<td>2.734</td>
+<td>1.160</td>
+<td>6.442</td>
+<td>1.006</td>
+<td>1.006</td>
+<td>0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">risk_violence_abuse_True</td>
+<td>0.020</td>
+<td>*</td>
+<td>0.239</td>
+<td>0.071</td>
+<td>0.801</td>
+<td>-1.431</td>
+<td>-1.431</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">offending_True</td>
+<td>0.007</td>
+<td>*</td>
+<td>0.280</td>
+<td>0.110</td>
+<td>0.712</td>
+<td>-1.274</td>
+<td>-1.274</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">mental_health_True</td>
+<td>0.004</td>
+<td>*</td>
+<td>0.314</td>
+<td>0.144</td>
+<td>0.685</td>
+<td>-1.159</td>
+<td>-1.159</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">age_cat_34-</td>
+<td>0.001</td>
+<td>*</td>
+<td>0.344</td>
+<td>0.189</td>
+<td>0.628</td>
+<td>-1.067</td>
+<td>-1.067</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">(Intercept)</td>
+<td>0.000</td>
+<td>*</td>
+<td>0.061</td>
+<td>0.044</td>
+<td>0.085</td>
+<td>-2.798</td>
+<td>-2.798</td>
+<td>-0.000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Psuedo R^2: 0.07035470164052748
+Optimization terminated successfully.
+         Current function value: 0.105908
+         Iterations 9</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <table class="simpletable caption-top table table-sm table-striped small" data-quarto-postprocess="true">
@@ -4775,13 +7378,13 @@ vertical-align: -.125em;
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">Date:</td>
-<td>Sun, 03 May 2026</td>
+<td>Mon, 04 May 2026</td>
 <td data-quarto-table-cell-role="th">Pseudo R-squ.:</td>
 <td>0.06468</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>21:40:23</td>
+<td>09:57:48</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-352.99</td>
 </tr>
@@ -4877,6 +7480,7 @@ vertical-align: -.125em;
 </tr>
 </tbody>
 </table>
+<br><br>Variables removed: [&#39;lgbtq_plus_Yes&#39;, &#39;substance_use_True&#39;, &#39;gender_Female&#39;, &#39;uk_immigration_status_Non-EEA National&#39;, &#39;uk_immigration_status_EEA National&#39;, &#39;physical_health_True&#39;, &#39;risk_exploitation_True&#39;, &#39;sex_working_True&#39;, &#39;global_majority_Yes&#39;]
 </div>
 <div class="cell-output cell-output-display">
 <div>
@@ -4885,30 +7489,39 @@ vertical-align: -.125em;
 <table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
 <thead>
 <tr class="header">
-<th data-quarto-table-cell-role="th">Odds Ratios</th>
+<th data-quarto-table-cell-role="th"></th>
 <th data-quarto-table-cell-role="th">p</th>
 <th data-quarto-table-cell-role="th">*</th>
-<th data-quarto-table-cell-role="th">coef</th>
+<th data-quarto-table-cell-role="th">odds_r</th>
 <th data-quarto-table-cell-role="th">[0.025</th>
 <th data-quarto-table-cell-role="th">0.975]</th>
+<th data-quarto-table-cell-role="th">prev_coef</th>
+<th data-quarto-table-cell-role="th">coef</th>
+<th data-quarto-table-cell-role="th">diff_pct</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">(Intercept)</td>
-<td>0.000</td>
+<td data-quarto-table-cell-role="th">rough_sleeping_True</td>
+<td>0.043</td>
 <td>*</td>
-<td>0.054</td>
-<td>0.039</td>
-<td>0.074</td>
+<td>0.435</td>
+<td>0.195</td>
+<td>0.974</td>
+<td>-0.832</td>
+<td>-0.832</td>
+<td>-0.000</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">age_cat_34-</td>
-<td>0.000</td>
+<td data-quarto-table-cell-role="th">risk_violence_abuse_True</td>
+<td>0.019</td>
 <td>*</td>
-<td>0.330</td>
-<td>0.181</td>
-<td>0.602</td>
+<td>0.236</td>
+<td>0.071</td>
+<td>0.791</td>
+<td>-1.442</td>
+<td>-1.442</td>
+<td>-0.000</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">multiple_disadvantage_True</td>
@@ -4917,6 +7530,9 @@ vertical-align: -.125em;
 <td>2.987</td>
 <td>1.267</td>
 <td>7.042</td>
+<td>1.094</td>
+<td>1.094</td>
+<td>0.000</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">offending_True</td>
@@ -4925,6 +7541,9 @@ vertical-align: -.125em;
 <td>0.275</td>
 <td>0.108</td>
 <td>0.699</td>
+<td>-1.291</td>
+<td>-1.291</td>
+<td>-0.000</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">mental_health_True</td>
@@ -4933,6 +7552,203 @@ vertical-align: -.125em;
 <td>0.304</td>
 <td>0.139</td>
 <td>0.665</td>
+<td>-1.190</td>
+<td>-1.190</td>
+<td>-0.000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">age_cat_34-</td>
+<td>0.000</td>
+<td>*</td>
+<td>0.330</td>
+<td>0.181</td>
+<td>0.602</td>
+<td>-1.108</td>
+<td>-1.108</td>
+<td>-0.000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">(Intercept)</td>
+<td>0.000</td>
+<td>*</td>
+<td>0.054</td>
+<td>0.039</td>
+<td>0.074</td>
+<td>-2.923</td>
+<td>-2.923</td>
+<td>-0.000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Psuedo R^2: 0.06467779282505914</code></pre>
+</div>
+</div>
+</section>
+<section id="final-model" class="level3">
+<h3 class="anchored" data-anchor-id="final-model">Final model</h3>
+<div id="5cadc035" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>display(summary)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>results_or <span class="op">=</span> results_or.drop(columns<span class="op">=</span>[<span class="st">&quot;prev_coef&quot;</span>, <span class="st">&quot;coef&quot;</span>, <span class="st">&quot;diff_pct&quot;</span>]).sort_values(<span class="st">&quot;odds_r&quot;</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">&quot;display.float_format&quot;</span>, <span class="st">&quot;</span><span class="sc">{:,.3f}</span><span class="st">&quot;</span>.<span class="bu">format</span>):</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    display(results_or)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<table class="simpletable caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Logit Regression Results</caption>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Dep. Variable:</td>
+<td>Died</td>
+<td data-quarto-table-cell-role="th">No. Observations:</td>
+<td>3333</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Model:</td>
+<td>Logit</td>
+<td data-quarto-table-cell-role="th">Df Residuals:</td>
+<td>3326</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Method:</td>
+<td>MLE</td>
+<td data-quarto-table-cell-role="th">Df Model:</td>
+<td>6</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Date:</td>
+<td>Mon, 04 May 2026</td>
+<td data-quarto-table-cell-role="th">Pseudo R-squ.:</td>
+<td>0.06468</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Time:</td>
+<td>09:57:48</td>
+<td data-quarto-table-cell-role="th">Log-Likelihood:</td>
+<td>-352.99</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">converged:</td>
+<td>True</td>
+<td data-quarto-table-cell-role="th">LL-Null:</td>
+<td>-377.40</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Covariance Type:</td>
+<td>nonrobust</td>
+<td data-quarto-table-cell-role="th">LLR p-value:</td>
+<td>8.105e-09</td>
+</tr>
+</tbody>
+</table>
+
+
+<table class="simpletable caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<tbody>
+<tr class="odd">
+<td></td>
+<td data-quarto-table-cell-role="th">coef</td>
+<td data-quarto-table-cell-role="th">std err</td>
+<td data-quarto-table-cell-role="th">z</td>
+<td data-quarto-table-cell-role="th">P&gt;|z|</td>
+<td data-quarto-table-cell-role="th">[0.025</td>
+<td data-quarto-table-cell-role="th">0.975]</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">(Intercept)</td>
+<td>-2.9234</td>
+<td>0.160</td>
+<td>-18.259</td>
+<td>0.000</td>
+<td>-3.237</td>
+<td>-2.610</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">age_cat_34-</td>
+<td>-1.1081</td>
+<td>0.306</td>
+<td>-3.616</td>
+<td>0.000</td>
+<td>-1.709</td>
+<td>-0.508</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">multiple_disadvantage_True</td>
+<td>1.0943</td>
+<td>0.438</td>
+<td>2.501</td>
+<td>0.012</td>
+<td>0.237</td>
+<td>1.952</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">offending_True</td>
+<td>-1.2914</td>
+<td>0.476</td>
+<td>-2.714</td>
+<td>0.007</td>
+<td>-2.224</td>
+<td>-0.359</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">mental_health_True</td>
+<td>-1.1899</td>
+<td>0.399</td>
+<td>-2.981</td>
+<td>0.003</td>
+<td>-1.972</td>
+<td>-0.408</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">rough_sleeping_True</td>
+<td>-0.8317</td>
+<td>0.411</td>
+<td>-2.025</td>
+<td>0.043</td>
+<td>-1.637</td>
+<td>-0.027</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">risk_violence_abuse_True</td>
+<td>-1.4418</td>
+<td>0.616</td>
+<td>-2.340</td>
+<td>0.019</td>
+<td>-2.649</td>
+<td>-0.234</td>
+</tr>
+</tbody>
+</table>
+<br><br>Variables removed: [&#39;lgbtq_plus_Yes&#39;, &#39;substance_use_True&#39;, &#39;gender_Female&#39;, &#39;uk_immigration_status_Non-EEA National&#39;, &#39;uk_immigration_status_EEA National&#39;, &#39;physical_health_True&#39;, &#39;risk_exploitation_True&#39;, &#39;sex_working_True&#39;, &#39;global_majority_Yes&#39;]
+</div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">p</th>
+<th data-quarto-table-cell-role="th">*</th>
+<th data-quarto-table-cell-role="th">odds_r</th>
+<th data-quarto-table-cell-role="th">[0.025</th>
+<th data-quarto-table-cell-role="th">0.975]</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">multiple_disadvantage_True</td>
+<td>0.012</td>
+<td>*</td>
+<td>2.987</td>
+<td>1.267</td>
+<td>7.042</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">rough_sleeping_True</td>
@@ -4943,6 +7759,30 @@ vertical-align: -.125em;
 <td>0.974</td>
 </tr>
 <tr class="odd">
+<td data-quarto-table-cell-role="th">age_cat_34-</td>
+<td>0.000</td>
+<td>*</td>
+<td>0.330</td>
+<td>0.181</td>
+<td>0.602</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">mental_health_True</td>
+<td>0.003</td>
+<td>*</td>
+<td>0.304</td>
+<td>0.139</td>
+<td>0.665</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">offending_True</td>
+<td>0.007</td>
+<td>*</td>
+<td>0.275</td>
+<td>0.108</td>
+<td>0.699</td>
+</tr>
+<tr class="even">
 <td data-quarto-table-cell-role="th">risk_violence_abuse_True</td>
 <td>0.019</td>
 <td>*</td>
@@ -4950,11 +7790,53 @@ vertical-align: -.125em;
 <td>0.071</td>
 <td>0.791</td>
 </tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">(Intercept)</td>
+<td>0.000</td>
+<td>*</td>
+<td>0.054</td>
+<td>0.039</td>
+<td>0.074</td>
+</tr>
 </tbody>
 </table>
 
 </div>
 </div>
+</div>
+</section>
+</section>
+<section id="multinomial-logistic-regression-for-categories-other-than-died" class="level2">
+<h2 class="anchored" data-anchor-id="multinomial-logistic-regression-for-categories-other-than-died">Multinomial logistic regression for categories other than “Died”</h2>
+<div id="fc2ce64e" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> sm.MNLogit(dv, Xc.astype(<span class="st">&quot;float&quot;</span>)).fit()</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>display(results.summary(alpha<span class="op">=</span>alpha))</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>params <span class="op">=</span> results.params</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>params.columns <span class="op">=</span> <span class="bu">list</span>(dv.cat.categories[<span class="dv">1</span>:])</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>coef <span class="op">=</span> params.unstack().rename(<span class="st">&quot;coef&quot;</span>)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>ci <span class="op">=</span> results.conf_int()</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>ci.columns <span class="op">=</span> [<span class="ss">f&quot;[</span><span class="sc">{</span>alpha<span class="op">/</span><span class="dv">2</span><span class="sc">:.3f}</span><span class="ss">&quot;</span>, <span class="ss">f&quot;</span><span class="sc">{</span><span class="dv">1</span><span class="op">-</span>alpha<span class="op">/</span><span class="dv">2</span><span class="sc">:.3f}</span><span class="ss">]&quot;</span>]</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>odds_ratios <span class="op">=</span> np.exp(pd.concat([coef, ci], axis<span class="op">=</span><span class="dv">1</span>))</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>pvalues <span class="op">=</span> results.pvalues</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>pvalues.columns <span class="op">=</span> <span class="bu">list</span>(dv.cat.categories[<span class="dv">1</span>:])</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>pvalues <span class="op">=</span> pvalues.unstack().rename(<span class="st">&quot;p&quot;</span>)</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>pvalues_sig <span class="op">=</span> (pvalues <span class="op">&lt;=</span> <span class="fl">0.05</span>).<span class="bu">map</span>({<span class="va">True</span>: <span class="st">&quot;*&quot;</span>, <span class="va">False</span>: <span class="st">&quot;&quot;</span>}).rename(<span class="st">&quot;*&quot;</span>)</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>psummary <span class="op">=</span> pd.concat([pvalues, pvalues_sig], axis<span class="op">=</span><span class="dv">1</span>).unstack(<span class="dv">0</span>).swaplevel(axis<span class="op">=</span><span class="dv">1</span>).sort_index(axis<span class="op">=</span><span class="dv">1</span>, ascending<span class="op">=</span>[<span class="va">True</span>, <span class="va">False</span>])</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>results_or <span class="op">=</span> pd.concat([pvalues, pvalues_sig, odds_ratios], axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>results_or.columns.name <span class="op">=</span> <span class="st">&quot;Odds Ratios&quot;</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">&quot;display.float_format&quot;</span>, <span class="st">&quot;</span><span class="sc">{:,.3f}</span><span class="st">&quot;</span>.<span class="bu">format</span>):</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    display(results_or)</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>vif_data <span class="op">=</span> pd.DataFrame()</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>vif_data[<span class="st">&quot;Feature&quot;</span>] <span class="op">=</span> X.columns</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>vif_data[<span class="st">&quot;VIF&quot;</span>] <span class="op">=</span> [sm_vif(X.values, i) <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(X.columns))]</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">&quot;display.float_format&quot;</span>, <span class="st">&quot;</span><span class="sc">{:,.3f}</span><span class="st">&quot;</span>.<span class="bu">format</span>):</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>    display(vif_data)</span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>    display(psummary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Optimization terminated successfully.
          Current function value: 0.945786
@@ -4984,13 +7866,13 @@ vertical-align: -.125em;
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">Date:</td>
-<td>Sun, 03 May 2026</td>
+<td>Mon, 04 May 2026</td>
 <td data-quarto-table-cell-role="th">Pseudo R-squ.:</td>
 <td>0.1366</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>21:40:23</td>
+<td>09:57:49</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-3152.3</td>
 </tr>
@@ -5837,20 +8719,20 @@ vertical-align: -.125em;
 <h2 class="anchored" data-anchor-id="tables-in-an-excel-file">Tables in an Excel file</h2>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>sheetname <span class="op">=</span> <span class="st">&quot;Sheet1&quot;</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>qmdfile <span class="op">=</span> os.getenv(<span class="st">&quot;QUARTO_DOCUMENT_FILE&quot;</span>)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>filename <span class="op">=</span> assets_output <span class="op">+</span> qmdfile[:<span class="op">-</span><span class="dv">4</span>]<span class="op">+</span><span class="st">&quot;.xlsx&quot;</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.ExcelWriter(filename) <span class="im">as</span> writer:</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    next_row <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k, v <span class="kw">in</span> excel_output.items():</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        pd.DataFrame([k]).to_excel(writer, sheet_name<span class="op">=</span>sheetname, header<span class="op">=</span><span class="va">False</span>, index<span class="op">=</span><span class="va">False</span>, startrow<span class="op">=</span>next_row)</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>        next_row <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        v.to_excel(writer, sheet_name<span class="op">=</span>sheetname, startrow<span class="op">=</span>next_row, float_format<span class="op">=</span><span class="st">&quot;</span><span class="sc">%.1f</span><span class="st">&quot;</span>)</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>        next_row <span class="op">+=</span> (</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>            (<span class="dv">1</span> <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(v.columns, pd.MultiIndex) <span class="cf">else</span> <span class="dv">1</span> <span class="op">+</span> <span class="bu">len</span>(v.columns.levels))</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">+</span> <span class="bu">len</span>(v) <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;[Excel file](./</span><span class="sc">{</span>filename<span class="sc">}</span><span class="ss">)&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>sheetname <span class="op">=</span> <span class="st">&quot;Sheet1&quot;</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>qmdfile <span class="op">=</span> os.getenv(<span class="st">&quot;QUARTO_DOCUMENT_FILE&quot;</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>filename <span class="op">=</span> assets_output <span class="op">+</span> qmdfile[:<span class="op">-</span><span class="dv">4</span>]<span class="op">+</span><span class="st">&quot;.xlsx&quot;</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.ExcelWriter(filename) <span class="im">as</span> writer:</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    next_row <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k, v <span class="kw">in</span> excel_output.items():</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>        pd.DataFrame([k]).to_excel(writer, sheet_name<span class="op">=</span>sheetname, header<span class="op">=</span><span class="va">False</span>, index<span class="op">=</span><span class="va">False</span>, startrow<span class="op">=</span>next_row)</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>        next_row <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>        v.to_excel(writer, sheet_name<span class="op">=</span>sheetname, startrow<span class="op">=</span>next_row, float_format<span class="op">=</span><span class="st">&quot;</span><span class="sc">%.1f</span><span class="st">&quot;</span>)</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>        next_row <span class="op">+=</span> (</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>            (<span class="dv">1</span> <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(v.columns, pd.MultiIndex) <span class="cf">else</span> <span class="dv">1</span> <span class="op">+</span> <span class="bu">len</span>(v.columns.levels))</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">+</span> <span class="bu">len</span>(v) <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;[Excel file](./</span><span class="sc">{</span>filename<span class="sc">}</span><span class="ss">)&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <p><a href="./assets_output/07_multinomial_logistic_regression.xlsx">Excel file</a></p>
 

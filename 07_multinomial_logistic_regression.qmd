@@ -458,7 +458,7 @@ characteristics = [
 display(characteristics)
 ```
 
-## Start with one dependent variable and one IV
+## Prepare one DV and relevant IVs
 
 ```{python}
 import statsmodels.api as sm
@@ -547,31 +547,93 @@ X = pd.concat(Xarr, axis=1)
 # Add a constant to ensure intercept is calculated
 Xc = sm.add_constant(X).rename(columns={"const": "(Intercept)"})
 
+```
+
+## Binomial logistic regression for the category "Died"
+
+This category had substantial differences from other outcomes.
+
+### Iterative model development
+
+```{python}
 # Alpha
 alpha = 0.05
 
-# Complete a binomial logistic regression for the category "Died"
-# Columns removed iteratively for parsimony:
-cols_to_remove = ["uk_immigration_status_Non-EEA National", "uk_immigration_status_EEA National",
-                  "lgbtq_plus_Yes",  "substance_use_True", "gender_Female", "physical_health_True",
-                  "risk_exploitation_True", "sex_working_True", "global_majority_Yes"]
-died_X = Xc[[col for col in Xc.columns if col not in cols_to_remove]]
-results = sm.Logit(died_dv, died_X.astype("float")).fit()
-display(pd.Series(cols_to_remove).rename("Variables removed iteratively for parsimony").to_frame())
-display(results.summary(alpha=alpha))
 
-coef = results.params.rename("coef")
-ci = results.conf_int()
-ci.columns = [f"[{alpha/2:.3f}", f"{1-alpha/2:.3f}]"]
-odds_ratios = np.exp(pd.concat([coef, ci], axis=1))
-pvalues = results.pvalues.rename("p")
-pvalues_sig = (pvalues <= alpha).map({True: "*", False: ""}).rename("*")
-results_or = pd.concat([pvalues, pvalues_sig, odds_ratios], axis=1)
-results_or.columns.name = "Odds Ratios"
+def binomial_regression(died_dv, Xc, cols_to_remove):
+    global prev_results
+    died_X = Xc[[col for col in Xc.columns if col not in cols_to_remove]]
+    results = sm.Logit(died_dv, died_X.astype("float")).fit()
+    summary = results.summary(alpha=alpha)
+    coef = results.params.rename("odds_r")
+    ci = results.conf_int()
+    ci.columns = [f"[{alpha/2:.3f}", f"{1-alpha/2:.3f}]"]
+    odds_ratios = np.exp(pd.concat([coef, ci], axis=1))
+    pvalues = results.pvalues.rename("p")
+    pvalues_sig = (pvalues <= alpha).map({True: "*", False: ""}).rename("*")
+    results_or = pd.concat([pvalues, pvalues_sig, odds_ratios], axis=1)
+    results_or.columns.name = "Odds Ratios"
+    if len(cols_to_remove) != 0:
+        prev_results = results
+        summary.add_extra_txt([f"Variables removed: {cols_to_remove}"])
+        diff = (pd.concat([prev_results.params.rename("prev_coef"), results.params.rename("coef")], axis=1)
+                .assign(diff_pct=lambda x: 100*(x.diff(axis=1).iloc[:, -1]/x["prev_coef"]).round(3)))
+        results_or = pd.concat([results_or, diff], axis=1)
+    display(summary)
+    with pd.option_context("display.float_format", "{:,.3f}".format):
+        display(results_or.sort_values("p", ascending=False))
+    print(f"Psuedo R^2: {results.prsquared}")
+    return results, summary, results_or
+
+
+#TODO: test multicollinearity
+
+cols_to_remove = []
+results, summary, results_or = binomial_regression(died_dv, Xc, cols_to_remove)
+
+cols_to_remove.append("lgbtq_plus_Yes")
+results, summary, results_or = binomial_regression(died_dv, Xc, cols_to_remove)
+
+cols_to_remove.append("substance_use_True")
+results, summary, results_or = binomial_regression(died_dv, Xc, cols_to_remove)
+
+cols_to_remove.append("gender_Female")
+results, summary, results_or = binomial_regression(died_dv, Xc, cols_to_remove)
+
+cols_to_remove.append("uk_immigration_status_Non-EEA National")
+cols_to_remove.append("uk_immigration_status_EEA National")
+results, summary, results_or = binomial_regression(died_dv, Xc, cols_to_remove)
+
+cols_to_remove.append("physical_health_True")
+results, summary, results_or = binomial_regression(died_dv, Xc, cols_to_remove)
+
+cols_to_remove.append("risk_exploitation_True")
+results, summary, results_or = binomial_regression(died_dv, Xc, cols_to_remove)
+
+cols_to_remove.append("sex_working_True")
+results, summary, results_or = binomial_regression(died_dv, Xc, cols_to_remove)
+
+cols_to_remove.append("global_majority_Yes")
+results, summary, results_or = binomial_regression(died_dv, Xc, cols_to_remove)
+
+assert (cols_to_remove ==
+        ['lgbtq_plus_Yes', 'substance_use_True', 'gender_Female', 'uk_immigration_status_Non-EEA National',
+         'uk_immigration_status_EEA National', 'physical_health_True', 'risk_exploitation_True',
+         'sex_working_True', 'global_majority_Yes'])
+```
+
+### Final model
+
+```{python}
+display(summary)
+results_or = results_or.drop(columns=["prev_coef", "coef", "diff_pct"]).sort_values("odds_r", ascending=False)
 with pd.option_context("display.float_format", "{:,.3f}".format):
     display(results_or)
+```
 
-# Complete the multinomial logistic regression
+## Multinomial logistic regression for categories other than "Died"
+
+```{python}
 results = sm.MNLogit(dv, Xc.astype("float")).fit()
 display(results.summary(alpha=alpha))
 

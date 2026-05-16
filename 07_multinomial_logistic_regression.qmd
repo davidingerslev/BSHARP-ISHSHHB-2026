@@ -5,6 +5,8 @@ warning: false
 toc: true
 ---
 
+# Prepare
+
 ```{python}
 # Setup code
 import pandas as pd
@@ -260,7 +262,6 @@ display(dv_dict_desc)
 from collections import defaultdict
 dpw_pls = dpw_pls_orig
 # Add route entry point as an IV as well as a DV
-#TODO:
 tdf = dv_dict["Entry point into BAHSA services (pathway type and level)"]
 rt_entry_point = (tdf["pathway_type"].map({"Homelessness": "H ", "Substance Misuse": "SU "})
                   + tdf["pathway_level"].astype("string")).rename("rt_entry_point")
@@ -458,18 +459,23 @@ characteristics = [
 display(characteristics)
 ```
 
-## Prepare one DV and relevant IVs
+# Outcomes 3.08 years after a person's first route started
+
+## Prepare DV
 
 ```{python}
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor as sm_vif
 
 # Get DV
-dv = dv_dict["Route outcomes after 3.08 years"].iloc[:, 0].astype("category")
+dv_str = "Outcomes 3.08 years after a person's first route started"
+dv = dv_dict[dv_str].iloc[:, 0].astype("category")
 dv = dv.cat.reorder_categories(['Independent accommodation', 'Insecure outcome', 'Returned to homelessness', 'Died'])
-died_dv = (dv == "Died").rename("Died")
-dv = dv.cat.remove_categories("Died")
+```
 
+## Prepare IVs
+
+```{python}
 # Get relevant IVs
 idx_type = dv.index.name
 match idx_type:
@@ -549,120 +555,185 @@ Xc = sm.add_constant(X).rename(columns={"const": "(Intercept)"})
 
 ```
 
-## Binomial logistic regression for the category "Died"
-
-This category had substantial differences from other outcomes.
-
-### Iterative model development
+## Test associations between IVs
 
 ```{python}
+import scipy.stats as ss
+from itertools import product
 # Alpha
 alpha = 0.05
+iv_cols_used = list({col[0:col.rfind("_")] for col in X.columns})
+iv_df_used = iv_df[iv_cols_used]
+iv_df_used = iv_df_used.dropna()
+# Ensure relevant variables exclude cases where results are NA
+X = X.loc[iv_df_used.index]
+Xc = Xc.loc[iv_df_used.index]
+dv = dv.loc[iv_df_used.index]
+# Test chi squared and Cramer's V for contingency tables
+iv_prod = [(iv1, iv2) for iv1, iv2 in product(iv_df_used.columns, repeat=2) if iv1 != iv2]
+def chi2(iv1, iv2):
+    ct = pd.crosstab(iv_df_used[iv1], iv_df_used[iv2])
+    chi2, pvalue, dof, arr = ss.chi2_contingency(ct)
+    if pvalue < 0.001: p_sig = "***"
+    elif pvalue < 0.01: p_sig = "**"
+    elif pvalue < alpha: p_sig = "*"
+    else: p_sig = ""
+    cr_v = ss.contingency.association(ct, method="cramer")
+    return (chi2, pvalue, p_sig, dof, cr_v)
+results = (pd.DataFrame([(iv1, iv2) + chi2(iv1, iv2) for iv1, iv2 in iv_prod],
+                        columns=["iv1", "iv2", "chi2", "p", "p_sig", "df", "cr_v"]))
+results["iv2"] = results["iv2"].str.replace(r"^(.)[^_]*|_(.)[^_]*", r"\1\2", regex=True)
+results["disp"] = results["p_sig"] + results["cr_v"].apply("{:,.3f}".format)
+pvalues = results.pivot(index="iv1", columns="iv2", values="p").rename_axis("p", axis=1).rename_axis(None)
+p_sig = results.pivot(index="iv1", columns="iv2", values="p_sig").rename_axis("*", axis=1).rename_axis(None)
+cr_v = results.pivot(index="iv1", columns="iv2", values="cr_v").rename_axis("V", axis=1).rename_axis(None)
+disp = pd.concat([cr_v, p_sig], keys=["V", "*"]).swaplevel().sort_index(ascending=[True, False])
+```
+
+### Cramer's V 
+
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+
+```{python}
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+
+```
+
+### Variance Inflation Factor (VIF)
+
+```{python}
+
+# Test multicollinearity with VIF
+vif_data = pd.DataFrame()
+vif_data["Feature"] = Xc.columns
+vif_data["VIF"] = [sm_vif(Xc.astype("float").values, i) for i in range(len(Xc.columns))]
+vif_data = vif_data.set_index("Feature").sort_values("VIF", ascending=False)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+
+So multiple_disadvantage and substance_use are both causing higher variance inflation and are strongly correlated. This makes sense:
+multiple_disadvantage is defined by the existence of 3+ factors including substance use.
+
+### VIF without multiple_disadvantage
+
+```{python}
+cols_to_remove = ["multiple_disadvantage_True"]
+Xc = Xc[[col for col in Xc.columns if col not in cols_to_remove]]
+
+vif_data = pd.DataFrame()
+vif_data["Feature"] = Xc.columns
+vif_data["VIF"] = [sm_vif(Xc.astype("float").values, i) for i in range(len(Xc.columns))]
+vif_data = vif_data.set_index("Feature").sort_values("VIF", ascending=False)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+
+Now all variance inflation is low. Therefore despite some association between variables, model building can proceed.
+
+## Model building
+
+```{python}
+from IPython.display import Markdown
 
 
-def binomial_regression(died_dv, Xc, cols_to_remove):
+def multinomial_regression(dv, Xc, cols_to_remove):
     global prev_results
-    died_X = Xc[[col for col in Xc.columns if col not in cols_to_remove]]
-    results = sm.Logit(died_dv, died_X.astype("float")).fit()
+    selectedXc = Xc[[col for col in Xc.columns if col not in cols_to_remove]]
+    results = sm.MNLogit(dv, selectedXc.astype("float")).fit()
     summary = results.summary(alpha=alpha)
-    coef = results.params.rename("odds_r")
+    params = results.params
+    params.columns = list(dv.cat.categories[1:])
+    coef = params.unstack().rename("odds_r")
     ci = results.conf_int()
     ci.columns = [f"[{alpha/2:.3f}", f"{1-alpha/2:.3f}]"]
     odds_ratios = np.exp(pd.concat([coef, ci], axis=1))
-    pvalues = results.pvalues.rename("p")
-    pvalues_sig = (pvalues <= alpha).map({True: "*", False: ""}).rename("*")
+    pvalues = results.pvalues
+    pvalues.columns = list(dv.cat.categories[1:])
+    pvalues = pvalues.unstack().rename("p")
+    pvalues_sig = (pvalues <= alpha).replace({True: "*", False: ""}).rename("*")
     results_or = pd.concat([pvalues, pvalues_sig, odds_ratios], axis=1)
     results_or.columns.name = "Odds Ratios"
     if len(cols_to_remove) != 0:
         prev_results = results
         summary.add_extra_txt([f"Variables removed: {cols_to_remove}"])
-        diff = (pd.concat([prev_results.params.rename("prev_coef"), results.params.rename("coef")], axis=1)
+        prev_coef = prev_results.params
+        prev_coef.columns = list(dv.cat.categories[1:])
+        prev_coef = prev_coef.unstack().rename("prev_coef")
+        coef = results.params
+        coef.columns = list(dv.cat.categories[1:])
+        coef = coef.unstack().rename("coef")
+        diff = (pd.concat([prev_coef, coef], axis=1)
                 .assign(diff_pct=lambda x: 100*(x.diff(axis=1).iloc[:, -1]/x["prev_coef"]).round(3)))
         results_or = pd.concat([results_or, diff], axis=1)
     display(summary)
+    results_or = results_or.loc[results_or["p"].groupby(level=1).transform("min").sort_values(ascending=False).index].swaplevel()
     with pd.option_context("display.float_format", "{:,.3f}".format):
-        display(results_or.sort_values("p", ascending=False))
+        display(results_or)
     print(f"Psuedo R^2: {results.prsquared}")
+    print("-" * 50)
+    print("")
     return results, summary, results_or
 
 
-#TODO: test multicollinearity
-
+iter = 0
+display(Markdown(f"### Iteration {iter}"))
 cols_to_remove = []
-results, summary, results_or = binomial_regression(died_dv, Xc, cols_to_remove)
+results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
+iter += 1
 cols_to_remove.append("lgbtq_plus_Yes")
-results, summary, results_or = binomial_regression(died_dv, Xc, cols_to_remove)
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
-cols_to_remove.append("substance_use_True")
-results, summary, results_or = binomial_regression(died_dv, Xc, cols_to_remove)
+iter += 1
+cols_to_remove.append("mental_health_True")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
-cols_to_remove.append("gender_Female")
-results, summary, results_or = binomial_regression(died_dv, Xc, cols_to_remove)
-
-cols_to_remove.append("uk_immigration_status_Non-EEA National")
-cols_to_remove.append("uk_immigration_status_EEA National")
-results, summary, results_or = binomial_regression(died_dv, Xc, cols_to_remove)
-
-cols_to_remove.append("physical_health_True")
-results, summary, results_or = binomial_regression(died_dv, Xc, cols_to_remove)
-
+iter += 1
 cols_to_remove.append("risk_exploitation_True")
-results, summary, results_or = binomial_regression(died_dv, Xc, cols_to_remove)
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
-cols_to_remove.append("sex_working_True")
-results, summary, results_or = binomial_regression(died_dv, Xc, cols_to_remove)
+iter += 1
+cols_to_remove.append("risk_violence_abuse_True")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
+iter += 1
+cols_to_remove.append("gender_Female")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
 cols_to_remove.append("global_majority_Yes")
-results, summary, results_or = binomial_regression(died_dv, Xc, cols_to_remove)
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
 assert (cols_to_remove ==
-        ['lgbtq_plus_Yes', 'substance_use_True', 'gender_Female', 'uk_immigration_status_Non-EEA National',
-         'uk_immigration_status_EEA National', 'physical_health_True', 'risk_exploitation_True',
-         'sex_working_True', 'global_majority_Yes'])
+        ['lgbtq_plus_Yes', 'mental_health_True', 'risk_exploitation_True',
+         'risk_violence_abuse_True', 'gender_Female', 'global_majority_Yes'])
 ```
 
-### Final model
+## Final model
 
 ```{python}
+from io import StringIO
+
 display(summary)
-results_or = results_or.drop(columns=["prev_coef", "coef", "diff_pct"]).sort_values("odds_r", ascending=False)
+results_or_final = results_or.drop(columns=["prev_coef", "coef", "diff_pct"]).swaplevel().sort_index()
 with pd.option_context("display.float_format", "{:,.3f}".format):
-    display(results_or)
+    display(results_or_final)
+
+tbl_i = 0
+for tbl in results.summary2().tables:
+    excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
+    tbl_i += 1
 ```
 
-## Multinomial logistic regression for categories other than "Died"
-
-```{python}
-results = sm.MNLogit(dv, Xc.astype("float")).fit()
-display(results.summary(alpha=alpha))
-
-params = results.params
-params.columns = list(dv.cat.categories[1:])
-coef = params.unstack().rename("coef")
-ci = results.conf_int()
-ci.columns = [f"[{alpha/2:.3f}", f"{1-alpha/2:.3f}]"]
-odds_ratios = np.exp(pd.concat([coef, ci], axis=1))
-pvalues = results.pvalues
-pvalues.columns = list(dv.cat.categories[1:])
-pvalues = pvalues.unstack().rename("p")
-pvalues_sig = (pvalues <= 0.05).map({True: "*", False: ""}).rename("*")
-psummary = pd.concat([pvalues, pvalues_sig], axis=1).unstack(0).swaplevel(axis=1).sort_index(axis=1, ascending=[True, False])
-results_or = pd.concat([pvalues, pvalues_sig, odds_ratios], axis=1)
-results_or.columns.name = "Odds Ratios"
-with pd.option_context("display.float_format", "{:,.3f}".format):
-    display(results_or)
-
-vif_data = pd.DataFrame()
-vif_data["Feature"] = X.columns
-vif_data["VIF"] = [sm_vif(X.values, i) for i in range(len(X.columns))]
-with pd.option_context("display.float_format", "{:,.3f}".format):
-    display(vif_data)
-    display(psummary)
-```
-
-
-## Tables in an Excel file
+# Tables in an Excel file
 
 ```{python}
 #| output: asis

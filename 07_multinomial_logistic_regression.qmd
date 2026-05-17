@@ -723,6 +723,7 @@ tbl_i = 0
 for tbl in results.summary2().tables:
     excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
     tbl_i += 1
+excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
 ```
 
 # Route outcomes after 3.08 years
@@ -1004,6 +1005,7 @@ tbl_i = 0
 for tbl in results.summary2().tables:
     excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
     tbl_i += 1
+excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
 ```
 
 # Outcomes 3.08 years after a person's first route started
@@ -1094,6 +1096,7 @@ tbl_i = 0
 for tbl in results.summary2().tables:
     excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
     tbl_i += 1
+excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
 ```
 
 # People with multiple returns during 7.5 yrs
@@ -1213,8 +1216,9 @@ with pd.option_context("display.float_format", "{:,.3f}".format):
 
 tbl_i = 0
 for tbl in results.summary2().tables:
-    excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
+    excel_output[f"Logit: '{dv_str}', table {tbl_i}"] = tbl
     tbl_i += 1
+excel_output[f"Logit: '{dv_str}', odds ratios"] = results_or_final
 ```
 
 # People with a route in top 10% of route durations
@@ -1300,8 +1304,9 @@ with pd.option_context("display.float_format", "{:,.3f}".format):
 
 tbl_i = 0
 for tbl in results.summary2().tables:
-    excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
+    excel_output[f"Logit: '{dv_str}', table {tbl_i}"] = tbl
     tbl_i += 1
+excel_output[f"Logit: '{dv_str}', odds ratios"] = results_or_final
 ```
 
 # Returns within 2 years after moving to independent accommodation
@@ -1411,8 +1416,9 @@ with pd.option_context("display.float_format", "{:,.3f}".format):
 
 tbl_i = 0
 for tbl in results.summary2().tables:
-    excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
+    excel_output[f"Logit: '{dv_str}', table {tbl_i}"] = tbl
     tbl_i += 1
+excel_output[f"Logit: '{dv_str}', odds ratios"] = results_or_final
 ```
 
 # Outcomes from individual placements
@@ -1661,6 +1667,7 @@ tbl_i = 0
 for tbl in results.summary2().tables:
     excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
     tbl_i += 1
+excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
 ```
 
 

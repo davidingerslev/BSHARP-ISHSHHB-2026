@@ -391,7 +391,7 @@ ref_cat_map = {
     "Local authority (_other)": list(ref_cats[ref_cats.str.startswith(("B.C.C", "Bcc"))
                                     & (ref_cats != "B.C.C. Homelessness Prevention Team")]),
     "Service provider (rough sleeping and SH)": ["St. Mungo's", "St Mungo's", "Outreach"],
-    "Service provider (prison resettlement and SH)": ["A.R.A"],
+    "Service provider (SU pathway, prison resettlement and SH)": ["A.R.A"],
     "Service provider (_other SH)": ["E.C.H.G. Riverside", "Elim", "Livewest", "Missing Link", "Places For People",
                                     "Salvation Army", "Second Step", "Self Help"]
 }
@@ -459,7 +459,7 @@ characteristics = [
 display(characteristics)
 ```
 
-# Outcomes 3.08 years after a person's first route started
+# Entry point into BAHSA services (pathway type and level)
 
 ## Prepare DV
 
@@ -468,9 +468,9 @@ import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor as sm_vif
 
 # Get DV
-dv_str = "Outcomes 3.08 years after a person's first route started"
-dv = dv_dict[dv_str].iloc[:, 0].astype("category")
-dv = dv.cat.reorder_categories(['Independent accommodation', 'Insecure outcome', 'Returned to homelessness', 'Died'])
+dv_str = "Entry point into BAHSA services (pathway type and level)"
+dv = dv_dict[dv_str]
+dv = (dv.iloc[:, 0].str.replace(" ", "_") + "_" + dv.iloc[:, 1].astype("string")).astype("category")
 ```
 
 ## Prepare IVs
@@ -488,8 +488,20 @@ match idx_type:
 iv_df = iv_df[[idx_type] + characteristics].set_index(idx_type).loc[dv.index]
 
 Xarr = []
+iv_cols_used = []
+
+ch = "referral_agency"
+iv_cols_used.append(ch)
+# Exclude non-binary because there are very few cases and some outcomes with no cases
+Xn = iv_df[ch].replace("_[Missing data]", pd.NA).astype("category")
+# Make the reference category the most common one
+Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
+# Get dummies for this characteristic
+Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+Xarr.append(Xn)
 
 ch = "gender"
+iv_cols_used.append(ch)
 # Exclude non-binary because there are very few cases and some outcomes with no cases
 Xn = iv_df[ch].replace(["Non-Binary", "_Unknown"], pd.NA).astype("category")
 # Make the reference category the most common one
@@ -499,6 +511,7 @@ Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
 Xarr.append(Xn)
 
 ch = "global_majority"
+iv_cols_used.append(ch)
 Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
 # Make the reference category the most common one
 Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
@@ -507,6 +520,7 @@ Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
 Xarr.append(Xn)
 
 ch = "uk_immigration_status"
+iv_cols_used.append(ch)
 Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
 # Make the reference category the most common one
 Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
@@ -515,6 +529,7 @@ Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
 Xarr.append(Xn)
 
 ch = "age_cat"
+iv_cols_used.append(ch)
 Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
 # Make the reference category the most common one
 Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
@@ -523,6 +538,7 @@ Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
 Xarr.append(Xn)
 
 ch = "lgbtq_plus"
+iv_cols_used.append(ch)
 Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
 # Make the reference category the most common one
 Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
@@ -531,6 +547,7 @@ Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
 Xarr.append(Xn)
 
 ch = "multiple_disadvantage"
+iv_cols_used.append(ch)
 Xn = iv_df[ch].astype("category")
 # Make the reference category the most common one
 # Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
@@ -539,11 +556,13 @@ Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
 Xarr.append(Xn)
 
 for ch in ["offending", "physical_health", "mental_health", "substance_use"]:
+    iv_cols_used.append(ch)
     Xn = iv_df[ch].astype("category")
     Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
     Xarr.append(Xn)
 
 for ch in ["rough_sleeping", "sex_working", "risk_violence_abuse", "risk_exploitation"]:
+    iv_cols_used.append(ch)
     Xn = iv_df[ch].astype("category")
     Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
     Xarr.append(Xn)
@@ -562,7 +581,271 @@ import scipy.stats as ss
 from itertools import product
 # Alpha
 alpha = 0.05
-iv_cols_used = list({col[0:col.rfind("_")] for col in X.columns})
+iv_df_used = iv_df[iv_cols_used]
+iv_df_used = iv_df_used.dropna()
+# Ensure relevant variables exclude cases where results are NA
+X = X.loc[iv_df_used.index]
+Xc = Xc.loc[iv_df_used.index]
+dv = dv.loc[iv_df_used.index]
+# Test chi squared and Cramer's V for contingency tables
+iv_prod = [(iv1, iv2) for iv1, iv2 in product(iv_df_used.columns, repeat=2) if iv1 != iv2]
+def chi2(iv1, iv2):
+    ct = pd.crosstab(iv_df_used[iv1], iv_df_used[iv2])
+    chi2, pvalue, dof, arr = ss.chi2_contingency(ct)
+    if pvalue < 0.001: p_sig = "***"
+    elif pvalue < 0.01: p_sig = "**"
+    elif pvalue < alpha: p_sig = "*"
+    else: p_sig = ""
+    cr_v = ss.contingency.association(ct, method="cramer")
+    return (chi2, pvalue, p_sig, dof, cr_v)
+results = (pd.DataFrame([(iv1, iv2) + chi2(iv1, iv2) for iv1, iv2 in iv_prod],
+                        columns=["iv1", "iv2", "chi2", "p", "p_sig", "df", "cr_v"]))
+results["iv2"] = results["iv2"].str.replace(r"^(.)[^_]*|_(.)[^_]*", r"\1\2", regex=True)
+results["disp"] = results["p_sig"] + results["cr_v"].apply("{:,.3f}".format)
+pvalues = results.pivot(index="iv1", columns="iv2", values="p").rename_axis("p", axis=1).rename_axis(None)
+p_sig = results.pivot(index="iv1", columns="iv2", values="p_sig").rename_axis("*", axis=1).rename_axis(None)
+cr_v = results.pivot(index="iv1", columns="iv2", values="cr_v").rename_axis("V", axis=1).rename_axis(None)
+disp = pd.concat([cr_v, p_sig], keys=["V", "*"]).swaplevel().sort_index(ascending=[True, False])
+```
+
+### Cramer's V 
+
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+
+```{python}
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+
+```
+
+### Variance Inflation Factor (VIF)
+
+```{python}
+# Test multicollinearity with VIF
+vif_data = pd.DataFrame()
+vif_data["Feature"] = Xc.columns
+vif_data["VIF"] = [sm_vif(Xc.astype("float").values, i) for i in range(len(Xc.columns))]
+vif_data = vif_data.set_index("Feature").sort_values("VIF", ascending=False)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+
+So multiple_disadvantage and substance_use are both causing higher variance inflation and are strongly correlated. This makes sense:
+multiple_disadvantage is defined by the existence of 3+ factors including substance use.
+
+### VIF without multiple_disadvantage
+
+```{python}
+cols_to_remove = ["multiple_disadvantage_True"]
+Xc = Xc[[col for col in Xc.columns if col not in cols_to_remove]]
+
+vif_data = pd.DataFrame()
+vif_data["Feature"] = Xc.columns
+vif_data["VIF"] = [sm_vif(Xc.astype("float").values, i) for i in range(len(Xc.columns))]
+vif_data = vif_data.set_index("Feature").sort_values("VIF", ascending=False)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+
+Now all variance inflation is low. Therefore despite some association between variables, model building can proceed.
+
+## Model building
+
+```{python}
+from IPython.display import Markdown
+
+def multinomial_regression(dv, Xc, cols_to_remove):
+    global prev_results
+    selectedXc = Xc[[col for col in Xc.columns if col not in cols_to_remove]]
+    results = sm.MNLogit(dv, selectedXc.astype("float")).fit()
+    summary = results.summary(alpha=alpha)
+    params = results.params
+    params.columns = list(dv.cat.categories[1:])
+    coef = params.unstack().rename("odds_r")
+    ci = results.conf_int()
+    ci.columns = [f"[{alpha/2:.3f}", f"{1-alpha/2:.3f}]"]
+    odds_ratios = np.exp(pd.concat([coef, ci], axis=1))
+    pvalues = results.pvalues
+    pvalues.columns = list(dv.cat.categories[1:])
+    pvalues = pvalues.unstack().rename("p")
+    pvalues_sig = (pvalues <= alpha).replace({True: "*", False: ""}).rename("*")
+    results_or = pd.concat([pvalues, pvalues_sig, odds_ratios], axis=1)
+    results_or.columns.name = "Odds Ratios"
+    if len(cols_to_remove) != 0:
+        prev_results = results
+        summary.add_extra_txt([f"Variables removed: {cols_to_remove}"])
+        prev_coef = prev_results.params
+        prev_coef.columns = list(dv.cat.categories[1:])
+        prev_coef = prev_coef.unstack().rename("prev_coef")
+        coef = results.params
+        coef.columns = list(dv.cat.categories[1:])
+        coef = coef.unstack().rename("coef")
+        diff = (pd.concat([prev_coef, coef], axis=1)
+                .assign(diff_pct=lambda x: 100*(x.diff(axis=1).iloc[:, -1]/x["prev_coef"]).round(3)))
+        results_or = pd.concat([results_or, diff], axis=1)
+    display(summary)
+    results_or = results_or.loc[results_or["p"].groupby(level=1).transform("min").sort_values(ascending=False).index].swaplevel()
+    with pd.option_context("display.float_format", "{:,.3f}".format, "display.max_rows", 120):
+        display(results_or.head(120))
+    print(f"Psuedo R^2: {results.prsquared}")
+    print("-" * 50)
+    print("")
+    return results, summary, results_or
+
+
+iter = 0
+display(Markdown(f"### Iteration {iter}"))
+cols_to_remove = []
+results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("lgbtq_plus_Yes")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
+
+assert (cols_to_remove ==
+        ['lgbtq_plus_Yes'])
+```
+
+## Final model
+
+Reference category: Homelessness_1
+
+```{python}
+from io import StringIO
+
+display(summary)
+results_or_final = results_or.drop(columns=["prev_coef", "coef", "diff_pct"]).swaplevel().sort_index()
+with pd.option_context("display.float_format", "{:,.3f}".format, "display.max_rows", 120):
+    display(results_or_final)
+
+tbl_i = 0
+for tbl in results.summary2().tables:
+    excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
+    tbl_i += 1
+```
+
+# Route outcomes after 3.08 years
+
+## Prepare DV
+
+```{python}
+import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor as sm_vif
+
+# Get DV
+dv_str = "Route outcomes after 3.08 years"
+dv = dv_dict[dv_str].iloc[:, 0].astype("category")
+dv = dv.cat.reorder_categories(['Independent accommodation', 'Insecure outcome', 'Returned to homelessness', 'Died'])
+```
+
+## Prepare IVs
+
+```{python}
+def get_ivs(dv, cols_to_exclude):
+    global dpw_pls, dpw_rt_starts, dpw_clis, characteristics
+    # Get relevant IVs
+    idx_type = dv.index.name
+    match idx_type:
+        case "vac_id":
+            iv_df = dpw_pls
+        case "route_id":
+            iv_df = dpw_rt_starts
+        case "o_cli_id":
+            iv_df = dpw_clis
+    iv_df = iv_df[[idx_type] + characteristics].set_index(idx_type).loc[dv.index]
+    
+    Xarr = []
+    iv_cols_used = []
+    
+    ch = "gender"
+    iv_cols_used.append(ch)
+    # Exclude non-binary because there are very few cases and some outcomes with no cases
+    Xn = iv_df[ch].replace(["Non-Binary", "_Unknown"], pd.NA).astype("category")
+    # Make the reference category the most common one
+    Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
+    # Get dummies for this characteristic
+    Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+    Xarr.append(Xn)
+    
+    ch = "global_majority"
+    iv_cols_used.append(ch)
+    Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
+    # Make the reference category the most common one
+    Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
+    # Get dummies for this characteristic
+    Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+    Xarr.append(Xn)
+    
+    ch = "uk_immigration_status"
+    iv_cols_used.append(ch)
+    Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
+    # Make the reference category the most common one
+    Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
+    # Get dummies for this characteristic
+    Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+    Xarr.append(Xn)
+    
+    ch = "age_cat"
+    iv_cols_used.append(ch)
+    Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
+    # Make the reference category the most common one
+    Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
+    # Get dummies for this characteristic
+    Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+    Xarr.append(Xn)
+    
+    ch = "lgbtq_plus"
+    iv_cols_used.append(ch)
+    Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
+    # Make the reference category the most common one
+    Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
+    # Get dummies for this characteristic
+    Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+    Xarr.append(Xn)
+    
+    ch = "multiple_disadvantage"
+    iv_cols_used.append(ch)
+    Xn = iv_df[ch].astype("category")
+    # Make the reference category the most common one
+    # Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
+    # Get dummies for this characteristic
+    Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+    Xarr.append(Xn)
+    
+    for ch in ["offending", "physical_health", "mental_health", "substance_use"]:
+        iv_cols_used.append(ch)
+        Xn = iv_df[ch].astype("category")
+        Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+        Xarr.append(Xn)
+    
+    for ch in ["rough_sleeping", "sex_working", "risk_violence_abuse", "risk_exploitation"]:
+        iv_cols_used.append(ch)
+        Xn = iv_df[ch].astype("category")
+        Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+        Xarr.append(Xn)
+    
+    X = pd.concat(Xarr, axis=1)
+    X = X[[col for col in X.columns if col not in cols_to_exclude]]
+    iv_cols_used = [col for col in iv_cols_used if col not in cols_to_exclude]
+    
+    # Add a constant to ensure intercept is calculated
+    Xc = sm.add_constant(X).rename(columns={"const": "(Intercept)"})
+    
+    return X, Xc, iv_df, iv_cols_used
+
+
+cols_to_exclude = []
+X, Xc, iv_df, iv_cols_used = get_ivs(dv, cols_to_exclude)
+```
+
+## Test associations between IVs
+
+```{python}
+import scipy.stats as ss
+from itertools import product
+# Alpha
+alpha = 0.05
 iv_df_used = iv_df[iv_cols_used]
 iv_df_used = iv_df_used.dropna()
 # Ensure relevant variables exclude cases where results are NA
@@ -693,6 +976,86 @@ display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
+cols_to_remove.append("global_majority_Yes")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("risk_violence_abuse_True")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
+
+assert (cols_to_remove ==
+        ['lgbtq_plus_Yes', 'mental_health_True',
+        'global_majority_Yes', 'risk_violence_abuse_True'])
+```
+
+## Final model
+
+```{python}
+from io import StringIO
+
+display(summary)
+results_or_final = results_or.drop(columns=["prev_coef", "coef", "diff_pct"]).swaplevel().sort_index()
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(results_or_final)
+
+tbl_i = 0
+for tbl in results.summary2().tables:
+    excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
+    tbl_i += 1
+```
+
+# Outcomes 3.08 years after a person's first route started
+
+## Prepare DV
+
+```{python}
+import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor as sm_vif
+
+# Get DV
+dv_str = "Outcomes 3.08 years after a person's first route started"
+dv = dv_dict[dv_str].iloc[:, 0].astype("category")
+dv = dv.cat.reorder_categories(['Independent accommodation', 'Insecure outcome', 'Returned to homelessness', 'Died'])
+```
+
+## Prepare IVs
+
+```{python}
+cols_to_exclude = ["multiple_disadvantage_True"]
+X, Xc, iv_df, iv_cols_used = get_ivs(dv, cols_to_exclude)
+iv_df_used = iv_df[iv_cols_used]
+iv_df_used = iv_df_used.dropna()
+# Ensure relevant variables exclude cases where results are NA
+X = X.loc[iv_df_used.index]
+Xc = Xc.loc[iv_df_used.index]
+dv = dv.loc[iv_df_used.index]
+```
+
+## Model building
+
+```{python}
+from IPython.display import Markdown
+
+# No need to redefine multinomial_regression() function, it is the same as for the last DV
+
+iter = 0
+display(Markdown(f"### Iteration {iter}"))
+cols_to_remove = []
+results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("lgbtq_plus_Yes")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("mental_health_True")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
 cols_to_remove.append("risk_exploitation_True")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
@@ -732,6 +1095,574 @@ for tbl in results.summary2().tables:
     excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
     tbl_i += 1
 ```
+
+# People with multiple returns during 7.5 yrs
+
+## Prepare DV
+
+```{python}
+import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor as sm_vif
+
+# Get DV
+dv_str = "People with multiple returns during 7.5 yrs"
+dv = dv_dict[dv_str].iloc[:, 0]
+dv = dv.loc[iv_df_used.index]
+```
+
+## Prepare IVs
+
+No need to prepare IVs, they are the same as for the last DV
+
+## Model building
+
+```{python}
+from IPython.display import Markdown
+
+
+def binomial_regression(dv, Xc, cols_to_remove):
+    global prev_results
+    selectedXc = Xc[[col for col in Xc.columns if col not in cols_to_remove]]
+    results = sm.Logit(dv, selectedXc.astype("float")).fit()
+    summary = results.summary(alpha=alpha)
+    params = results.params
+    coef = params.rename("odds_r")
+    ci = results.conf_int()
+    ci.columns = [f"[{alpha/2:.3f}", f"{1-alpha/2:.3f}]"]
+    odds_ratios = np.exp(pd.concat([coef, ci], axis=1))
+    pvalues = results.pvalues
+    pvalues = pvalues.rename("p")
+    pvalues_sig = (pvalues <= alpha).replace({True: "*", False: ""}).rename("*")
+    results_or = pd.concat([pvalues, pvalues_sig, odds_ratios], axis=1)
+    results_or.columns.name = "Odds Ratios"
+    if len(cols_to_remove) != 0:
+        prev_results = results
+        summary.add_extra_txt([f"Variables removed: {cols_to_remove}"])
+        prev_coef = prev_results.params
+        prev_coef = prev_coef.rename("prev_coef")
+        coef = results.params
+        coef = coef.rename("coef")
+        diff = (pd.concat([prev_coef, coef], axis=1)
+                .assign(diff_pct=lambda x: 100*(x.diff(axis=1).iloc[:, -1]/x["prev_coef"]).round(3)))
+        results_or = pd.concat([results_or, diff], axis=1)
+    display(summary)
+    results_or = results_or.loc[results_or["p"].sort_values(ascending=False).index]
+    with pd.option_context("display.float_format", "{:,.3f}".format):
+        display(results_or)
+    print(f"Psuedo R^2: {results.prsquared}")
+    print("-" * 50)
+    print("")
+    return results, summary, results_or
+
+iter = 0
+display(Markdown(f"### Iteration {iter}"))
+cols_to_remove = []
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("risk_violence_abuse_True")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("uk_immigration_status_Non-EEA National")
+cols_to_remove.append("uk_immigration_status_EEA National")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("global_majority_Yes")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("gender_Female")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("mental_health_True")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("lgbtq_plus_Yes")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("risk_exploitation_True")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+
+assert (cols_to_remove ==
+        ['risk_violence_abuse_True', 'uk_immigration_status_Non-EEA National', 'uk_immigration_status_EEA National',
+         'global_majority_Yes', 'gender_Female', 'mental_health_True', 'lgbtq_plus_Yes', 'risk_exploitation_True'])
+```
+
+## Final model
+
+```{python}
+from io import StringIO
+
+display(summary)
+results_or_final = results_or.drop(columns=["prev_coef", "coef", "diff_pct"]).sort_index()
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(results_or_final)
+
+tbl_i = 0
+for tbl in results.summary2().tables:
+    excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
+    tbl_i += 1
+```
+
+# People with a route in top 10% of route durations
+
+## Prepare DV
+
+```{python}
+import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor as sm_vif
+
+# Get DV
+dv_str = "People with a route in top 10% of route durations"
+dv = dv_dict[dv_str].iloc[:, 0]
+dv = dv.loc[iv_df_used.index]
+```
+
+## Prepare IVs
+
+No need to prepare IVs, they are the same as for the last DV
+
+## Model building
+
+```{python}
+from IPython.display import Markdown
+
+# No need to redefine binomial_regression() function
+
+iter = 0
+display(Markdown(f"### Iteration {iter}"))
+cols_to_remove = []
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("uk_immigration_status_Non-EEA National")
+cols_to_remove.append("uk_immigration_status_EEA National")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("global_majority_Yes")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("sex_working_True")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("risk_violence_abuse_True")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("mental_health_True")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("lgbtq_plus_Yes")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("substance_use_True")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+assert (cols_to_remove ==
+        ['uk_immigration_status_Non-EEA National', 'uk_immigration_status_EEA National', 'global_majority_Yes',
+         'sex_working_True', 'risk_violence_abuse_True', 'mental_health_True', 'lgbtq_plus_Yes', 'substance_use_True'])
+```
+
+## Final model
+
+```{python}
+from io import StringIO
+
+display(summary)
+results_or_final = results_or.drop(columns=["prev_coef", "coef", "diff_pct"]).sort_index()
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(results_or_final)
+
+tbl_i = 0
+for tbl in results.summary2().tables:
+    excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
+    tbl_i += 1
+```
+
+# Returns within 2 years after moving to independent accommodation
+
+## Prepare DV
+
+```{python}
+import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor as sm_vif
+
+# Get DV
+dv_str = "Returns within 2 years after moving to independent accommodation"
+dv = dv_dict[dv_str].iloc[:, 0].map({"Yes": True, "No": False})
+```
+
+## Prepare IVs
+
+```{python}
+cols_to_exclude = ["multiple_disadvantage_True"]
+X, Xc, iv_df, iv_cols_used = get_ivs(dv, cols_to_exclude)
+iv_df_used = iv_df[iv_cols_used]
+iv_df_used = iv_df_used.dropna()
+# Ensure relevant variables exclude cases where results are NA
+X = X.loc[iv_df_used.index]
+Xc = Xc.loc[iv_df_used.index]
+dv = dv.loc[iv_df_used.index]
+```
+
+## Model building
+
+```{python}
+from IPython.display import Markdown
+
+# No need to redefine binomial_regression() function
+
+iter = 0
+display(Markdown(f"### Iteration {iter}"))
+cols_to_remove = []
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("uk_immigration_status_Non-EEA National")
+cols_to_remove.append("uk_immigration_status_EEA National")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("gender_Female")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("risk_exploitation_True")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("age_cat_34-")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("sex_working_True")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("physical_health_True")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("global_majority_Yes")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("offending_True")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("mental_health_True")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("rough_sleeping_True")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
+
+assert (cols_to_remove == ['uk_immigration_status_Non-EEA National', 'uk_immigration_status_EEA National',
+                           'gender_Female', 'risk_exploitation_True', 'age_cat_34-', 'sex_working_True',
+                           'physical_health_True', 'global_majority_Yes', 'offending_True', 'mental_health_True',
+                           'rough_sleeping_True'])
+```
+
+## Final model
+
+```{python}
+from io import StringIO
+
+display(summary)
+results_or_final = results_or.drop(columns=["prev_coef", "coef", "diff_pct"]).sort_index()
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(results_or_final)
+
+tbl_i = 0
+for tbl in results.summary2().tables:
+    excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
+    tbl_i += 1
+```
+
+# Outcomes from individual placements
+
+## Prepare DV
+
+```{python}
+import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor as sm_vif
+
+# Get DV
+dv_str = "Outcomes from individual placements"
+dv = dv_dict[dv_str].iloc[:, 0].astype("category")
+dv = dv.cat.reorder_categories(list(dv.value_counts().index))
+```
+
+## Prepare IVs
+
+```{python}
+# Get relevant IVs
+idx_type = dv.index.name
+match idx_type:
+    case "vac_id":
+        iv_df = dpw_pls
+    case "route_id":
+        iv_df = dpw_rt_starts
+    case "o_cli_id":
+        iv_df = dpw_clis
+iv_df = iv_df[[idx_type] + characteristics].set_index(idx_type).loc[dv.index]
+if idx_type == "vac_id":
+    iv_df["pway_lvl"] = dpw_pls.set_index(idx_type)["svc_typelvl"].str.replace(r"M |M/F |F ", "H ", regex=True).str.replace(" ", "_")
+
+Xarr = []
+iv_cols_used = []
+
+ch = "pway_lvl"
+iv_cols_used.append(ch)
+# Exclude non-binary because there are very few cases and some outcomes with no cases
+Xn = iv_df[ch].astype("category")
+# Make the reference category the most common one
+Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
+# Get dummies for this characteristic
+Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+# Xarr.append(Xn)
+
+ch = "referral_agency"
+iv_cols_used.append(ch)
+# Exclude non-binary because there are very few cases and some outcomes with no cases
+Xn = iv_df[ch].replace("_[Missing data]", pd.NA).astype("category")
+# Make the reference category the most common one
+Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
+# Get dummies for this characteristic
+Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+# Xarr.append(Xn)
+
+ch = "gender"
+iv_cols_used.append(ch)
+# Exclude non-binary because there are very few cases and some outcomes with no cases
+Xn = iv_df[ch].replace(["Non-Binary", "_Unknown"], pd.NA).astype("category")
+# Make the reference category the most common one
+Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
+# Get dummies for this characteristic
+Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+Xarr.append(Xn)
+
+ch = "global_majority"
+iv_cols_used.append(ch)
+Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
+# Make the reference category the most common one
+Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
+# Get dummies for this characteristic
+Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+Xarr.append(Xn)
+
+ch = "uk_immigration_status"
+iv_cols_used.append(ch)
+Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
+# Make the reference category the most common one
+Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
+# Get dummies for this characteristic
+Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+Xarr.append(Xn)
+
+ch = "age_cat"
+iv_cols_used.append(ch)
+Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
+# Make the reference category the most common one
+Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
+# Get dummies for this characteristic
+Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+Xarr.append(Xn)
+
+ch = "lgbtq_plus"
+iv_cols_used.append(ch)
+Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
+# Make the reference category the most common one
+Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
+# Get dummies for this characteristic
+Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+Xarr.append(Xn)
+
+ch = "multiple_disadvantage"
+iv_cols_used.append(ch)
+Xn = iv_df[ch].astype("category")
+# Make the reference category the most common one
+# Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
+# Get dummies for this characteristic
+Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+Xarr.append(Xn)
+
+for ch in ["offending", "physical_health", "mental_health", "substance_use"]:
+    iv_cols_used.append(ch)
+    Xn = iv_df[ch].astype("category")
+    Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+    Xarr.append(Xn)
+
+for ch in ["rough_sleeping", "sex_working", "risk_violence_abuse", "risk_exploitation"]:
+    iv_cols_used.append(ch)
+    Xn = iv_df[ch].astype("category")
+    Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
+    Xarr.append(Xn)
+
+X = pd.concat(Xarr, axis=1)
+
+# Add a constant to ensure intercept is calculated
+Xc = sm.add_constant(X).rename(columns={"const": "(Intercept)"})
+
+```
+
+## Test associations between IVs
+
+```{python}
+import scipy.stats as ss
+from itertools import product
+# Alpha
+alpha = 0.05
+iv_df_used = iv_df[iv_cols_used]
+iv_df_used = iv_df_used.dropna()
+# Ensure relevant variables exclude cases where results are NA
+X = X.loc[iv_df_used.index]
+Xc = Xc.loc[iv_df_used.index]
+dv = dv.loc[iv_df_used.index]
+# Test chi squared and Cramer's V for contingency tables
+iv_prod = [(iv1, iv2) for iv1, iv2 in product(iv_df_used.columns, repeat=2) if iv1 != iv2]
+def chi2(iv1, iv2):
+    ct = pd.crosstab(iv_df_used[iv1], iv_df_used[iv2])
+    chi2, pvalue, dof, arr = ss.chi2_contingency(ct)
+    if pvalue < 0.001: p_sig = "***"
+    elif pvalue < 0.01: p_sig = "**"
+    elif pvalue < alpha: p_sig = "*"
+    else: p_sig = ""
+    cr_v = ss.contingency.association(ct, method="cramer")
+    return (chi2, pvalue, p_sig, dof, cr_v)
+results = (pd.DataFrame([(iv1, iv2) + chi2(iv1, iv2) for iv1, iv2 in iv_prod],
+                        columns=["iv1", "iv2", "chi2", "p", "p_sig", "df", "cr_v"]))
+results["iv2"] = results["iv2"].str.replace(r"^(.)[^_]*|_(.)[^_]*", r"\1\2", regex=True)
+results["disp"] = results["p_sig"] + results["cr_v"].apply("{:,.3f}".format)
+pvalues = results.pivot(index="iv1", columns="iv2", values="p").rename_axis("p", axis=1).rename_axis(None)
+p_sig = results.pivot(index="iv1", columns="iv2", values="p_sig").rename_axis("*", axis=1).rename_axis(None)
+cr_v = results.pivot(index="iv1", columns="iv2", values="cr_v").rename_axis("V", axis=1).rename_axis(None)
+disp = pd.concat([cr_v, p_sig], keys=["V", "*"]).swaplevel().sort_index(ascending=[True, False])
+```
+
+### Cramer's V 
+
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+
+```{python}
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+
+```
+
+### Variance Inflation Factor (VIF)
+
+```{python}
+# Test multicollinearity with VIF
+vif_data = pd.DataFrame()
+vif_data["Feature"] = Xc.columns
+vif_data["VIF"] = [sm_vif(Xc.astype("float").values, i) for i in range(len(Xc.columns))]
+vif_data = vif_data.set_index("Feature").sort_values("VIF", ascending=False)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+
+So multiple_disadvantage and substance_use are both causing higher variance inflation and are strongly correlated. This makes sense:
+multiple_disadvantage is defined by the existence of 3+ factors including substance use.
+
+### VIF without multiple_disadvantage
+
+```{python}
+cols_to_remove = ["multiple_disadvantage_True"]
+Xc = Xc[[col for col in Xc.columns if col not in cols_to_remove]]
+
+vif_data = pd.DataFrame()
+vif_data["Feature"] = Xc.columns
+vif_data["VIF"] = [sm_vif(Xc.astype("float").values, i) for i in range(len(Xc.columns))]
+vif_data = vif_data.set_index("Feature").sort_values("VIF", ascending=False)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+
+Now all variance inflation is low. Therefore despite some association between variables, model building can proceed.
+
+## Model building
+
+```{python}
+from IPython.display import Markdown
+
+# No need to redefine multinomial_regression() function, it is the same as for the last DV
+
+iter = 0
+display(Markdown(f"### Iteration {iter}"))
+cols_to_remove = []
+results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("lgbtq_plus_Yes")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("global_majority_Yes")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("risk_violence_abuse_True")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
+
+assert (cols_to_remove == ['lgbtq_plus_Yes', 'global_majority_Yes', 'risk_violence_abuse_True'])
+```
+
+## Final model
+
+```{python}
+from io import StringIO
+
+display(summary)
+results_or_final = results_or.drop(columns=["prev_coef", "coef", "diff_pct"]).swaplevel().sort_index()
+with pd.option_context("display.float_format", "{:,.3f}".format, "display.max_rows", 100):
+    display(results_or_final)
+
+tbl_i = 0
+for tbl in results.summary2().tables:
+    excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
+    tbl_i += 1
+```
+
 
 # Tables in an Excel file
 

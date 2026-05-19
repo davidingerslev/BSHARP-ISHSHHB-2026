@@ -672,7 +672,6 @@ def multinomial_regression(dv, Xc, cols_to_remove):
     results_or = pd.concat([pvalues, pvalues_sig, odds_ratios], axis=1)
     results_or.columns.name = "Odds Ratios"
     if len(cols_to_remove) != 0:
-        prev_results = results
         summary.add_extra_txt([f"Variables removed: {cols_to_remove}"])
         prev_coef = prev_results.params
         prev_coef.columns = list(dv.cat.categories[1:])
@@ -683,6 +682,7 @@ def multinomial_regression(dv, Xc, cols_to_remove):
         diff = (pd.concat([prev_coef, coef], axis=1)
                 .assign(diff_pct=lambda x: 100*(x.diff(axis=1).iloc[:, -1]/x["prev_coef"]).round(3)))
         results_or = pd.concat([results_or, diff], axis=1)
+    prev_results = results
     display(summary)
     results_or = results_or.loc[results_or["p"].groupby(level=1).transform("min").sort_values(ascending=False).index].swaplevel()
     with pd.option_context("display.float_format", "{:,.3f}".format, "display.max_rows", 120):
@@ -921,45 +921,7 @@ Now all variance inflation is low. Therefore despite some association between va
 ```{python}
 from IPython.display import Markdown
 
-
-def multinomial_regression(dv, Xc, cols_to_remove):
-    global prev_results
-    selectedXc = Xc[[col for col in Xc.columns if col not in cols_to_remove]]
-    results = sm.MNLogit(dv, selectedXc.astype("float")).fit()
-    summary = results.summary(alpha=alpha)
-    params = results.params
-    params.columns = list(dv.cat.categories[1:])
-    coef = params.unstack().rename("odds_r")
-    ci = results.conf_int()
-    ci.columns = [f"[{alpha/2:.3f}", f"{1-alpha/2:.3f}]"]
-    odds_ratios = np.exp(pd.concat([coef, ci], axis=1))
-    pvalues = results.pvalues
-    pvalues.columns = list(dv.cat.categories[1:])
-    pvalues = pvalues.unstack().rename("p")
-    pvalues_sig = (pvalues <= alpha).replace({True: "*", False: ""}).rename("*")
-    results_or = pd.concat([pvalues, pvalues_sig, odds_ratios], axis=1)
-    results_or.columns.name = "Odds Ratios"
-    if len(cols_to_remove) != 0:
-        prev_results = results
-        summary.add_extra_txt([f"Variables removed: {cols_to_remove}"])
-        prev_coef = prev_results.params
-        prev_coef.columns = list(dv.cat.categories[1:])
-        prev_coef = prev_coef.unstack().rename("prev_coef")
-        coef = results.params
-        coef.columns = list(dv.cat.categories[1:])
-        coef = coef.unstack().rename("coef")
-        diff = (pd.concat([prev_coef, coef], axis=1)
-                .assign(diff_pct=lambda x: 100*(x.diff(axis=1).iloc[:, -1]/x["prev_coef"]).round(3)))
-        results_or = pd.concat([results_or, diff], axis=1)
-    display(summary)
-    results_or = results_or.loc[results_or["p"].groupby(level=1).transform("min").sort_values(ascending=False).index].swaplevel()
-    with pd.option_context("display.float_format", "{:,.3f}".format):
-        display(results_or)
-    print(f"Psuedo R^2: {results.prsquared}")
-    print("-" * 50)
-    print("")
-    return results, summary, results_or
-
+# No need to redefine multinomial_regresssion function
 
 iter = 0
 display(Markdown(f"### Iteration {iter}"))
@@ -1067,6 +1029,10 @@ cols_to_remove.append("risk_violence_abuse_True")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
+display(Markdown(f"Exclusion of {cols_to_remove[-1]} reduces coefficients for gender_Female " +
+                 "by 14.6-82.1%, but gender_Female has no significant results, and psuedo R^2 " +
+                 "has hardly changed, so removing gender_Female too"))
+
 iter += 1
 cols_to_remove.append("gender_Female")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
@@ -1139,7 +1105,6 @@ def binomial_regression(dv, Xc, cols_to_remove):
     results_or = pd.concat([pvalues, pvalues_sig, odds_ratios], axis=1)
     results_or.columns.name = "Odds Ratios"
     if len(cols_to_remove) != 0:
-        prev_results = results
         summary.add_extra_txt([f"Variables removed: {cols_to_remove}"])
         prev_coef = prev_results.params
         prev_coef = prev_coef.rename("prev_coef")
@@ -1148,6 +1113,7 @@ def binomial_regression(dv, Xc, cols_to_remove):
         diff = (pd.concat([prev_coef, coef], axis=1)
                 .assign(diff_pct=lambda x: 100*(x.diff(axis=1).iloc[:, -1]/x["prev_coef"]).round(3)))
         results_or = pd.concat([results_or, diff], axis=1)
+    prev_results = results
     display(summary)
     results_or = results_or.loc[results_or["p"].sort_values(ascending=False).index]
     with pd.option_context("display.float_format", "{:,.3f}".format):
@@ -1650,6 +1616,10 @@ cols_to_remove.append("risk_violence_abuse_True")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
+display(Markdown(f"Exclusion of {cols_to_remove[-1]} increases coefficient for gender_Female & Died " +
+                 "by 57.2%%, but it is not a significant result, and psuedo R^2 " +
+                 "has hardly changed, so excluding it anyway."))
+
 assert (cols_to_remove == ['lgbtq_plus_Yes', 'global_majority_Yes', 'risk_violence_abuse_True'])
 ```
 
@@ -1670,6 +1640,29 @@ for tbl in results.summary2().tables:
 excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
 ```
 
+## Visualisations
+
+### Backwards moves
+
+```{python}
+import seaborn.objects as so
+import seaborn as sns
+
+b_moves_or = results_or_final.loc["Internal move: backwards"].iloc[1:]
+b_moves_or.index.name = "characteristics"
+lines = pd.DataFrame(index=b_moves_or.index).assign(line_1=1)
+p = (so.Plot(data=b_moves_or,
+             y="characteristics",
+             x="odds_r",
+             xmin=b_moves_or.columns[-2],
+             xmax=b_moves_or.columns[-1])
+     .add(so.Line(linestyle=(5, 3), color="black", alpha=0.5), data=lines, y="characteristics", x="line_1")
+     .add(so.Dot(pointsize=8))
+     .add(so.Range())
+     .add(so.Dash(), x=b_moves_or.columns[-2], width=0.3)
+     .add(so.Dash(), x=b_moves_or.columns[-1], width=0.3)
+     .show(block=False))
+```
 
 # Tables in an Excel file
 

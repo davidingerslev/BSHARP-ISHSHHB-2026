@@ -677,12 +677,17 @@ cols_to_remove = []
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("lgbtq_plus")
+cols_to_remove.append("sex_working")
+display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
+results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
+
+iter += 1
+cols_to_remove.append("age_cat")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
 assert (cols_to_remove ==
-        ['lgbtq_plus'])
+        ['sex_working', 'age_cat'])
 
 # Update iv_cols_used
 iv_cols_used = [i for i in iv_cols_used if i not in cols_to_remove]
@@ -723,6 +728,9 @@ def plot_odds_r(dv_str, dv_ref_cat, iv_ref_cats, results_or_final, x_max=None, w
     ci_lo = plot_or.columns[-2]
     ci_hi = plot_or.columns[-1]
 
+    footer_text = (r"Model statistics: $Psuedo\text{-}R^2=" + f"{results.prsquared:.3f}$, " +
+                   r"$P=" + f"{results.llr_pvalue:.3f}$. Excluded (statistically insignificant in this model): " +
+                   ", ".join(cols_to_remove) + ".")
     if type(plot_or.index) is pd.MultiIndex:
         # 1. Remove Intercept rows
         plot_or = plot_or.drop(index=plot_or.loc[(slice(None), "(Intercept)"), :].index)
@@ -766,7 +774,12 @@ def plot_odds_r(dv_str, dv_ref_cat, iv_ref_cats, results_or_final, x_max=None, w
     plot_or["*"] = (plot_or["*"] == "*") & plot_or["*"].notna()
     # lines = plot_or[["dv", "iv"]].assign(line_1=1)
     # log_plot_or = pd.concat([plot_or.iloc[:, :-3], np.log(plot_or.iloc[:, -3:])], axis=1)
-    fig = plt.figure(figsize=(9.5, 6), layout="constrained")
+    fig = plt.figure(figsize=(9.5, 6))
+    fig.suptitle("Odds ratios for " + dv_str[:1].lower() + dv_str[1:])
+    txt = fig.supxlabel(t=footer_text, x=0.01, y=0.01, ha="left", va="bottom", fontsize="small", wrap=True)
+    # fig_top, fig_bottom = fig.subfigures(2, 1, height_ratios=[44, 1])
+    # fig_top = fig
+    # fig_bottom = fig
     if x_max is None:
         max_x_axis_exp = 1.04 * np.log(plot_or[ci_hi].max())
         max_x_axis_exp = np.log(10) if max_x_axis_exp < np.log(10) else max_x_axis_exp
@@ -791,7 +804,8 @@ def plot_odds_r(dv_str, dv_ref_cat, iv_ref_cats, results_or_final, x_max=None, w
         p = p.facet("dv", wrap=wrap)
     fig_str = assets_output + f"Figure_{f_i}.svg"
     pl = p.on(fig).plot()
-    fig.suptitle("Odds Ratios for " + dv_str)
+    # txt_bb = txt.get_window_extent(renderer=fig.canvas.get_renderer())
+    # fig.get_layout_engine().set(h_pad=(6/72, 0))
     fig.legends.pop(0)
     plt.xscale("log")
     for ax in fig.axes:
@@ -799,15 +813,15 @@ def plot_odds_r(dv_str, dv_ref_cat, iv_ref_cats, results_or_final, x_max=None, w
         ax.xaxis.grid(True, which="both")
         # ax.xaxis.set_major_formatter(matplotlib.ticker.LogFormatterExponent())
     ax.xaxis.set_major_formatter(matplotlib.ticker.StrMethodFormatter("{x:g}"))
-    plt.show(block=False)
+    fig.tight_layout(rect=[0,0,1,1], pad=0.5, h_pad=1)
     fig.savefig(fig_str)
-    return fig_str
+    return fig_str, fig
+
 
 figure_minor_i = 1
 ref_cats_used = {k: v for k, v in ref_cats.items() if k in iv_cols_used and v[-6:] != "_False"}
-fig_str = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, results_or_final)
-# fig_str = plot_odds_r(dv_str, None, ref_cats_used, results_or_final)
-
+fig_str, fig = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, results_or_final)
+plt.show(block=False)
 ```
 
 # Route outcomes after 3.08 years
@@ -970,6 +984,7 @@ excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
 figure_minor_i += 1
 ref_cats_used = {k: v for k, v in ref_cats.items() if k in iv_cols_used and v[-6:] != "_False"}
 fig_str = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, results_or_final)
+plt.show(block=False)
 ```
 
 # Outcomes 3.08 years after a person's first route started

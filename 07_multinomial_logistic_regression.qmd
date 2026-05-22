@@ -713,8 +713,10 @@ excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
 ```{python}
 import seaborn.objects as so
 import matplotlib.pyplot as plt
+import seaborn as sns
+import matplotlib
 
-def plot_odds_r(dv_str, dv_ref_cat, iv_ref_cats, results_or_final, x_max=8):
+def plot_odds_r(dv_str, dv_ref_cat, iv_ref_cats, results_or_final, x_max=None, wrap=None):
     global figure_major_i, figure_minor_i
     f_i = f"{figure_major_i}.{figure_minor_i}"
     plot_or = results_or_final.dropna()
@@ -762,26 +764,42 @@ def plot_odds_r(dv_str, dv_ref_cat, iv_ref_cats, results_or_final, x_max=8):
         plot_or["iv"] = plot_or["iv"].replace(binaries_bold)
 
     # lines = plot_or[["dv", "iv"]].assign(line_1=1)
+    # log_plot_or = pd.concat([plot_or.iloc[:, :-3], np.log(plot_or.iloc[:, -3:])], axis=1)
     fig = plt.figure(figsize=(9.5, 6), layout="constrained")
-    p = (so.Plot(data=plot_or, y="iv", x="odds_r", xmin=ci_lo, xmax=ci_hi)
+    if x_max is None:
+        max_x_axis_exp = 1.04 * np.log(plot_or[ci_hi].max())
+        max_x_axis_exp = np.log(10) if max_x_axis_exp < np.log(10) else max_x_axis_exp
+    else:
+        max_x_axis_exp = np.log(x_max)
+    x_limits = (np.exp(-max_x_axis_exp), np.exp(max_x_axis_exp))
+    palette = sns.color_palette("Paired")
+    colours = [palette[0], palette[1]]
+    p = (so.Plot(data=plot_or, y="iv", x="odds_r", xmin=ci_lo, xmax=ci_hi, color="*")
          .label(x="", y="")
-         .limit(x=(0, x_max))
+         .limit(x=x_limits)
          # .layout(size=(9.5, 6), engine="constrained")
-         .theme({"font.size": 9, "xtick.labelsize": "medium", "ytick.labelsize": "medium", "axes.titlesize": "medium"})
-         # .add(so.Line(linestyle=(5, 3), color="black", alpha=0.5), data=lines, y="iv", x="line_1")
+         .theme({"font.size": 9, "xtick.labelsize": "small", "ytick.labelsize": "medium",
+                 "axes.titlesize": "medium", "axes.grid.which": "both"})
+         .scale(color=colours)
          .add(so.Dot(pointsize=6))
          .add(so.Range())
          .add(so.Dash(), x=ci_lo, width=0.2)
-         .add(so.Dash(), x=ci_hi, width=0.2))
+         .add(so.Dash(), x=ci_hi, width=0.2)
+         )
     if type(results_or_final.index) is pd.MultiIndex:
-        p = p.facet("dv")
+        p = p.facet("dv", wrap=wrap)
     fig_str = assets_output + f"Figure_{f_i}.svg"
     pl = p.on(fig).plot()
     fig.suptitle("Odds Ratios for " + dv_str)
+    fig.legends.pop(0)
+    plt.xscale("log")
     for ax in fig.axes:
         ax.axvline(x=1, color="black", alpha=0.5, linestyle=(0, (5, 3)))
-    p.save(fig_str)
-    p.show(block=False)
+        ax.xaxis.grid(True, which="both")
+        # ax.xaxis.set_major_formatter(matplotlib.ticker.LogFormatterExponent())
+        ax.xaxis.set_major_formatter(matplotlib.ticker.ScalarFormatter())
+    plt.show(block=False)
+    fig.savefig(fig_str)
     return fig_str
 
 figure_minor_i = 1
@@ -1596,7 +1614,7 @@ p = (so.Plot(data=b_moves_or,
 ```{python}
 figure_minor_i += 1
 ref_cats_used = {k: v for k, v in ref_cats.items() if k in iv_cols_used and v[-6:] != "_False"}
-fig_str = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, results_or_final)
+fig_str = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, results_or_final, wrap=3)
 ```
 
 # Tables in an Excel file

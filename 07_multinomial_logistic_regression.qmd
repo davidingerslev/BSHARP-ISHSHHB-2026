@@ -41,7 +41,9 @@ output_dir = assets_output
 transparent = False
 excel_output = {}
 dpw_pls_orig = dpw_pls
-
+odds_r_tables = []
+figure_major_i = 7
+figure_minor_i = 0
 
 def get_frequencies(series, sort=True, dropna=True, dropna_pct=True):
     n = series.value_counts(sort=sort, dropna=dropna).rename("n")
@@ -275,13 +277,13 @@ dpw_pls["gender"] = dpw_pls["gender"].map({
 dpw_pls["age_cat"] = (dpw_pls["pl_start_dt"].dt.year - dpw_pls["yob"]>= 35).map({True: "35+", False: "34-"})
 
 dpw_pls["global_majority"] = dpw_pls["ethnicity"].map(defaultdict(
-    lambda: "Yes",
+    lambda: True,
     {
-      "English/Welsh/Scottish/Northern Irish/British": "No", "White British": "No",
-      "White Other Origin": "No", "Any other White background": "No", "White European": "No",
-      "Eastern European": "No", "Turkish": "No", "White Irish": "No", "Irish": "No",
-      "White Gypsy/Irish Traveller": "No", "Gypsy (inc English, Scottish or Roma Gypsy) or Irish Traveller": "No",
-      "Don't know": "_Unknown", "Prefer not to say": "_Unknown", "Refused to answer question": "_Unknown"
+      "English/Welsh/Scottish/Northern Irish/British": False, "White British": False,
+      "White Other Origin": False, "Any other White background": False, "White European": False,
+      "Eastern European": False, "Turkish": False, "White Irish": False, "Irish": False,
+      "White Gypsy/Irish Traveller": False, "Gypsy (inc English, Scottish or Roma Gypsy) or Irish Traveller": False,
+      "Don't know": pd.NA, "Prefer not to say": pd.NA, "Refused to answer question": pd.NA
     }))
 eth_dtl_map = {
     "White British": [
@@ -352,7 +354,7 @@ eth_dtl_map = {
         "Gypsy (inc English, Scottish or Roma Gypsy) or Irish Traveller"
     ]
 }
-mapper = {k: v for v,k in pd.Series(eth_dtl_map).explode().items()}
+mapper = {k: v for v, k in pd.Series(eth_dtl_map).explode().items()}
 dpw_pls["ethnicity_detailed"] = dpw_pls["ethnicity"].replace(mapper).astype("string").astype("category")
 eth_grp_map = {
     "White": [
@@ -374,8 +376,8 @@ eth_grp_map = {
 mapper = {k: v for v,k in pd.Series(eth_grp_map).explode().items()}
 dpw_pls["ethnicity_grouped"] = dpw_pls["ethnicity_detailed"].replace(mapper).astype("string").astype("category")
 dpw_pls["lgbtq_plus"] = dpw_pls["sexual_orientation"].map({
-    "Bi-sexual": "Yes", "Gay/Lesbian": "Yes", "other": "Yes", "Lesbian": "Yes",
-    "Heterosexual": "No", "Don't Know": "_Unknown", "Rather not state": "_Unknown",
+    "Bi-sexual": True, "Gay/Lesbian": True, "other": True, "Lesbian": True,
+    "Heterosexual": False, "Don't Know": pd.NA, "Rather not state": pd.NA,
 })
 dpw_pls["uk_immigration_status"] = dpw_pls["uk_immigration_status"].map({
     "Other Protection Leave to Remain": "Non-EEA National",
@@ -391,7 +393,7 @@ ref_cat_map = {
     "Local authority (_other)": list(ref_cats[ref_cats.str.startswith(("B.C.C", "Bcc"))
                                     & (ref_cats != "B.C.C. Homelessness Prevention Team")]),
     "Service provider (rough sleeping and SH)": ["St. Mungo's", "St Mungo's", "Outreach"],
-    "Service provider (SU pathway, prison resettlement and SH)": ["A.R.A"],
+    "Service provider (SU pathway, prison wk)": ["A.R.A"],
     "Service provider (_other SH)": ["E.C.H.G. Riverside", "Elim", "Livewest", "Missing Link", "Places For People",
                                     "Salvation Army", "Second Step", "Self Help"]
 }
@@ -476,102 +478,77 @@ dv = (dv.iloc[:, 0].str.replace(" ", "_") + "_" + dv.iloc[:, 1].astype("string")
 ## Prepare IVs
 
 ```{python}
-# Get relevant IVs
-idx_type = dv.index.name
-match idx_type:
-    case "vac_id":
-        iv_df = dpw_pls
-    case "route_id":
-        iv_df = dpw_rt_starts
-    case "o_cli_id":
-        iv_df = dpw_clis
-iv_df = iv_df[[idx_type] + characteristics].set_index(idx_type).loc[dv.index]
+def get_ivs(dv, cols_to_exclude):
+    global dpw_pls, dpw_rt_starts, dpw_clis, characteristics
+    # Get relevant IVs
+    idx_type = dv.index.name
+    match idx_type:
+        case "vac_id":
+            iv_df = dpw_pls
+        case "route_id":
+            iv_df = dpw_rt_starts
+        case "o_cli_id":
+            iv_df = dpw_clis
+    iv_df = iv_df[[idx_type] + characteristics].set_index(idx_type).loc[dv.index]
+    if idx_type == "vac_id":
+        iv_df["pway_lvl"] = dpw_pls.set_index(idx_type)["svc_typelvl"].str.replace(r"M |M/F |F ", "H ", regex=True).str.replace(" ", "_")
+    
+    Xarr = []
+    iv_cols_used = []
+    ref_cats = {}
+    binaries = []
+    
+    
+    def add_categorical(ch, na_values=["_[Missing data]", "_Unknown"], ref_cat=None):
+        if ch in cols_to_exclude: 
+            return
+        iv_cols_used.append(ch)
+        Xn = iv_df[ch].replace(na_values, pd.NA).astype("category")
+        # Make the reference category the most common one
+        if ref_cat is None:
+            Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
+        else:
+            Xn = Xn.cat.reorder_categories([ref_cat] + [i for i in list(Xn.cat.categories) if i is not ref_cat])
+        # Get dummies for this characteristic
+        Xn = pd.get_dummies(Xn, prefix=ch, drop_first=False).astype("boolean")  # instead of "bool" to allow nullable
+        Xn.loc[iv_df[ch].isnull()] = pd.NA
+        ref_cats[ch] = Xn.columns[0]
+        Xn = Xn.iloc[:, 1:]
+        Xarr.append(Xn)
 
-Xarr = []
-iv_cols_used = []
 
-ch = "referral_agency"
-iv_cols_used.append(ch)
-# Exclude non-binary because there are very few cases and some outcomes with no cases
-Xn = iv_df[ch].replace("_[Missing data]", pd.NA).astype("category")
-# Make the reference category the most common one
-Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
-# Get dummies for this characteristic
-Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-Xarr.append(Xn)
+    def add_binary(ch):
+        if ch in cols_to_exclude: 
+            return
+        binaries.append(ch)
+        iv_cols_used.append(ch)
+        Xn = iv_df[ch]
+        Xarr.append(Xn)
 
-ch = "gender"
-iv_cols_used.append(ch)
-# Exclude non-binary because there are very few cases and some outcomes with no cases
-Xn = iv_df[ch].replace(["Non-Binary", "_Unknown"], pd.NA).astype("category")
-# Make the reference category the most common one
-Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
-# Get dummies for this characteristic
-Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-Xarr.append(Xn)
 
-ch = "global_majority"
-iv_cols_used.append(ch)
-Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
-# Make the reference category the most common one
-Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
-# Get dummies for this characteristic
-Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-Xarr.append(Xn)
+    if idx_type == "vac_id":
+        add_categorical("pway_lvl")
+    add_categorical("referral_agency")
+    add_categorical("gender", ["Non-Binary", "_Unknown"])
+    add_binary("global_majority")
+    add_categorical("uk_immigration_status")
+    add_categorical("age_cat")
+    # Binary variables
+    for ch in ["lgbtq_plus", "multiple_disadvantage",
+               "offending", "physical_health", "mental_health", "substance_use",
+               "rough_sleeping", "sex_working", "risk_violence_abuse", "risk_exploitation"]:
+        add_binary(ch)
 
-ch = "uk_immigration_status"
-iv_cols_used.append(ch)
-Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
-# Make the reference category the most common one
-Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
-# Get dummies for this characteristic
-Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-Xarr.append(Xn)
+    X = pd.concat(Xarr, axis=1)
+    X = X.dropna()
 
-ch = "age_cat"
-iv_cols_used.append(ch)
-Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
-# Make the reference category the most common one
-Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
-# Get dummies for this characteristic
-Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-Xarr.append(Xn)
+    # Add a constant to ensure intercept is calculated
+    Xc = sm.add_constant(X).rename(columns={"const": "(Intercept)"})
+    return X, Xc, iv_df, iv_cols_used, ref_cats, binaries
 
-ch = "lgbtq_plus"
-iv_cols_used.append(ch)
-Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
-# Make the reference category the most common one
-Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
-# Get dummies for this characteristic
-Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-Xarr.append(Xn)
 
-ch = "multiple_disadvantage"
-iv_cols_used.append(ch)
-Xn = iv_df[ch].astype("category")
-# Make the reference category the most common one
-# Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
-# Get dummies for this characteristic
-Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-Xarr.append(Xn)
-
-for ch in ["offending", "physical_health", "mental_health", "substance_use"]:
-    iv_cols_used.append(ch)
-    Xn = iv_df[ch].astype("category")
-    Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-    Xarr.append(Xn)
-
-for ch in ["rough_sleeping", "sex_working", "risk_violence_abuse", "risk_exploitation"]:
-    iv_cols_used.append(ch)
-    Xn = iv_df[ch].astype("category")
-    Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-    Xarr.append(Xn)
-
-X = pd.concat(Xarr, axis=1)
-
-# Add a constant to ensure intercept is calculated
-Xc = sm.add_constant(X).rename(columns={"const": "(Intercept)"})
-
+cols_to_exclude = ["pway_lvl"]
+X, Xc, iv_df, iv_cols_used, ref_cats, binaries = get_ivs(dv, cols_to_exclude)
 ```
 
 ## Test associations between IVs
@@ -636,8 +613,8 @@ multiple_disadvantage is defined by the existence of 3+ factors including substa
 ### VIF without multiple_disadvantage
 
 ```{python}
-cols_to_remove = ["multiple_disadvantage_True"]
-Xc = Xc[[col for col in Xc.columns if col not in cols_to_remove]]
+cols_to_remove = ["multiple_disadvantage"]
+Xc = Xc[[col for col in Xc.columns if not col.startswith(tuple(cols_to_remove))]]
 
 vif_data = pd.DataFrame()
 vif_data["Feature"] = Xc.columns
@@ -654,9 +631,10 @@ Now all variance inflation is low. Therefore despite some association between va
 ```{python}
 from IPython.display import Markdown
 
+
 def multinomial_regression(dv, Xc, cols_to_remove):
     global prev_results
-    selectedXc = Xc[[col for col in Xc.columns if col not in cols_to_remove]]
+    selectedXc = Xc[[col for col in Xc.columns if not col.startswith(tuple(cols_to_remove))]]
     results = sm.MNLogit(dv, selectedXc.astype("float")).fit()
     summary = results.summary(alpha=alpha)
     params = results.params
@@ -679,7 +657,7 @@ def multinomial_regression(dv, Xc, cols_to_remove):
         coef = results.params
         coef.columns = list(dv.cat.categories[1:])
         coef = coef.unstack().rename("coef")
-        diff = (pd.concat([prev_coef, coef], axis=1)
+        diff = (pd.concat([prev_coef.loc[coef.index], coef], axis=1)
                 .assign(diff_pct=lambda x: 100*(x.diff(axis=1).iloc[:, -1]/x["prev_coef"]).round(3)))
         results_or = pd.concat([results_or, diff], axis=1)
     prev_results = results
@@ -699,12 +677,15 @@ cols_to_remove = []
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("lgbtq_plus_Yes")
+cols_to_remove.append("lgbtq_plus")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
 assert (cols_to_remove ==
-        ['lgbtq_plus_Yes'])
+        ['lgbtq_plus'])
+
+# Update iv_cols_used
+iv_cols_used = [i for i in iv_cols_used if i not in cols_to_remove]
 ```
 
 ## Final model
@@ -724,6 +705,90 @@ for tbl in results.summary2().tables:
     excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
     tbl_i += 1
 excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
+
+```
+
+## Visualisation
+
+```{python}
+import seaborn.objects as so
+import matplotlib.pyplot as plt
+
+def plot_odds_r(dv_str, dv_ref_cat, iv_ref_cats, results_or_final, x_max=8):
+    global figure_major_i, figure_minor_i
+    f_i = f"{figure_major_i}.{figure_minor_i}"
+    plot_or = results_or_final.dropna()
+    ci_lo = plot_or.columns[-2]
+    ci_hi = plot_or.columns[-1]
+
+    if type(plot_or.index) is pd.MultiIndex:
+        # 1. Remove Intercept rows
+        plot_or = plot_or.drop(index=plot_or.loc[(slice(None), "(Intercept)"), :].index)
+        # 2. Add iv_ref_cat rows with odds_r and both C.I.s == 1.0 for IVs still in the model
+        ref_cat_data = {"p": pd.NA, "*": "", "odds_r": 1.0, ci_lo: 1.0, ci_hi: 1.0}
+        ref_cat_idx = pd.MultiIndex.from_tuples(product(plot_or.index.levels[0], iv_ref_cats.values()))
+        ref_cat_df = pd.DataFrame(data=ref_cat_data, index=ref_cat_idx)
+        ref_cat_title_data = {"p": pd.NA, "*": "", "odds_r": pd.NA, ci_lo: pd.NA, ci_hi: pd.NA}
+        ref_cat_title_bold = {i: r"$\bf{" + i.replace("_", r"\ ") + "}$" for i in iv_ref_cats.keys()}
+        ref_cat_title_idx = pd.MultiIndex.from_tuples(product(plot_or.index.levels[0], iv_ref_cats.keys()))
+        ref_cat_title_df = pd.DataFrame(data=ref_cat_title_data, index=ref_cat_title_idx)
+        plot_or = pd.concat([plot_or, ref_cat_df, ref_cat_title_df]).sort_index().rename_axis(index=["dv", "iv"]).reset_index()
+        # Shorten IVs by separating into groups
+        plot_or["iv"] = plot_or["iv"].str.replace("|".join([x + "_" for x in iv_ref_cats.keys()]), "", regex=True)
+        plot_or["iv"] = plot_or["iv"].replace(ref_cat_title_bold)
+        # Bold binaries
+        binaries_bold = {i: r"$\bf{" + i.replace("_", r"\ ") + "}$" for i in binaries}
+        plot_or["iv"] = plot_or["iv"].replace(binaries_bold)
+        # short_ivs = plot_or.index.levels[1].str.replace("|".join([x + "_" for x in iv_ref_cats.keys()]), "", regex=True)
+        # 3. Add title "vs dv_ref_cat"
+        # plot_or.index = plot_or.index.set_levels(plot_or.index.levels[0] + "\nvs.\n" + dv_ref_cat, level=0)
+        # plot_or.index = plot_or.index + "\nvs.\n" + dv_ref_cat
+        plot_or["dv"] = plot_or["dv"] + "\nvs.\n" + dv_ref_cat
+    else:
+        # 1. Remove Intercept rows
+        plot_or = plot_or.drop(index="(Intercept)")
+        # 2. Add iv_ref_cat rows with odds_r and both C.I.s == 1.0 for IVs still in the model
+        ref_cat_data = {"p": pd.NA, "*": "", "odds_r": 1.0, ci_lo: 1.0, ci_hi: 1.0}
+        ref_cat_idx = list(iv_ref_cats.values())
+        ref_cat_df = pd.DataFrame(data=ref_cat_data, index=ref_cat_idx)
+        ref_cat_title_data = {"p": pd.NA, "*": "", "odds_r": pd.NA, ci_lo: pd.NA, ci_hi: pd.NA}
+        ref_cat_title_bold = {i: r"$\bf{" + i.replace("_", r"\ ") + "}$" for i in iv_ref_cats.keys()}
+        ref_cat_title_idx = iv_ref_cats.keys()
+        ref_cat_title_df = pd.DataFrame(data=ref_cat_title_data, index=ref_cat_title_idx)
+        plot_or = pd.concat([plot_or, ref_cat_df, ref_cat_title_df]).sort_index().rename_axis(index="iv").reset_index()
+        plot_or["iv"] = plot_or["iv"].str.replace("|".join([x + "_" for x in iv_ref_cats.keys()]), "", regex=True)
+        plot_or["iv"] = plot_or["iv"].replace(ref_cat_title_bold)
+        binaries_bold = {i: r"$\bf{" + i.replace("_", r"\ ") + "}$" for i in binaries}
+        plot_or["iv"] = plot_or["iv"].replace(binaries_bold)
+
+    # lines = plot_or[["dv", "iv"]].assign(line_1=1)
+    fig = plt.figure(figsize=(9.5, 6), layout="constrained")
+    p = (so.Plot(data=plot_or, y="iv", x="odds_r", xmin=ci_lo, xmax=ci_hi)
+         .label(x="", y="")
+         .limit(x=(0, x_max))
+         # .layout(size=(9.5, 6), engine="constrained")
+         .theme({"font.size": 9, "xtick.labelsize": "medium", "ytick.labelsize": "medium", "axes.titlesize": "medium"})
+         # .add(so.Line(linestyle=(5, 3), color="black", alpha=0.5), data=lines, y="iv", x="line_1")
+         .add(so.Dot(pointsize=6))
+         .add(so.Range())
+         .add(so.Dash(), x=ci_lo, width=0.2)
+         .add(so.Dash(), x=ci_hi, width=0.2))
+    if type(results_or_final.index) is pd.MultiIndex:
+        p = p.facet("dv")
+    fig_str = assets_output + f"Figure_{f_i}.svg"
+    pl = p.on(fig).plot()
+    fig.suptitle("Odds Ratios for " + dv_str)
+    for ax in fig.axes:
+        ax.axvline(x=1, color="black", alpha=0.5, linestyle=(0, (5, 3)))
+    p.save(fig_str)
+    p.show(block=False)
+    return fig_str
+
+figure_minor_i = 1
+ref_cats_used = {k: v for k, v in ref_cats.items() if k in iv_cols_used and v[-6:] != "_False"}
+fig_str = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, results_or_final)
+# fig_str = plot_odds_r(dv_str, None, ref_cats_used, results_or_final)
+
 ```
 
 # Route outcomes after 3.08 years
@@ -743,101 +808,8 @@ dv = dv.cat.reorder_categories(['Independent accommodation', 'Insecure outcome',
 ## Prepare IVs
 
 ```{python}
-def get_ivs(dv, cols_to_exclude):
-    global dpw_pls, dpw_rt_starts, dpw_clis, characteristics
-    # Get relevant IVs
-    idx_type = dv.index.name
-    match idx_type:
-        case "vac_id":
-            iv_df = dpw_pls
-        case "route_id":
-            iv_df = dpw_rt_starts
-        case "o_cli_id":
-            iv_df = dpw_clis
-    iv_df = iv_df[[idx_type] + characteristics].set_index(idx_type).loc[dv.index]
-    
-    Xarr = []
-    iv_cols_used = []
-    
-    ch = "gender"
-    iv_cols_used.append(ch)
-    # Exclude non-binary because there are very few cases and some outcomes with no cases
-    Xn = iv_df[ch].replace(["Non-Binary", "_Unknown"], pd.NA).astype("category")
-    # Make the reference category the most common one
-    Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
-    # Get dummies for this characteristic
-    Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-    Xarr.append(Xn)
-    
-    ch = "global_majority"
-    iv_cols_used.append(ch)
-    Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
-    # Make the reference category the most common one
-    Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
-    # Get dummies for this characteristic
-    Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-    Xarr.append(Xn)
-    
-    ch = "uk_immigration_status"
-    iv_cols_used.append(ch)
-    Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
-    # Make the reference category the most common one
-    Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
-    # Get dummies for this characteristic
-    Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-    Xarr.append(Xn)
-    
-    ch = "age_cat"
-    iv_cols_used.append(ch)
-    Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
-    # Make the reference category the most common one
-    Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
-    # Get dummies for this characteristic
-    Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-    Xarr.append(Xn)
-    
-    ch = "lgbtq_plus"
-    iv_cols_used.append(ch)
-    Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
-    # Make the reference category the most common one
-    Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
-    # Get dummies for this characteristic
-    Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-    Xarr.append(Xn)
-    
-    ch = "multiple_disadvantage"
-    iv_cols_used.append(ch)
-    Xn = iv_df[ch].astype("category")
-    # Make the reference category the most common one
-    # Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
-    # Get dummies for this characteristic
-    Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-    Xarr.append(Xn)
-    
-    for ch in ["offending", "physical_health", "mental_health", "substance_use"]:
-        iv_cols_used.append(ch)
-        Xn = iv_df[ch].astype("category")
-        Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-        Xarr.append(Xn)
-    
-    for ch in ["rough_sleeping", "sex_working", "risk_violence_abuse", "risk_exploitation"]:
-        iv_cols_used.append(ch)
-        Xn = iv_df[ch].astype("category")
-        Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-        Xarr.append(Xn)
-    
-    X = pd.concat(Xarr, axis=1)
-    X = X[[col for col in X.columns if col not in cols_to_exclude]]
-    iv_cols_used = [col for col in iv_cols_used if col not in cols_to_exclude]
-    
-    # Add a constant to ensure intercept is calculated
-    Xc = sm.add_constant(X).rename(columns={"const": "(Intercept)"})
-    
-    return X, Xc, iv_df, iv_cols_used
-
-
-cols_to_exclude = []
-X, Xc, iv_df, iv_cols_used = get_ivs(dv, cols_to_exclude)
+cols_to_exclude = ["pway_lvl", "referral_agency"]
+X, Xc, iv_df, iv_cols_used, ref_cats, binaries = get_ivs(dv, cols_to_exclude)
 ```
 
 ## Test associations between IVs
@@ -903,8 +875,8 @@ multiple_disadvantage is defined by the existence of 3+ factors including substa
 ### VIF without multiple_disadvantage
 
 ```{python}
-cols_to_remove = ["multiple_disadvantage_True"]
-Xc = Xc[[col for col in Xc.columns if col not in cols_to_remove]]
+cols_to_remove = ["multiple_disadvantage"]
+Xc = Xc[[col for col in Xc.columns if not col.startswith(tuple(cols_to_remove))]]
 
 vif_data = pd.DataFrame()
 vif_data["Feature"] = Xc.columns
@@ -929,28 +901,31 @@ cols_to_remove = []
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("lgbtq_plus_Yes")
+cols_to_remove.append("lgbtq_plus")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("mental_health_True")
+cols_to_remove.append("mental_health")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("global_majority_Yes")
+cols_to_remove.append("global_majority")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("risk_violence_abuse_True")
+cols_to_remove.append("risk_violence_abuse")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
 assert (cols_to_remove ==
-        ['lgbtq_plus_Yes', 'mental_health_True',
-        'global_majority_Yes', 'risk_violence_abuse_True'])
+        ['lgbtq_plus', 'mental_health',
+        'global_majority', 'risk_violence_abuse'])
+
+# Update iv_cols_used
+iv_cols_used = [i for i in iv_cols_used if i not in cols_to_remove]
 ```
 
 ## Final model
@@ -970,6 +945,14 @@ for tbl in results.summary2().tables:
 excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
 ```
 
+## Visualisation
+
+```{python}
+figure_minor_i += 1
+ref_cats_used = {k: v for k, v in ref_cats.items() if k in iv_cols_used and v[-6:] != "_False"}
+fig_str = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, results_or_final)
+```
+
 # Outcomes 3.08 years after a person's first route started
 
 ## Prepare DV
@@ -987,8 +970,8 @@ dv = dv.cat.reorder_categories(['Independent accommodation', 'Insecure outcome',
 ## Prepare IVs
 
 ```{python}
-cols_to_exclude = ["multiple_disadvantage_True"]
-X, Xc, iv_df, iv_cols_used = get_ivs(dv, cols_to_exclude)
+cols_to_exclude = ["pway_lvl", "referral_agency", "multiple_disadvantage"]
+X, Xc, iv_df, iv_cols_used, ref_cats, binaries = get_ivs(dv, cols_to_exclude)
 iv_df_used = iv_df[iv_cols_used]
 iv_df_used = iv_df_used.dropna()
 # Ensure relevant variables exclude cases where results are NA
@@ -1010,22 +993,22 @@ cols_to_remove = []
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("lgbtq_plus_Yes")
+cols_to_remove.append("lgbtq_plus")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("mental_health_True")
+cols_to_remove.append("mental_health")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("risk_exploitation_True")
+cols_to_remove.append("risk_exploitation")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("risk_violence_abuse_True")
+cols_to_remove.append("risk_violence_abuse")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
@@ -1034,18 +1017,21 @@ display(Markdown(f"Exclusion of {cols_to_remove[-1]} reduces coefficients for ge
                  "has hardly changed, so removing gender_Female too"))
 
 iter += 1
-cols_to_remove.append("gender_Female")
+cols_to_remove.append("gender")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("global_majority_Yes")
+cols_to_remove.append("global_majority")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
 assert (cols_to_remove ==
-        ['lgbtq_plus_Yes', 'mental_health_True', 'risk_exploitation_True',
-         'risk_violence_abuse_True', 'gender_Female', 'global_majority_Yes'])
+        ['lgbtq_plus', 'mental_health', 'risk_exploitation',
+         'risk_violence_abuse', 'gender', 'global_majority'])
+
+# Update iv_cols_used
+iv_cols_used = [i for i in iv_cols_used if i not in cols_to_remove]
 ```
 
 ## Final model
@@ -1063,6 +1049,14 @@ for tbl in results.summary2().tables:
     excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
     tbl_i += 1
 excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
+```
+
+## Visualisation
+
+```{python}
+figure_minor_i += 1
+ref_cats_used = {k: v for k, v in ref_cats.items() if k in iv_cols_used and v[-6:] != "_False"}
+fig_str = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, results_or_final)
 ```
 
 # People with multiple returns during 7.5 yrs
@@ -1089,9 +1083,10 @@ No need to prepare IVs, they are the same as for the last DV
 from IPython.display import Markdown
 
 
+
 def binomial_regression(dv, Xc, cols_to_remove):
     global prev_results
-    selectedXc = Xc[[col for col in Xc.columns if col not in cols_to_remove]]
+    selectedXc = Xc[[col for col in Xc.columns if not col.startswith(tuple(cols_to_remove))]]
     results = sm.Logit(dv, selectedXc.astype("float")).fit()
     summary = results.summary(alpha=alpha)
     params = results.params
@@ -1129,45 +1124,47 @@ cols_to_remove = []
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("risk_violence_abuse_True")
+cols_to_remove.append("risk_violence_abuse")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("uk_immigration_status_Non-EEA National")
-cols_to_remove.append("uk_immigration_status_EEA National")
+cols_to_remove.append("uk_immigration_status")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("global_majority_Yes")
+cols_to_remove.append("global_majority")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("gender_Female")
+cols_to_remove.append("gender")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("mental_health_True")
+cols_to_remove.append("mental_health")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("lgbtq_plus_Yes")
+cols_to_remove.append("lgbtq_plus")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("risk_exploitation_True")
+cols_to_remove.append("risk_exploitation")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 
 assert (cols_to_remove ==
-        ['risk_violence_abuse_True', 'uk_immigration_status_Non-EEA National', 'uk_immigration_status_EEA National',
-         'global_majority_Yes', 'gender_Female', 'mental_health_True', 'lgbtq_plus_Yes', 'risk_exploitation_True'])
+        ['risk_violence_abuse', 'uk_immigration_status', 'global_majority',
+         'gender', 'mental_health', 'lgbtq_plus', 'risk_exploitation'])
+
+# Update iv_cols_used
+iv_cols_used = [i for i in iv_cols_used if i not in cols_to_remove]
 ```
 
 ## Final model
@@ -1185,6 +1182,14 @@ for tbl in results.summary2().tables:
     excel_output[f"Logit: '{dv_str}', table {tbl_i}"] = tbl
     tbl_i += 1
 excel_output[f"Logit: '{dv_str}', odds ratios"] = results_or_final
+```
+
+## Visualisation
+
+```{python}
+figure_minor_i += 1
+ref_cats_used = {k: v for k, v in ref_cats.items() if k in iv_cols_used and v[-6:] != "_False"}
+fig_str = plot_odds_r(dv_str, None, ref_cats_used, results_or_final)
 ```
 
 # People with a route in top 10% of route durations
@@ -1218,44 +1223,46 @@ cols_to_remove = []
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("uk_immigration_status_Non-EEA National")
-cols_to_remove.append("uk_immigration_status_EEA National")
+cols_to_remove.append("uk_immigration_status")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("global_majority_Yes")
+cols_to_remove.append("global_majority")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("sex_working_True")
+cols_to_remove.append("sex_working")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("risk_violence_abuse_True")
+cols_to_remove.append("risk_violence_abuse")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("mental_health_True")
+cols_to_remove.append("mental_health")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("lgbtq_plus_Yes")
+cols_to_remove.append("lgbtq_plus")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("substance_use_True")
+cols_to_remove.append("substance_use")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 assert (cols_to_remove ==
-        ['uk_immigration_status_Non-EEA National', 'uk_immigration_status_EEA National', 'global_majority_Yes',
-         'sex_working_True', 'risk_violence_abuse_True', 'mental_health_True', 'lgbtq_plus_Yes', 'substance_use_True'])
+        ['uk_immigration_status', 'global_majority', 'sex_working',
+         'risk_violence_abuse', 'mental_health', 'lgbtq_plus', 'substance_use'])
+
+# Update iv_cols_used
+iv_cols_used = [i for i in iv_cols_used if i not in cols_to_remove]
 ```
 
 ## Final model
@@ -1275,6 +1282,14 @@ for tbl in results.summary2().tables:
 excel_output[f"Logit: '{dv_str}', odds ratios"] = results_or_final
 ```
 
+## Visualisation
+
+```{python}
+figure_minor_i += 1
+ref_cats_used = {k: v for k, v in ref_cats.items() if k in iv_cols_used and v[-6:] != "_False"}
+fig_str = plot_odds_r(dv_str, None, ref_cats_used, results_or_final)
+```
+
 # Returns within 2 years after moving to independent accommodation
 
 ## Prepare DV
@@ -1291,8 +1306,8 @@ dv = dv_dict[dv_str].iloc[:, 0].map({"Yes": True, "No": False})
 ## Prepare IVs
 
 ```{python}
-cols_to_exclude = ["multiple_disadvantage_True"]
-X, Xc, iv_df, iv_cols_used = get_ivs(dv, cols_to_exclude)
+cols_to_exclude = ["pway_lvl", "referral_agency", "multiple_disadvantage"]
+X, Xc, iv_df, iv_cols_used, ref_cats, binaries = get_ivs(dv, cols_to_exclude)
 iv_df_used = iv_df[iv_cols_used]
 iv_df_used = iv_df_used.dropna()
 # Ensure relevant variables exclude cases where results are NA
@@ -1314,60 +1329,61 @@ cols_to_remove = []
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("uk_immigration_status_Non-EEA National")
-cols_to_remove.append("uk_immigration_status_EEA National")
+cols_to_remove.append("uk_immigration_status")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("gender_Female")
+cols_to_remove.append("gender")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("risk_exploitation_True")
+cols_to_remove.append("risk_exploitation")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("age_cat_34-")
+cols_to_remove.append("age_cat")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("sex_working_True")
+cols_to_remove.append("sex_working")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("physical_health_True")
+cols_to_remove.append("physical_health")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("global_majority_Yes")
+cols_to_remove.append("global_majority")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("offending_True")
+cols_to_remove.append("offending")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("mental_health_True")
+cols_to_remove.append("mental_health")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("rough_sleeping_True")
+cols_to_remove.append("rough_sleeping")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = binomial_regression(dv, Xc, cols_to_remove)
 
-assert (cols_to_remove == ['uk_immigration_status_Non-EEA National', 'uk_immigration_status_EEA National',
-                           'gender_Female', 'risk_exploitation_True', 'age_cat_34-', 'sex_working_True',
-                           'physical_health_True', 'global_majority_Yes', 'offending_True', 'mental_health_True',
-                           'rough_sleeping_True'])
+assert (cols_to_remove == ['uk_immigration_status', 'gender', 'risk_exploitation',
+                           'age_cat', 'sex_working', 'physical_health', 'global_majority',
+                           'offending', 'mental_health', 'rough_sleeping'])
+
+# Update iv_cols_used
+iv_cols_used = [i for i in iv_cols_used if i not in cols_to_remove]
 ```
 
 ## Final model
@@ -1387,6 +1403,14 @@ for tbl in results.summary2().tables:
 excel_output[f"Logit: '{dv_str}', odds ratios"] = results_or_final
 ```
 
+## Visualisation
+
+```{python}
+figure_minor_i += 1
+ref_cats_used = {k: v for k, v in ref_cats.items() if k in iv_cols_used and v[-6:] != "_False"}
+fig_str = plot_odds_r(dv_str, None, ref_cats_used, results_or_final, x_max=None)
+```
+
 # Outcomes from individual placements
 
 ## Prepare DV
@@ -1404,114 +1428,14 @@ dv = dv.cat.reorder_categories(list(dv.value_counts().index))
 ## Prepare IVs
 
 ```{python}
-# Get relevant IVs
-idx_type = dv.index.name
-match idx_type:
-    case "vac_id":
-        iv_df = dpw_pls
-    case "route_id":
-        iv_df = dpw_rt_starts
-    case "o_cli_id":
-        iv_df = dpw_clis
-iv_df = iv_df[[idx_type] + characteristics].set_index(idx_type).loc[dv.index]
-if idx_type == "vac_id":
-    iv_df["pway_lvl"] = dpw_pls.set_index(idx_type)["svc_typelvl"].str.replace(r"M |M/F |F ", "H ", regex=True).str.replace(" ", "_")
-
-Xarr = []
-iv_cols_used = []
-
-ch = "pway_lvl"
-iv_cols_used.append(ch)
-# Exclude non-binary because there are very few cases and some outcomes with no cases
-Xn = iv_df[ch].astype("category")
-# Make the reference category the most common one
-Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
-# Get dummies for this characteristic
-Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-# Xarr.append(Xn)
-
-ch = "referral_agency"
-iv_cols_used.append(ch)
-# Exclude non-binary because there are very few cases and some outcomes with no cases
-Xn = iv_df[ch].replace("_[Missing data]", pd.NA).astype("category")
-# Make the reference category the most common one
-Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
-# Get dummies for this characteristic
-Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-# Xarr.append(Xn)
-
-ch = "gender"
-iv_cols_used.append(ch)
-# Exclude non-binary because there are very few cases and some outcomes with no cases
-Xn = iv_df[ch].replace(["Non-Binary", "_Unknown"], pd.NA).astype("category")
-# Make the reference category the most common one
-Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
-# Get dummies for this characteristic
-Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-Xarr.append(Xn)
-
-ch = "global_majority"
-iv_cols_used.append(ch)
-Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
-# Make the reference category the most common one
-Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
-# Get dummies for this characteristic
-Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-Xarr.append(Xn)
-
-ch = "uk_immigration_status"
-iv_cols_used.append(ch)
-Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
-# Make the reference category the most common one
-Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
-# Get dummies for this characteristic
-Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-Xarr.append(Xn)
-
-ch = "age_cat"
-iv_cols_used.append(ch)
-Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
-# Make the reference category the most common one
-Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
-# Get dummies for this characteristic
-Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-Xarr.append(Xn)
-
-ch = "lgbtq_plus"
-iv_cols_used.append(ch)
-Xn = iv_df[ch].replace("_Unknown", pd.NA).astype("category")
-# Make the reference category the most common one
-Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
-# Get dummies for this characteristic
-Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-Xarr.append(Xn)
-
-ch = "multiple_disadvantage"
-iv_cols_used.append(ch)
-Xn = iv_df[ch].astype("category")
-# Make the reference category the most common one
-# Xn = Xn.cat.reorder_categories(list(Xn.value_counts().index))
-# Get dummies for this characteristic
-Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-Xarr.append(Xn)
-
-for ch in ["offending", "physical_health", "mental_health", "substance_use"]:
-    iv_cols_used.append(ch)
-    Xn = iv_df[ch].astype("category")
-    Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-    Xarr.append(Xn)
-
-for ch in ["rough_sleeping", "sex_working", "risk_violence_abuse", "risk_exploitation"]:
-    iv_cols_used.append(ch)
-    Xn = iv_df[ch].astype("category")
-    Xn = pd.get_dummies(Xn, prefix=ch, drop_first=True)
-    Xarr.append(Xn)
-
-X = pd.concat(Xarr, axis=1)
-
-# Add a constant to ensure intercept is calculated
-Xc = sm.add_constant(X).rename(columns={"const": "(Intercept)"})
-
+cols_to_exclude = ["pway_lvl", "referral_agency"]
+X, Xc, iv_df, iv_cols_used, ref_cats, binaries = get_ivs(dv, cols_to_exclude)
+iv_df_used = iv_df[iv_cols_used]
+iv_df_used = iv_df_used.dropna()
+# Ensure relevant variables exclude cases where results are NA
+X = X.loc[iv_df_used.index]
+Xc = Xc.loc[iv_df_used.index]
+dv = dv.loc[iv_df_used.index]
 ```
 
 ## Test associations between IVs
@@ -1576,8 +1500,8 @@ multiple_disadvantage is defined by the existence of 3+ factors including substa
 ### VIF without multiple_disadvantage
 
 ```{python}
-cols_to_remove = ["multiple_disadvantage_True"]
-Xc = Xc[[col for col in Xc.columns if col not in cols_to_remove]]
+cols_to_remove = ["multiple_disadvantage"]
+Xc = Xc[[col for col in Xc.columns if not col.startswith(tuple(cols_to_remove))]]
 
 vif_data = pd.DataFrame()
 vif_data["Feature"] = Xc.columns
@@ -1602,17 +1526,17 @@ cols_to_remove = []
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("lgbtq_plus_Yes")
+cols_to_remove.append("lgbtq_plus")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("global_majority_Yes")
+cols_to_remove.append("global_majority")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
 iter += 1
-cols_to_remove.append("risk_violence_abuse_True")
+cols_to_remove.append("risk_violence_abuse")
 display(Markdown(f"### Iteration {iter}, without: {", ".join(cols_to_remove)}"))
 results, summary, results_or = multinomial_regression(dv, Xc, cols_to_remove)
 
@@ -1620,7 +1544,10 @@ display(Markdown(f"Exclusion of {cols_to_remove[-1]} increases coefficient for g
                  "by 57.2%%, but it is not a significant result, and psuedo R^2 " +
                  "has hardly changed, so excluding it anyway."))
 
-assert (cols_to_remove == ['lgbtq_plus_Yes', 'global_majority_Yes', 'risk_violence_abuse_True'])
+assert (cols_to_remove == ['lgbtq_plus', 'global_majority', 'risk_violence_abuse'])
+
+# Update iv_cols_used
+iv_cols_used = [i for i in iv_cols_used if i not in cols_to_remove]
 ```
 
 ## Final model
@@ -1640,7 +1567,7 @@ for tbl in results.summary2().tables:
 excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
 ```
 
-## Visualisations
+## Visualisation
 
 ### Backwards moves
 
@@ -1662,6 +1589,14 @@ p = (so.Plot(data=b_moves_or,
      .add(so.Dash(), x=b_moves_or.columns[-2], width=0.3)
      .add(so.Dash(), x=b_moves_or.columns[-1], width=0.3)
      .show(block=False))
+```
+
+## Alternative visualisation
+
+```{python}
+figure_minor_i += 1
+ref_cats_used = {k: v for k, v in ref_cats.items() if k in iv_cols_used and v[-6:] != "_False"}
+fig_str = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, results_or_final)
 ```
 
 # Tables in an Excel file

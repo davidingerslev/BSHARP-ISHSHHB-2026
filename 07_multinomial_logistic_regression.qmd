@@ -428,10 +428,21 @@ dpw_pls["multiple_disadvantage"] = (  # Current support needs for 3 out of 5 SMD
            ]].assign(hsn_homelessness=True).astype("boolean").sum(axis=1, skipna=False) >= 3
   )
 dpw_pls["substance_use"] = dpw_pls["hsn_drug_or_alcohol_use"]
+dpw_pls["pl_duration_weeks"] = (dpw_pls["pl_end_dt"]
+                                .fillna(distinct_pathways.dpw_end_dt + pd.Timedelta(days=1))
+                                .sub(dpw_pls["pl_start_dt"])
+                                .dt.days
+                                .div(7)
+                                )
+dpw_pls["pl_prev_dur_sum_weeks"] = dpw_pls.groupby("route_id")["pl_duration_weeks"].cumsum() - dpw_pls["pl_duration_weeks"]
+dpw_pls["rt_duration_weeks"] = dpw_pls.groupby("route_id")["pl_duration_weeks"].transform(sum)
 dpw_rt_starts = dpw_pls.groupby("route_id").head(1)
 dpw_rt_ends = dpw_pls.groupby("route_id").tail(1)
 dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1)  # 1 duplicate client but first entry has more detailed answers
 characteristics = [
+    "pl_duration_weeks",
+    "pl_prev_dur_sum_weeks",
+    "rt_duration_weeks",
     "rt_entry_point",
     "gender",
     "global_majority",
@@ -492,13 +503,13 @@ def get_ivs(dv, cols_to_exclude):
     iv_df = iv_df[[idx_type] + characteristics].set_index(idx_type).loc[dv.index]
     if idx_type == "vac_id":
         iv_df["pway_lvl"] = dpw_pls.set_index(idx_type)["svc_typelvl"].str.replace(r"M |M/F |F ", "H ", regex=True).str.replace(" ", "_")
-    
+
     Xarr = []
     iv_cols_used = []
     ref_cats = {}
     binaries = []
-    
-    
+
+
     def add_categorical(ch, na_values=["_[Missing data]", "_Unknown"], ref_cat=None):
         if ch in cols_to_exclude: 
             return
@@ -1631,6 +1642,55 @@ p = (so.Plot(data=b_moves_or,
 figure_minor_i += 1
 ref_cats_used = {k: v for k, v in ref_cats.items() if k in iv_cols_used and v[-6:] != "_False"}
 fig_str = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, results_or_final, wrap=3)
+```
+
+# Duration dependence - duration of route before placement (non-zero)
+
+```{python}
+```
+
+## Prepare IVs
+
+```{python}
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+lin_X = iv_df[["pl_prev_dur_sum_weeks"]].rename(columns={"pl_prev_dur_sum_weeks": "x"})
+lin_X = lin_X[lin_X["x"] != 0]
+quad_X = lin_X.assign(x_sq=(lin_X ** 2))
+# lin_X.iloc[:, :] = scaler.fit_transform(lin_X)
+# quad_X.iloc[:, :] = scaler.fit_transform(quad_X)
+lin_Xc = sm.add_constant(lin_X).rename(columns={"const": "(Intercept)"})
+quad_Xc = sm.add_constant(quad_X).rename(columns={"const": "(Intercept)"})
+```
+
+## Test linear relationship via multinomial_regression
+
+```{python}
+from scipy.stats import chi2
+# Get DV
+dv_str = "Outcomes from individual placements"
+dv = dv_dict[dv_str].iloc[:, 0].astype("category")
+dv = dv.cat.reorder_categories(list(dv.value_counts().index))
+dv = dv.loc[lin_Xc.index]
+
+lin_results, lin_summary, lin_results_or = multinomial_regression(dv, lin_Xc, cols_to_remove=[])
+quad_results, quad_summary, quad_results_or = multinomial_regression(dv, quad_Xc, cols_to_remove=[])
+
+lr_stat = -2 * (lin_results.llr - quad_results.llr)
+p_value = 1 - chi2.cdf(lr_stat, df=1)
+
+display(Markdown(f"LR statistic: `{lr_stat:.4f}`, p-value: `{p_value:.4f}`"))
+```
+
+## Previous stay duration distributions for different outcomes
+```{python}
+import seaborn.objects as so
+p = (so.Plot(data=pd.concat([dv, lin_X], axis=1), x="x")
+     .add(so.Bars(), so.Hist())
+     .facet("pl_outcome", wrap=3)
+     .label(x="")
+     .show(block=False)
+     )
 ```
 
 # Tables in an Excel file

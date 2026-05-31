@@ -1636,30 +1636,6 @@ excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
 
 ## Visualisation
 
-### Backwards moves
-
-```{python}
-import seaborn.objects as so
-import seaborn as sns
-
-b_moves_or = results_or_final.loc["Internal move: backwards"].iloc[1:]
-b_moves_or.index.name = "characteristics"
-lines = pd.DataFrame(index=b_moves_or.index).assign(line_1=1)
-p = (so.Plot(data=b_moves_or,
-             y="characteristics",
-             x="odds_r",
-             xmin=b_moves_or.columns[-2],
-             xmax=b_moves_or.columns[-1])
-     .add(so.Line(linestyle=(5, 3), color="black", alpha=0.5), data=lines, y="characteristics", x="line_1")
-     .add(so.Dot(pointsize=8))
-     .add(so.Range())
-     .add(so.Dash(), x=b_moves_or.columns[-2], width=0.3)
-     .add(so.Dash(), x=b_moves_or.columns[-1], width=0.3)
-     .show(block=False))
-```
-
-## Alternative visualisation
-
 ```{python}
 figure_minor_i += 1
 ref_cats_used = {k: v for k, v in ref_cats.items() if k in iv_cols_used and v[-6:] != "_False"}

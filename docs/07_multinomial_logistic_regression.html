@@ -4096,11 +4096,7 @@ vertical-align: -.125em;
   </ul></li>
   <li><a href="#model-building-6" id="toc-model-building-6" class="nav-link" data-scroll-target="#model-building-6">Model building</a></li>
   <li><a href="#final-model-6" id="toc-final-model-6" class="nav-link" data-scroll-target="#final-model-6">Final model</a></li>
-  <li><a href="#visualisation-6" id="toc-visualisation-6" class="nav-link" data-scroll-target="#visualisation-6">Visualisation</a>
-  <ul class="collapse">
-  <li><a href="#backwards-moves" id="toc-backwards-moves" class="nav-link" data-scroll-target="#backwards-moves">Backwards moves</a></li>
-  </ul></li>
-  <li><a href="#alternative-visualisation" id="toc-alternative-visualisation" class="nav-link" data-scroll-target="#alternative-visualisation">Alternative visualisation</a></li>
+  <li><a href="#visualisation-6" id="toc-visualisation-6" class="nav-link" data-scroll-target="#visualisation-6">Visualisation</a></li>
   </ul></li>
   <li><a href="#duration-dependence---duration-of-route-before-placement-non-zero" id="toc-duration-dependence---duration-of-route-before-placement-non-zero" class="nav-link" data-scroll-target="#duration-dependence---duration-of-route-before-placement-non-zero">Duration dependence - duration of route before placement (non-zero)</a>
   <ul class="collapse">
@@ -4149,7 +4145,7 @@ vertical-align: -.125em;
 
 <section id="prepare" class="level1">
 <h1>Prepare</h1>
-<div id="813d51fe" class="cell" data-execution_count="1">
+<div id="c1d286ad" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup code</span></span>
@@ -4659,7 +4655,7 @@ vertical-align: -.125em;
 <h1>Entry point into BAHSA services (pathway type and level)</h1>
 <section id="prepare-dv" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-dv">Prepare DV</h2>
-<div id="a729ec29" class="cell" data-execution_count="4">
+<div id="636825fd" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.api <span class="im">as</span> sm</span>
@@ -4674,7 +4670,7 @@ vertical-align: -.125em;
 </section>
 <section id="prepare-ivs" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-ivs">Prepare IVs</h2>
-<div id="29f7258e" class="cell" data-execution_count="5">
+<div id="ed9595c7" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_ivs(dv, cols_to_exclude):</span>
@@ -4753,7 +4749,7 @@ vertical-align: -.125em;
 </section>
 <section id="test-associations-between-ivs" class="level2">
 <h2 class="anchored" data-anchor-id="test-associations-between-ivs">Test associations between IVs</h2>
-<div id="288be207" class="cell" data-execution_count="6">
+<div id="8531c42b" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.stats <span class="im">as</span> ss</span>
@@ -4790,7 +4786,7 @@ vertical-align: -.125em;
 <section id="cramers-v" class="level3">
 <h3 class="anchored" data-anchor-id="cramers-v">Cramer’s V</h3>
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="62164867" class="cell" data-execution_count="7">
+<div id="ce2c4c59" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">&quot;display.float_format&quot;</span>, <span class="st">&quot;</span><span class="sc">{:,.3f}</span><span class="st">&quot;</span>.<span class="bu">format</span>):</span>
@@ -5387,7 +5383,7 @@ vertical-align: -.125em;
 </section>
 <section id="variance-inflation-factor-vif" class="level3">
 <h3 class="anchored" data-anchor-id="variance-inflation-factor-vif">Variance Inflation Factor (VIF)</h3>
-<div id="f4242131" class="cell" data-execution_count="8">
+<div id="11fc0a26" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -5508,7 +5504,7 @@ vertical-align: -.125em;
 </section>
 <section id="vif-without-multiple_disadvantage" class="level3">
 <h3 class="anchored" data-anchor-id="vif-without-multiple_disadvantage">VIF without multiple_disadvantage</h3>
-<div id="57491367" class="cell" data-execution_count="9">
+<div id="3de6e5dd" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">=</span> [<span class="st">&quot;multiple_disadvantage&quot;</span>]</span>
@@ -5628,7 +5624,7 @@ vertical-align: -.125em;
 </section>
 <section id="model-building" class="level2">
 <h2 class="anchored" data-anchor-id="model-building">Model building</h2>
-<div id="0e6acdfa" class="cell" data-execution_count="10">
+<div id="a0c4a19c" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Markdown</span>
@@ -5732,7 +5728,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:30:57</td>
+<td>11:22:29</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-3431.4</td>
 </tr>
@@ -7587,7 +7583,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:30:58</td>
+<td>11:22:30</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-3435.7</td>
 </tr>
@@ -9645,7 +9641,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:30:59</td>
+<td>11:22:31</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-3438.0</td>
 </tr>
@@ -11569,7 +11565,7 @@ vertical-align: -.125em;
 <section id="final-model" class="level2">
 <h2 class="anchored" data-anchor-id="final-model">Final model</h2>
 <p>Reference category: Homelessness_1</p>
-<div id="4db28c5d" class="cell" data-execution_count="11">
+<div id="f63929c6" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> io <span class="im">import</span> StringIO</span>
@@ -11615,7 +11611,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:30:59</td>
+<td>11:22:31</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-3438.0</td>
 </tr>
@@ -13247,7 +13243,7 @@ vertical-align: -.125em;
 </section>
 <section id="visualisation" class="level2">
 <h2 class="anchored" data-anchor-id="visualisation">Visualisation</h2>
-<div id="9762ae4d" class="cell" data-execution_count="12">
+<div id="3dfb9fb7" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn.objects <span class="im">as</span> so</span>
@@ -13394,7 +13390,7 @@ vertical-align: -.125em;
 <h1>Route outcomes after 3.08 years</h1>
 <section id="prepare-dv-1" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-dv-1">Prepare DV</h2>
-<div id="6f72fef1" class="cell" data-execution_count="13">
+<div id="1c6a5dba" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.api <span class="im">as</span> sm</span>
@@ -13409,7 +13405,7 @@ vertical-align: -.125em;
 </section>
 <section id="prepare-ivs-1" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-ivs-1">Prepare IVs</h2>
-<div id="b8737a31" class="cell" data-execution_count="14">
+<div id="d15c130d" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>cols_to_exclude <span class="op">=</span> [<span class="st">&quot;pway_lvl&quot;</span>, <span class="st">&quot;referral_agency&quot;</span>]</span>
@@ -13419,7 +13415,7 @@ vertical-align: -.125em;
 </section>
 <section id="test-associations-between-ivs-1" class="level2">
 <h2 class="anchored" data-anchor-id="test-associations-between-ivs-1">Test associations between IVs</h2>
-<div id="912557b6" class="cell" data-execution_count="15">
+<div id="fa5c7e32" class="cell" data-execution_count="15">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.stats <span class="im">as</span> ss</span>
@@ -13456,7 +13452,7 @@ vertical-align: -.125em;
 <section id="cramers-v-1" class="level3">
 <h3 class="anchored" data-anchor-id="cramers-v-1">Cramer’s V</h3>
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="4b43b88a" class="cell" data-execution_count="16">
+<div id="48ad023f" class="cell" data-execution_count="16">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">&quot;display.float_format&quot;</span>, <span class="st">&quot;</span><span class="sc">{:,.3f}</span><span class="st">&quot;</span>.<span class="bu">format</span>):</span>
@@ -13987,7 +13983,7 @@ vertical-align: -.125em;
 </section>
 <section id="variance-inflation-factor-vif-1" class="level3">
 <h3 class="anchored" data-anchor-id="variance-inflation-factor-vif-1">Variance Inflation Factor (VIF)</h3>
-<div id="c07a4933" class="cell" data-execution_count="17">
+<div id="d542a175" class="cell" data-execution_count="17">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -14088,7 +14084,7 @@ vertical-align: -.125em;
 </section>
 <section id="vif-without-multiple_disadvantage-1" class="level3">
 <h3 class="anchored" data-anchor-id="vif-without-multiple_disadvantage-1">VIF without multiple_disadvantage</h3>
-<div id="b99dbc76" class="cell" data-execution_count="18">
+<div id="f6aeebbc" class="cell" data-execution_count="18">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">=</span> [<span class="st">&quot;multiple_disadvantage&quot;</span>]</span>
@@ -14188,7 +14184,7 @@ vertical-align: -.125em;
 </section>
 <section id="model-building-1" class="level2">
 <h2 class="anchored" data-anchor-id="model-building-1">Model building</h2>
-<div id="dbba52fb" class="cell" data-execution_count="19">
+<div id="6ddf3330" class="cell" data-execution_count="19">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Markdown</span>
@@ -14265,7 +14261,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:05</td>
+<td>11:22:37</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2252.9</td>
 </tr>
@@ -15162,7 +15158,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:05</td>
+<td>11:22:37</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2253.0</td>
 </tr>
@@ -16137,7 +16133,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:05</td>
+<td>11:22:38</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2255.8</td>
 </tr>
@@ -17051,7 +17047,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:06</td>
+<td>11:22:38</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2256.3</td>
 </tr>
@@ -17904,7 +17900,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:06</td>
+<td>11:22:38</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2257.8</td>
 </tr>
@@ -18662,7 +18658,7 @@ vertical-align: -.125em;
 </section>
 <section id="final-model-1" class="level2">
 <h2 class="anchored" data-anchor-id="final-model-1">Final model</h2>
-<div id="bd8bf21b" class="cell" data-execution_count="20">
+<div id="311545b5" class="cell" data-execution_count="20">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> io <span class="im">import</span> StringIO</span>
@@ -18708,7 +18704,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:06</td>
+<td>11:22:38</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2257.8</td>
 </tr>
@@ -19351,7 +19347,7 @@ vertical-align: -.125em;
 </section>
 <section id="visualisation-1" class="level2">
 <h2 class="anchored" data-anchor-id="visualisation-1">Visualisation</h2>
-<div id="8c28417c" class="cell" data-execution_count="21">
+<div id="f29c902f" class="cell" data-execution_count="21">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>figure_minor_i <span class="op">+=</span> <span class="dv">1</span></span>
@@ -19374,7 +19370,7 @@ vertical-align: -.125em;
 <h1>Outcomes 3.08 years after a person’s first route started</h1>
 <section id="prepare-dv-2" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-dv-2">Prepare DV</h2>
-<div id="c4175c1c" class="cell" data-execution_count="22">
+<div id="ad6d0aa9" class="cell" data-execution_count="22">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.api <span class="im">as</span> sm</span>
@@ -19389,7 +19385,7 @@ vertical-align: -.125em;
 </section>
 <section id="prepare-ivs-2" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-ivs-2">Prepare IVs</h2>
-<div id="d5b4d863" class="cell" data-execution_count="23">
+<div id="3dbe4303" class="cell" data-execution_count="23">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>cols_to_exclude <span class="op">=</span> [<span class="st">&quot;pway_lvl&quot;</span>, <span class="st">&quot;referral_agency&quot;</span>, <span class="st">&quot;multiple_disadvantage&quot;</span>]</span>
@@ -19405,7 +19401,7 @@ vertical-align: -.125em;
 </section>
 <section id="model-building-2" class="level2">
 <h2 class="anchored" data-anchor-id="model-building-2">Model building</h2>
-<div id="8f8358bf" class="cell" data-execution_count="24">
+<div id="9bc155b7" class="cell" data-execution_count="24">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Markdown</span>
@@ -19496,7 +19492,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:08</td>
+<td>11:22:41</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1603.3</td>
 </tr>
@@ -20393,7 +20389,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:09</td>
+<td>11:22:41</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1603.5</td>
 </tr>
@@ -21368,7 +21364,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:09</td>
+<td>11:22:42</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1604.5</td>
 </tr>
@@ -22282,7 +22278,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:09</td>
+<td>11:22:42</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1605.2</td>
 </tr>
@@ -23135,7 +23131,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:10</td>
+<td>11:22:42</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1607.9</td>
 </tr>
@@ -23930,7 +23926,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:10</td>
+<td>11:22:42</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1609.2</td>
 </tr>
@@ -24661,7 +24657,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:10</td>
+<td>11:22:43</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1610.5</td>
 </tr>
@@ -25297,7 +25293,7 @@ vertical-align: -.125em;
 </section>
 <section id="final-model-2" class="level2">
 <h2 class="anchored" data-anchor-id="final-model-2">Final model</h2>
-<div id="704d335c" class="cell" data-execution_count="25">
+<div id="10eb73bc" class="cell" data-execution_count="25">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> io <span class="im">import</span> StringIO</span>
@@ -25343,7 +25339,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:10</td>
+<td>11:22:43</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1610.5</td>
 </tr>
@@ -25884,7 +25880,7 @@ vertical-align: -.125em;
 </section>
 <section id="visualisation-2" class="level2">
 <h2 class="anchored" data-anchor-id="visualisation-2">Visualisation</h2>
-<div id="36c1591e" class="cell" data-execution_count="26">
+<div id="f9e06baf" class="cell" data-execution_count="26">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb58"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>figure_minor_i <span class="op">+=</span> <span class="dv">1</span></span>
@@ -25907,7 +25903,7 @@ vertical-align: -.125em;
 <h1>People with multiple returns during 7.5 yrs</h1>
 <section id="prepare-dv-3" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-dv-3">Prepare DV</h2>
-<div id="c6daf122" class="cell" data-execution_count="27">
+<div id="5efdc90a" class="cell" data-execution_count="27">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb59"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.api <span class="im">as</span> sm</span>
@@ -25926,7 +25922,7 @@ vertical-align: -.125em;
 </section>
 <section id="model-building-3" class="level2">
 <h2 class="anchored" data-anchor-id="model-building-3">Model building</h2>
-<div id="ae96c343" class="cell" data-execution_count="28">
+<div id="d929864c" class="cell" data-execution_count="28">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb60"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Markdown</span>
@@ -26053,7 +26049,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:12</td>
+<td>11:22:45</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-553.82</td>
 </tr>
@@ -26406,7 +26402,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:12</td>
+<td>11:22:45</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-554.12</td>
 </tr>
@@ -26788,7 +26784,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:13</td>
+<td>11:22:45</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-555.77</td>
 </tr>
@@ -27130,7 +27126,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:13</td>
+<td>11:22:46</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-555.97</td>
 </tr>
@@ -27452,7 +27448,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:13</td>
+<td>11:22:46</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-556.53</td>
 </tr>
@@ -27754,7 +27750,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:13</td>
+<td>11:22:46</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-556.77</td>
 </tr>
@@ -28036,7 +28032,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:13</td>
+<td>11:22:46</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-557.33</td>
 </tr>
@@ -28298,7 +28294,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:13</td>
+<td>11:22:46</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-558.33</td>
 </tr>
@@ -28506,7 +28502,7 @@ vertical-align: -.125em;
 </section>
 <section id="final-model-3" class="level2">
 <h2 class="anchored" data-anchor-id="final-model-3">Final model</h2>
-<div id="011deaf9" class="cell" data-execution_count="29">
+<div id="ce5074a3" class="cell" data-execution_count="29">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb77"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> io <span class="im">import</span> StringIO</span>
@@ -28552,7 +28548,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:13</td>
+<td>11:22:46</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-558.33</td>
 </tr>
@@ -28731,7 +28727,7 @@ vertical-align: -.125em;
 </section>
 <section id="visualisation-3" class="level2">
 <h2 class="anchored" data-anchor-id="visualisation-3">Visualisation</h2>
-<div id="7873fb7d" class="cell" data-execution_count="30">
+<div id="375b300c" class="cell" data-execution_count="30">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb78"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>figure_minor_i <span class="op">+=</span> <span class="dv">1</span></span>
@@ -28753,7 +28749,7 @@ vertical-align: -.125em;
 <h1>People with a route in top 10% of route durations</h1>
 <section id="prepare-dv-4" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-dv-4">Prepare DV</h2>
-<div id="fea0bdc9" class="cell" data-execution_count="31">
+<div id="6f537622" class="cell" data-execution_count="31">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb79"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.api <span class="im">as</span> sm</span>
@@ -28772,7 +28768,7 @@ vertical-align: -.125em;
 </section>
 <section id="model-building-4" class="level2">
 <h2 class="anchored" data-anchor-id="model-building-4">Model building</h2>
-<div id="bfa4c46e" class="cell" data-execution_count="32">
+<div id="283021fa" class="cell" data-execution_count="32">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb80"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Markdown</span>
@@ -28864,7 +28860,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:14</td>
+<td>11:22:48</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-793.31</td>
 </tr>
@@ -29217,7 +29213,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:14</td>
+<td>11:22:48</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-794.84</td>
 </tr>
@@ -29579,7 +29575,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:15</td>
+<td>11:22:48</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-794.88</td>
 </tr>
@@ -29921,7 +29917,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:15</td>
+<td>11:22:48</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-795.20</td>
 </tr>
@@ -30243,7 +30239,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:15</td>
+<td>11:22:48</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-795.40</td>
 </tr>
@@ -30545,7 +30541,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:15</td>
+<td>11:22:48</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-795.70</td>
 </tr>
@@ -30827,7 +30823,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:15</td>
+<td>11:22:48</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-796.49</td>
 </tr>
@@ -31089,7 +31085,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:15</td>
+<td>11:22:48</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-798.44</td>
 </tr>
@@ -31297,7 +31293,7 @@ vertical-align: -.125em;
 </section>
 <section id="final-model-4" class="level2">
 <h2 class="anchored" data-anchor-id="final-model-4">Final model</h2>
-<div id="b4ad749f" class="cell" data-execution_count="33">
+<div id="64a7a4ee" class="cell" data-execution_count="33">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb97"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> io <span class="im">import</span> StringIO</span>
@@ -31343,7 +31339,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:15</td>
+<td>11:22:48</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-798.44</td>
 </tr>
@@ -31522,7 +31518,7 @@ vertical-align: -.125em;
 </section>
 <section id="visualisation-4" class="level2">
 <h2 class="anchored" data-anchor-id="visualisation-4">Visualisation</h2>
-<div id="c6fa8d1c" class="cell" data-execution_count="34">
+<div id="7b692204" class="cell" data-execution_count="34">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb98"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a>figure_minor_i <span class="op">+=</span> <span class="dv">1</span></span>
@@ -31544,7 +31540,7 @@ vertical-align: -.125em;
 <h1>Returns within 2 years after moving to independent accommodation</h1>
 <section id="prepare-dv-5" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-dv-5">Prepare DV</h2>
-<div id="d0a3c7ff" class="cell" data-execution_count="35">
+<div id="00dc5f06" class="cell" data-execution_count="35">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb99"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.api <span class="im">as</span> sm</span>
@@ -31558,7 +31554,7 @@ vertical-align: -.125em;
 </section>
 <section id="prepare-ivs-5" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-ivs-5">Prepare IVs</h2>
-<div id="08ce7e64" class="cell" data-execution_count="36">
+<div id="dcccafdc" class="cell" data-execution_count="36">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb100"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a>cols_to_exclude <span class="op">=</span> [<span class="st">&quot;pway_lvl&quot;</span>, <span class="st">&quot;referral_agency&quot;</span>, <span class="st">&quot;multiple_disadvantage&quot;</span>]</span>
@@ -31574,7 +31570,7 @@ vertical-align: -.125em;
 </section>
 <section id="model-building-5" class="level2">
 <h2 class="anchored" data-anchor-id="model-building-5">Model building</h2>
-<div id="0352e505" class="cell" data-execution_count="37">
+<div id="427c7cab" class="cell" data-execution_count="37">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb101"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Markdown</span>
@@ -31681,7 +31677,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:16</td>
+<td>11:22:50</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-63.487</td>
 </tr>
@@ -32035,7 +32031,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:16</td>
+<td>11:22:50</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-64.696</td>
 </tr>
@@ -32397,7 +32393,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:16</td>
+<td>11:22:50</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-64.802</td>
 </tr>
@@ -32739,7 +32735,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:16</td>
+<td>11:22:50</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-64.814</td>
 </tr>
@@ -33061,7 +33057,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:17</td>
+<td>11:22:50</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-64.932</td>
 </tr>
@@ -33363,7 +33359,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:17</td>
+<td>11:22:50</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-65.158</td>
 </tr>
@@ -33645,7 +33641,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:17</td>
+<td>11:22:50</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-65.300</td>
 </tr>
@@ -33907,7 +33903,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:17</td>
+<td>11:22:50</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-65.458</td>
 </tr>
@@ -34149,7 +34145,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:17</td>
+<td>11:22:50</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-65.484</td>
 </tr>
@@ -34371,7 +34367,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:17</td>
+<td>11:22:50</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-66.047</td>
 </tr>
@@ -34573,7 +34569,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:17</td>
+<td>11:22:50</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-67.547</td>
 </tr>
@@ -34721,7 +34717,7 @@ vertical-align: -.125em;
 </section>
 <section id="final-model-5" class="level2">
 <h2 class="anchored" data-anchor-id="final-model-5">Final model</h2>
-<div id="5afe4dd1" class="cell" data-execution_count="38">
+<div id="3a0219e1" class="cell" data-execution_count="38">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb124"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb124-1"><a href="#cb124-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> io <span class="im">import</span> StringIO</span>
@@ -34767,7 +34763,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:17</td>
+<td>11:22:50</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-67.547</td>
 </tr>
@@ -34895,7 +34891,7 @@ vertical-align: -.125em;
 </section>
 <section id="visualisation-5" class="level2">
 <h2 class="anchored" data-anchor-id="visualisation-5">Visualisation</h2>
-<div id="7189ca56" class="cell" data-execution_count="39">
+<div id="3f3eedaa" class="cell" data-execution_count="39">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb125"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb125-1"><a href="#cb125-1" aria-hidden="true" tabindex="-1"></a>figure_minor_i <span class="op">+=</span> <span class="dv">1</span></span>
@@ -34917,7 +34913,7 @@ vertical-align: -.125em;
 <h1>Outcomes from individual placements</h1>
 <section id="prepare-dv-6" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-dv-6">Prepare DV</h2>
-<div id="bb9b947e" class="cell" data-execution_count="40">
+<div id="b8b3693b" class="cell" data-execution_count="40">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb126"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> statsmodels.api <span class="im">as</span> sm</span>
@@ -34932,7 +34928,7 @@ vertical-align: -.125em;
 </section>
 <section id="prepare-ivs-6" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-ivs-6">Prepare IVs</h2>
-<div id="fc38b092" class="cell" data-execution_count="41">
+<div id="c6a81aff" class="cell" data-execution_count="41">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb127"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb127-1"><a href="#cb127-1" aria-hidden="true" tabindex="-1"></a>cols_to_exclude <span class="op">=</span> [<span class="st">&quot;pway_lvl&quot;</span>, <span class="st">&quot;referral_agency&quot;</span>]</span>
@@ -34948,7 +34944,7 @@ vertical-align: -.125em;
 </section>
 <section id="test-associations-between-ivs-2" class="level2">
 <h2 class="anchored" data-anchor-id="test-associations-between-ivs-2">Test associations between IVs</h2>
-<div id="049fe5ba" class="cell" data-execution_count="42">
+<div id="15c351bc" class="cell" data-execution_count="42">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb128"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb128-1"><a href="#cb128-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> scipy.stats <span class="im">as</span> ss</span>
@@ -34985,7 +34981,7 @@ vertical-align: -.125em;
 <section id="cramers-v-2" class="level3">
 <h3 class="anchored" data-anchor-id="cramers-v-2">Cramer’s V</h3>
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="3f24d9a9" class="cell" data-execution_count="43">
+<div id="e7f95372" class="cell" data-execution_count="43">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb129"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb129-1"><a href="#cb129-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.option_context(<span class="st">&quot;display.float_format&quot;</span>, <span class="st">&quot;</span><span class="sc">{:,.3f}</span><span class="st">&quot;</span>.<span class="bu">format</span>):</span>
@@ -35516,7 +35512,7 @@ vertical-align: -.125em;
 </section>
 <section id="variance-inflation-factor-vif-2" class="level3">
 <h3 class="anchored" data-anchor-id="variance-inflation-factor-vif-2">Variance Inflation Factor (VIF)</h3>
-<div id="9bdcc242" class="cell" data-execution_count="44">
+<div id="42ccf124" class="cell" data-execution_count="44">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb130"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -35617,7 +35613,7 @@ vertical-align: -.125em;
 </section>
 <section id="vif-without-multiple_disadvantage-2" class="level3">
 <h3 class="anchored" data-anchor-id="vif-without-multiple_disadvantage-2">VIF without multiple_disadvantage</h3>
-<div id="856eb795" class="cell" data-execution_count="45">
+<div id="0bb81928" class="cell" data-execution_count="45">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb131"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb131-1"><a href="#cb131-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">=</span> [<span class="st">&quot;multiple_disadvantage&quot;</span>]</span>
@@ -35717,7 +35713,7 @@ vertical-align: -.125em;
 </section>
 <section id="model-building-6" class="level2">
 <h2 class="anchored" data-anchor-id="model-building-6">Model building</h2>
-<div id="d7aaca8c" class="cell" data-execution_count="46">
+<div id="1fb43551" class="cell" data-execution_count="46">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb132"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb132-1"><a href="#cb132-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Markdown</span>
@@ -35791,7 +35787,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:20</td>
+<td>11:22:55</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-7010.1</td>
 </tr>
@@ -37480,7 +37476,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:22</td>
+<td>11:22:56</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-7011.7</td>
 </tr>
@@ -39322,7 +39318,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:23</td>
+<td>11:22:58</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-7013.5</td>
 </tr>
@@ -41043,7 +41039,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:24</td>
+<td>11:22:59</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-7016.3</td>
 </tr>
@@ -42612,7 +42608,7 @@ vertical-align: -.125em;
 </section>
 <section id="final-model-6" class="level2">
 <h2 class="anchored" data-anchor-id="final-model-6">Final model</h2>
-<div id="f9b424e8" class="cell" data-execution_count="47">
+<div id="37f45818" class="cell" data-execution_count="47">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb141"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb141-1"><a href="#cb141-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> io <span class="im">import</span> StringIO</span>
@@ -42658,7 +42654,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:24</td>
+<td>11:22:59</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-7016.3</td>
 </tr>
@@ -43994,49 +43990,14 @@ vertical-align: -.125em;
 </section>
 <section id="visualisation-6" class="level2">
 <h2 class="anchored" data-anchor-id="visualisation-6">Visualisation</h2>
-<section id="backwards-moves" class="level3">
-<h3 class="anchored" data-anchor-id="backwards-moves">Backwards moves</h3>
-<div id="591f5b96" class="cell" data-execution_count="48">
+<div id="e03127b1" class="cell" data-execution_count="48">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb142"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb142-1"><a href="#cb142-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn.objects <span class="im">as</span> so</span>
-<span id="cb142-2"><a href="#cb142-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
-<span id="cb142-3"><a href="#cb142-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb142-4"><a href="#cb142-4" aria-hidden="true" tabindex="-1"></a>b_moves_or <span class="op">=</span> results_or_final.loc[<span class="st">&quot;Internal move: backwards&quot;</span>].iloc[<span class="dv">1</span>:]</span>
-<span id="cb142-5"><a href="#cb142-5" aria-hidden="true" tabindex="-1"></a>b_moves_or.index.name <span class="op">=</span> <span class="st">&quot;characteristics&quot;</span></span>
-<span id="cb142-6"><a href="#cb142-6" aria-hidden="true" tabindex="-1"></a>lines <span class="op">=</span> pd.DataFrame(index<span class="op">=</span>b_moves_or.index).assign(line_1<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb142-7"><a href="#cb142-7" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> (so.Plot(data<span class="op">=</span>b_moves_or,</span>
-<span id="cb142-8"><a href="#cb142-8" aria-hidden="true" tabindex="-1"></a>             y<span class="op">=</span><span class="st">&quot;characteristics&quot;</span>,</span>
-<span id="cb142-9"><a href="#cb142-9" aria-hidden="true" tabindex="-1"></a>             x<span class="op">=</span><span class="st">&quot;odds_r&quot;</span>,</span>
-<span id="cb142-10"><a href="#cb142-10" aria-hidden="true" tabindex="-1"></a>             xmin<span class="op">=</span>b_moves_or.columns[<span class="op">-</span><span class="dv">2</span>],</span>
-<span id="cb142-11"><a href="#cb142-11" aria-hidden="true" tabindex="-1"></a>             xmax<span class="op">=</span>b_moves_or.columns[<span class="op">-</span><span class="dv">1</span>])</span>
-<span id="cb142-12"><a href="#cb142-12" aria-hidden="true" tabindex="-1"></a>     .add(so.Line(linestyle<span class="op">=</span>(<span class="dv">5</span>, <span class="dv">3</span>), color<span class="op">=</span><span class="st">&quot;black&quot;</span>, alpha<span class="op">=</span><span class="fl">0.5</span>), data<span class="op">=</span>lines, y<span class="op">=</span><span class="st">&quot;characteristics&quot;</span>, x<span class="op">=</span><span class="st">&quot;line_1&quot;</span>)</span>
-<span id="cb142-13"><a href="#cb142-13" aria-hidden="true" tabindex="-1"></a>     .add(so.Dot(pointsize<span class="op">=</span><span class="dv">8</span>))</span>
-<span id="cb142-14"><a href="#cb142-14" aria-hidden="true" tabindex="-1"></a>     .add(so.Range())</span>
-<span id="cb142-15"><a href="#cb142-15" aria-hidden="true" tabindex="-1"></a>     .add(so.Dash(), x<span class="op">=</span>b_moves_or.columns[<span class="op">-</span><span class="dv">2</span>], width<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb142-16"><a href="#cb142-16" aria-hidden="true" tabindex="-1"></a>     .add(so.Dash(), x<span class="op">=</span>b_moves_or.columns[<span class="op">-</span><span class="dv">1</span>], width<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb142-17"><a href="#cb142-17" aria-hidden="true" tabindex="-1"></a>     .show(block<span class="op">=</span><span class="va">False</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-display">
-<div>
-<figure class="figure">
-<p><img role="img" src="data:image/png;base64,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" class="img-fluid figure-img"></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-</section>
-<section id="alternative-visualisation" class="level2">
-<h2 class="anchored" data-anchor-id="alternative-visualisation">Alternative visualisation</h2>
-<div id="c579867f" class="cell" data-execution_count="49">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb143"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb143-1"><a href="#cb143-1" aria-hidden="true" tabindex="-1"></a>figure_minor_i <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb143-2"><a href="#cb143-2" aria-hidden="true" tabindex="-1"></a>ref_cats_used <span class="op">=</span> {k: v <span class="cf">for</span> k, v <span class="kw">in</span> ref_cats.items() <span class="cf">if</span> k <span class="kw">in</span> iv_cols_used <span class="kw">and</span> v[<span class="op">-</span><span class="dv">6</span>:] <span class="op">!=</span> <span class="st">&quot;_False&quot;</span>}</span>
-<span id="cb143-3"><a href="#cb143-3" aria-hidden="true" tabindex="-1"></a>theme <span class="op">=</span> {<span class="st">&quot;ytick.labelsize&quot;</span>: <span class="st">&quot;x-small&quot;</span>}</span>
-<span id="cb143-4"><a href="#cb143-4" aria-hidden="true" tabindex="-1"></a>fig_str <span class="op">=</span> plot_odds_r(dv_str, dv.cat.categories[<span class="dv">0</span>], ref_cats_used, results_or_final, wrap<span class="op">=</span><span class="dv">3</span>, theme<span class="op">=</span>theme)</span>
-<span id="cb143-5"><a href="#cb143-5" aria-hidden="true" tabindex="-1"></a>plt.show(block<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb142"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb142-1"><a href="#cb142-1" aria-hidden="true" tabindex="-1"></a>figure_minor_i <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb142-2"><a href="#cb142-2" aria-hidden="true" tabindex="-1"></a>ref_cats_used <span class="op">=</span> {k: v <span class="cf">for</span> k, v <span class="kw">in</span> ref_cats.items() <span class="cf">if</span> k <span class="kw">in</span> iv_cols_used <span class="kw">and</span> v[<span class="op">-</span><span class="dv">6</span>:] <span class="op">!=</span> <span class="st">&quot;_False&quot;</span>}</span>
+<span id="cb142-3"><a href="#cb142-3" aria-hidden="true" tabindex="-1"></a>theme <span class="op">=</span> {<span class="st">&quot;ytick.labelsize&quot;</span>: <span class="st">&quot;x-small&quot;</span>}</span>
+<span id="cb142-4"><a href="#cb142-4" aria-hidden="true" tabindex="-1"></a>fig_str <span class="op">=</span> plot_odds_r(dv_str, dv.cat.categories[<span class="dv">0</span>], ref_cats_used, results_or_final, wrap<span class="op">=</span><span class="dv">3</span>, theme<span class="op">=</span>theme)</span>
+<span id="cb142-5"><a href="#cb142-5" aria-hidden="true" tabindex="-1"></a>plt.show(block<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -44052,40 +44013,40 @@ vertical-align: -.125em;
 <h1>Duration dependence - duration of route before placement (non-zero)</h1>
 <section id="prepare-ivs-7" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-ivs-7">Prepare IVs</h2>
-<div id="c87e9f2c" class="cell" data-execution_count="50">
+<div id="2fe8216b" class="cell" data-execution_count="49">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb144"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb144-1"><a href="#cb144-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
-<span id="cb144-2"><a href="#cb144-2" aria-hidden="true" tabindex="-1"></a>scaler <span class="op">=</span> StandardScaler()</span>
-<span id="cb144-3"><a href="#cb144-3" aria-hidden="true" tabindex="-1"></a>lin_X <span class="op">=</span> iv_df[[<span class="st">&quot;pl_prev_dur_sum_weeks&quot;</span>]].rename(columns<span class="op">=</span>{<span class="st">&quot;pl_prev_dur_sum_weeks&quot;</span>: <span class="st">&quot;x&quot;</span>})</span>
-<span id="cb144-4"><a href="#cb144-4" aria-hidden="true" tabindex="-1"></a>lin_X <span class="op">=</span> lin_X[lin_X[<span class="st">&quot;x&quot;</span>] <span class="op">!=</span> <span class="dv">0</span>]</span>
-<span id="cb144-5"><a href="#cb144-5" aria-hidden="true" tabindex="-1"></a>quad_X <span class="op">=</span> lin_X.assign(x_sq<span class="op">=</span>(lin_X <span class="op">**</span> <span class="dv">2</span>))</span>
-<span id="cb144-6"><a href="#cb144-6" aria-hidden="true" tabindex="-1"></a><span class="co"># lin_X.iloc[:, :] = scaler.fit_transform(lin_X)</span></span>
-<span id="cb144-7"><a href="#cb144-7" aria-hidden="true" tabindex="-1"></a><span class="co"># quad_X.iloc[:, :] = scaler.fit_transform(quad_X)</span></span>
-<span id="cb144-8"><a href="#cb144-8" aria-hidden="true" tabindex="-1"></a>lin_Xc <span class="op">=</span> sm.add_constant(lin_X).rename(columns<span class="op">=</span>{<span class="st">&quot;const&quot;</span>: <span class="st">&quot;(Intercept)&quot;</span>})</span>
-<span id="cb144-9"><a href="#cb144-9" aria-hidden="true" tabindex="-1"></a>quad_Xc <span class="op">=</span> sm.add_constant(quad_X).rename(columns<span class="op">=</span>{<span class="st">&quot;const&quot;</span>: <span class="st">&quot;(Intercept)&quot;</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb143"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb143-1"><a href="#cb143-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
+<span id="cb143-2"><a href="#cb143-2" aria-hidden="true" tabindex="-1"></a>scaler <span class="op">=</span> StandardScaler()</span>
+<span id="cb143-3"><a href="#cb143-3" aria-hidden="true" tabindex="-1"></a>lin_X <span class="op">=</span> iv_df[[<span class="st">&quot;pl_prev_dur_sum_weeks&quot;</span>]].rename(columns<span class="op">=</span>{<span class="st">&quot;pl_prev_dur_sum_weeks&quot;</span>: <span class="st">&quot;x&quot;</span>})</span>
+<span id="cb143-4"><a href="#cb143-4" aria-hidden="true" tabindex="-1"></a>lin_X <span class="op">=</span> lin_X[lin_X[<span class="st">&quot;x&quot;</span>] <span class="op">!=</span> <span class="dv">0</span>]</span>
+<span id="cb143-5"><a href="#cb143-5" aria-hidden="true" tabindex="-1"></a>quad_X <span class="op">=</span> lin_X.assign(x_sq<span class="op">=</span>(lin_X <span class="op">**</span> <span class="dv">2</span>))</span>
+<span id="cb143-6"><a href="#cb143-6" aria-hidden="true" tabindex="-1"></a><span class="co"># lin_X.iloc[:, :] = scaler.fit_transform(lin_X)</span></span>
+<span id="cb143-7"><a href="#cb143-7" aria-hidden="true" tabindex="-1"></a><span class="co"># quad_X.iloc[:, :] = scaler.fit_transform(quad_X)</span></span>
+<span id="cb143-8"><a href="#cb143-8" aria-hidden="true" tabindex="-1"></a>lin_Xc <span class="op">=</span> sm.add_constant(lin_X).rename(columns<span class="op">=</span>{<span class="st">&quot;const&quot;</span>: <span class="st">&quot;(Intercept)&quot;</span>})</span>
+<span id="cb143-9"><a href="#cb143-9" aria-hidden="true" tabindex="-1"></a>quad_Xc <span class="op">=</span> sm.add_constant(quad_X).rename(columns<span class="op">=</span>{<span class="st">&quot;const&quot;</span>: <span class="st">&quot;(Intercept)&quot;</span>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
 <section id="test-linear-relationship-via-multinomial_regression" class="level2">
 <h2 class="anchored" data-anchor-id="test-linear-relationship-via-multinomial_regression">Test linear relationship via multinomial_regression</h2>
-<div id="8d2594d1" class="cell" data-execution_count="51">
+<div id="9a4e81b0" class="cell" data-execution_count="50">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb145"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb145-1"><a href="#cb145-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> chi2</span>
-<span id="cb145-2"><a href="#cb145-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Get DV</span></span>
-<span id="cb145-3"><a href="#cb145-3" aria-hidden="true" tabindex="-1"></a>dv_str <span class="op">=</span> <span class="st">&quot;Outcomes from individual placements&quot;</span></span>
-<span id="cb145-4"><a href="#cb145-4" aria-hidden="true" tabindex="-1"></a>dv <span class="op">=</span> dv_dict[dv_str].iloc[:, <span class="dv">0</span>].astype(<span class="st">&quot;category&quot;</span>)</span>
-<span id="cb145-5"><a href="#cb145-5" aria-hidden="true" tabindex="-1"></a>dv <span class="op">=</span> dv.cat.reorder_categories(<span class="bu">list</span>(dv.value_counts().index))</span>
-<span id="cb145-6"><a href="#cb145-6" aria-hidden="true" tabindex="-1"></a>dv <span class="op">=</span> dv.loc[lin_Xc.index]</span>
-<span id="cb145-7"><a href="#cb145-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb145-8"><a href="#cb145-8" aria-hidden="true" tabindex="-1"></a>lin_results, lin_summary, lin_results_or <span class="op">=</span> multinomial_regression(dv, lin_Xc, cols_to_remove<span class="op">=</span>[])</span>
-<span id="cb145-9"><a href="#cb145-9" aria-hidden="true" tabindex="-1"></a>quad_results, quad_summary, quad_results_or <span class="op">=</span> multinomial_regression(dv, quad_Xc, cols_to_remove<span class="op">=</span>[])</span>
-<span id="cb145-10"><a href="#cb145-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb145-11"><a href="#cb145-11" aria-hidden="true" tabindex="-1"></a>lr_stat <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> (lin_results.llr <span class="op">-</span> quad_results.llr)</span>
-<span id="cb145-12"><a href="#cb145-12" aria-hidden="true" tabindex="-1"></a>p_value <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> chi2.cdf(lr_stat, df<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb145-13"><a href="#cb145-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb145-14"><a href="#cb145-14" aria-hidden="true" tabindex="-1"></a>display(Markdown(<span class="ss">f&quot;LR statistic: `</span><span class="sc">{</span>lr_stat<span class="sc">:.4f}</span><span class="ss">`, p-value: `</span><span class="sc">{</span>p_value<span class="sc">:.4f}</span><span class="ss">`&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb144"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb144-1"><a href="#cb144-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.stats <span class="im">import</span> chi2</span>
+<span id="cb144-2"><a href="#cb144-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Get DV</span></span>
+<span id="cb144-3"><a href="#cb144-3" aria-hidden="true" tabindex="-1"></a>dv_str <span class="op">=</span> <span class="st">&quot;Outcomes from individual placements&quot;</span></span>
+<span id="cb144-4"><a href="#cb144-4" aria-hidden="true" tabindex="-1"></a>dv <span class="op">=</span> dv_dict[dv_str].iloc[:, <span class="dv">0</span>].astype(<span class="st">&quot;category&quot;</span>)</span>
+<span id="cb144-5"><a href="#cb144-5" aria-hidden="true" tabindex="-1"></a>dv <span class="op">=</span> dv.cat.reorder_categories(<span class="bu">list</span>(dv.value_counts().index))</span>
+<span id="cb144-6"><a href="#cb144-6" aria-hidden="true" tabindex="-1"></a>dv <span class="op">=</span> dv.loc[lin_Xc.index]</span>
+<span id="cb144-7"><a href="#cb144-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb144-8"><a href="#cb144-8" aria-hidden="true" tabindex="-1"></a>lin_results, lin_summary, lin_results_or <span class="op">=</span> multinomial_regression(dv, lin_Xc, cols_to_remove<span class="op">=</span>[])</span>
+<span id="cb144-9"><a href="#cb144-9" aria-hidden="true" tabindex="-1"></a>quad_results, quad_summary, quad_results_or <span class="op">=</span> multinomial_regression(dv, quad_Xc, cols_to_remove<span class="op">=</span>[])</span>
+<span id="cb144-10"><a href="#cb144-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb144-11"><a href="#cb144-11" aria-hidden="true" tabindex="-1"></a>lr_stat <span class="op">=</span> <span class="op">-</span><span class="dv">2</span> <span class="op">*</span> (lin_results.llr <span class="op">-</span> quad_results.llr)</span>
+<span id="cb144-12"><a href="#cb144-12" aria-hidden="true" tabindex="-1"></a>p_value <span class="op">=</span> <span class="dv">1</span> <span class="op">-</span> chi2.cdf(lr_stat, df<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb144-13"><a href="#cb144-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb144-14"><a href="#cb144-14" aria-hidden="true" tabindex="-1"></a>display(Markdown(<span class="ss">f&quot;LR statistic: `</span><span class="sc">{</span>lr_stat<span class="sc">:.4f}</span><span class="ss">`, p-value: `</span><span class="sc">{</span>p_value<span class="sc">:.4f}</span><span class="ss">`&quot;</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Optimization terminated successfully.
@@ -44122,7 +44083,7 @@ vertical-align: -.125em;
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:29</td>
+<td>11:23:04</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-4289.0</td>
 </tr>
@@ -44467,7 +44428,7 @@ Optimization terminated successfully.
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>10:31:30</td>
+<td>11:23:05</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-4281.6</td>
 </tr>
@@ -44889,16 +44850,16 @@ Optimization terminated successfully.
 </section>
 <section id="previous-stay-duration-distributions-for-different-outcomes" class="level2">
 <h2 class="anchored" data-anchor-id="previous-stay-duration-distributions-for-different-outcomes">Previous stay duration distributions for different outcomes</h2>
-<div id="a68ced2c" class="cell" data-execution_count="52">
+<div id="bd7aee62" class="cell" data-execution_count="51">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb149"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb149-1"><a href="#cb149-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn.objects <span class="im">as</span> so</span>
-<span id="cb149-2"><a href="#cb149-2" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> (so.Plot(data<span class="op">=</span>pd.concat([dv, lin_X], axis<span class="op">=</span><span class="dv">1</span>), x<span class="op">=</span><span class="st">&quot;x&quot;</span>)</span>
-<span id="cb149-3"><a href="#cb149-3" aria-hidden="true" tabindex="-1"></a>     .add(so.Bars(), so.Hist())</span>
-<span id="cb149-4"><a href="#cb149-4" aria-hidden="true" tabindex="-1"></a>     .facet(<span class="st">&quot;pl_outcome&quot;</span>, wrap<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb149-5"><a href="#cb149-5" aria-hidden="true" tabindex="-1"></a>     .label(x<span class="op">=</span><span class="st">&quot;&quot;</span>)</span>
-<span id="cb149-6"><a href="#cb149-6" aria-hidden="true" tabindex="-1"></a>     .show(block<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb149-7"><a href="#cb149-7" aria-hidden="true" tabindex="-1"></a>     )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb148"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb148-1"><a href="#cb148-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn.objects <span class="im">as</span> so</span>
+<span id="cb148-2"><a href="#cb148-2" aria-hidden="true" tabindex="-1"></a>p <span class="op">=</span> (so.Plot(data<span class="op">=</span>pd.concat([dv, lin_X], axis<span class="op">=</span><span class="dv">1</span>), x<span class="op">=</span><span class="st">&quot;x&quot;</span>)</span>
+<span id="cb148-3"><a href="#cb148-3" aria-hidden="true" tabindex="-1"></a>     .add(so.Bars(), so.Hist())</span>
+<span id="cb148-4"><a href="#cb148-4" aria-hidden="true" tabindex="-1"></a>     .facet(<span class="st">&quot;pl_outcome&quot;</span>, wrap<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb148-5"><a href="#cb148-5" aria-hidden="true" tabindex="-1"></a>     .label(x<span class="op">=</span><span class="st">&quot;&quot;</span>)</span>
+<span id="cb148-6"><a href="#cb148-6" aria-hidden="true" tabindex="-1"></a>     .show(block<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb148-7"><a href="#cb148-7" aria-hidden="true" tabindex="-1"></a>     )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-display">
 <div>
@@ -44914,20 +44875,20 @@ Optimization terminated successfully.
 <h1>Tables in an Excel file</h1>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb150"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb150-1"><a href="#cb150-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb150-2"><a href="#cb150-2" aria-hidden="true" tabindex="-1"></a>sheetname <span class="op">=</span> <span class="st">&quot;Sheet1&quot;</span></span>
-<span id="cb150-3"><a href="#cb150-3" aria-hidden="true" tabindex="-1"></a>qmdfile <span class="op">=</span> os.getenv(<span class="st">&quot;QUARTO_DOCUMENT_FILE&quot;</span>)</span>
-<span id="cb150-4"><a href="#cb150-4" aria-hidden="true" tabindex="-1"></a>filename <span class="op">=</span> assets_output <span class="op">+</span> qmdfile[:<span class="op">-</span><span class="dv">4</span>]<span class="op">+</span><span class="st">&quot;.xlsx&quot;</span></span>
-<span id="cb150-5"><a href="#cb150-5" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.ExcelWriter(filename) <span class="im">as</span> writer:</span>
-<span id="cb150-6"><a href="#cb150-6" aria-hidden="true" tabindex="-1"></a>    next_row <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb150-7"><a href="#cb150-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k, v <span class="kw">in</span> excel_output.items():</span>
-<span id="cb150-8"><a href="#cb150-8" aria-hidden="true" tabindex="-1"></a>        pd.DataFrame([k]).to_excel(writer, sheet_name<span class="op">=</span>sheetname, header<span class="op">=</span><span class="va">False</span>, index<span class="op">=</span><span class="va">False</span>, startrow<span class="op">=</span>next_row)</span>
-<span id="cb150-9"><a href="#cb150-9" aria-hidden="true" tabindex="-1"></a>        next_row <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb150-10"><a href="#cb150-10" aria-hidden="true" tabindex="-1"></a>        v.to_excel(writer, sheet_name<span class="op">=</span>sheetname, startrow<span class="op">=</span>next_row, float_format<span class="op">=</span><span class="st">&quot;</span><span class="sc">%.1f</span><span class="st">&quot;</span>)</span>
-<span id="cb150-11"><a href="#cb150-11" aria-hidden="true" tabindex="-1"></a>        next_row <span class="op">+=</span> (</span>
-<span id="cb150-12"><a href="#cb150-12" aria-hidden="true" tabindex="-1"></a>            (<span class="dv">1</span> <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(v.columns, pd.MultiIndex) <span class="cf">else</span> <span class="dv">1</span> <span class="op">+</span> <span class="bu">len</span>(v.columns.levels))</span>
-<span id="cb150-13"><a href="#cb150-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">+</span> <span class="bu">len</span>(v) <span class="op">+</span> <span class="dv">1</span>)</span>
-<span id="cb150-14"><a href="#cb150-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;[Excel file](./</span><span class="sc">{</span>filename<span class="sc">}</span><span class="ss">)&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb149"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb149-1"><a href="#cb149-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb149-2"><a href="#cb149-2" aria-hidden="true" tabindex="-1"></a>sheetname <span class="op">=</span> <span class="st">&quot;Sheet1&quot;</span></span>
+<span id="cb149-3"><a href="#cb149-3" aria-hidden="true" tabindex="-1"></a>qmdfile <span class="op">=</span> os.getenv(<span class="st">&quot;QUARTO_DOCUMENT_FILE&quot;</span>)</span>
+<span id="cb149-4"><a href="#cb149-4" aria-hidden="true" tabindex="-1"></a>filename <span class="op">=</span> assets_output <span class="op">+</span> qmdfile[:<span class="op">-</span><span class="dv">4</span>]<span class="op">+</span><span class="st">&quot;.xlsx&quot;</span></span>
+<span id="cb149-5"><a href="#cb149-5" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> pd.ExcelWriter(filename) <span class="im">as</span> writer:</span>
+<span id="cb149-6"><a href="#cb149-6" aria-hidden="true" tabindex="-1"></a>    next_row <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb149-7"><a href="#cb149-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k, v <span class="kw">in</span> excel_output.items():</span>
+<span id="cb149-8"><a href="#cb149-8" aria-hidden="true" tabindex="-1"></a>        pd.DataFrame([k]).to_excel(writer, sheet_name<span class="op">=</span>sheetname, header<span class="op">=</span><span class="va">False</span>, index<span class="op">=</span><span class="va">False</span>, startrow<span class="op">=</span>next_row)</span>
+<span id="cb149-9"><a href="#cb149-9" aria-hidden="true" tabindex="-1"></a>        next_row <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb149-10"><a href="#cb149-10" aria-hidden="true" tabindex="-1"></a>        v.to_excel(writer, sheet_name<span class="op">=</span>sheetname, startrow<span class="op">=</span>next_row, float_format<span class="op">=</span><span class="st">&quot;</span><span class="sc">%.1f</span><span class="st">&quot;</span>)</span>
+<span id="cb149-11"><a href="#cb149-11" aria-hidden="true" tabindex="-1"></a>        next_row <span class="op">+=</span> (</span>
+<span id="cb149-12"><a href="#cb149-12" aria-hidden="true" tabindex="-1"></a>            (<span class="dv">1</span> <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(v.columns, pd.MultiIndex) <span class="cf">else</span> <span class="dv">1</span> <span class="op">+</span> <span class="bu">len</span>(v.columns.levels))</span>
+<span id="cb149-13"><a href="#cb149-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">+</span> <span class="bu">len</span>(v) <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb149-14"><a href="#cb149-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;[Excel file](./</span><span class="sc">{</span>filename<span class="sc">}</span><span class="ss">)&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <p><a href="./assets_output/07_multinomial_logistic_regression.xlsx">Excel file</a></p>
 

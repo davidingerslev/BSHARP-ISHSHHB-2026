@@ -1,0 +1,122 @@
+---
+title: "08. Private rented affordability"
+date: 2026-05-31
+warning: false
+---
+
+```{python}
+# Setup code
+import pandas as pd
+
+import matplotlib
+import matplotlib.pyplot as plt
+matplotlib.rcParams.update({
+    'figure.figsize': (6, 9.5),
+    'font.size': 12,
+    'figure.constrained_layout.use': True
+})
+
+data_source = "external_data/privaterentalaffordability2024.xlsx"
+source_df = pd.read_excel(data_source, sheet_name="Table 4", skiprows=2)
+source_df = source_df.rename(columns={"Country or region code": "Region code"})
+source_df_means = pd.read_excel("external_data/Figure_3_data.xlsx", skiprows=6)
+source_df_means = source_df_means.loc[source_df_means["LA_code"] == "-",
+                                      source_df_means.columns[~source_df_means.columns.str.startswith("LA_")]]
+source_df_means = source_df_means.rename(columns={'Country_or_region_code': "Region code",
+                                                  'Country_or_region_name': "Region name",
+                                                  'Rental_Affordability': "2023/24"})
+
+asset_themes = {"opaque": "assets_output/",
+                "transparent_lightbg": "assets_transparent_lightbg/",
+                "transparent_darkbg": "assets_transparent_darkbg/"}
+assets_output = asset_themes["opaque"]
+output_dir = assets_output
+transparent = False
+excel_output = {}
+```
+
+## Private rented affordability 2024
+
+```{python}
+import seaborn.objects as so
+import seaborn as sns
+import numpy as np
+import matplotlib.pyplot as plt
+from textwrap import wrap
+df = source_df
+wrap_width = 13
+df["Region wrapped"] = df["Region name"].apply(lambda x: "\n".join(wrap(x, wrap_width)))
+region_cols = list(df.columns[df.columns.str.startswith("Region")])
+df_region_mean = source_df_means.sort_values(by="2023/24", ascending=False)
+df_region_mean["Region wrapped"] = df_region_mean["Region name"].apply(lambda x: "\n".join(wrap(x, wrap_width)))
+region_cat = pd.api.types.CategoricalDtype(categories=df_region_mean["Region wrapped"].to_list(), ordered=True)
+df["Region wrapped"] = df["Region wrapped"].astype(region_cat)
+df_region_mean["Region wrapped"] = df_region_mean["Region wrapped"].astype(region_cat)
+df["annotate"] = df["LA name"].isin(["Bristol, City of"])
+colours = list(np.array(sns.color_palette("deep"))[np.array([0, 1, 3])])
+fig = plt.figure(figsize=(6, 7.5))
+fig_title = "Ratio of average rent to median gross income (2023/24)\nfor England/Wales by country/region and local authority"
+fig.suptitle(fig_title)
+p = (so.Plot(df, x="2023/24", y="Region wrapped")
+     .add(so.Dots(fillalpha=0.3, alpha=0.5, color=colours[0], artist_kws={"zorder": 2.5}), so.Jitter(0.5), data=df[~df["annotate"]])
+     .add(so.Dots(fillalpha=0.7, alpha=1.0, pointsize=6, color="black", stroke=1.5, fillcolor=colours[1], artist_kws={"zorder": 2.5}),
+          so.Jitter(0.5), data=df[df["annotate"]])
+     .add(so.Dash(linewidth=2, color=colours[2]), data=df_region_mean)
+     .scale(x=so.Continuous().label(like="{x:.0%}"), color=colours)
+     .label(x="Affordability ratio", y="")
+     .on(fig)
+     .plot()
+     )
+for ax in fig.axes:
+    ax.tick_params(axis="y", pad=75)
+    ax.set_yticklabels(df_region_mean["Region wrapped"], ha="left")
+    annotations = df[df["annotate"]].reset_index(drop=True)
+    annotations["LA name"] = annotations["LA name"].str.replace(", City of", "")
+    annotations = pd.concat([annotations,
+                             (pd.DataFrame(ax.collections[1].get_offsets(), columns=["x", "y"]))],
+                            axis=1)
+    for idx, row in annotations.iterrows():
+        plt.annotate(text=f"{row["LA name"]}: {row["2023/24"]:.1%}",
+                     xy=(row["x"], row["y"]),
+                     xytext=(row["x"] + 0.08, row["y"] + 0.4),
+                     arrowprops=dict(connectionstyle="arc3, rad=0.1",
+                                     arrowstyle="->", shrinkA=0, shrinkB=5, relpos=(0, 0.5)),
+                     ha="left", va="top")
+    ax.axvline(x=30/100, color="black", alpha=0.5, linestyle=(0, (5, 3)), zorder=1.01)
+    for x, y in [(0.3, 9.45)]:
+        plt.annotate(text="More than 30% is considered unaffordable",
+                     fontsize="x-small", alpha=0.5, xy=(x, y), xytext=(x + 0.05, y - 0.2),
+                     arrowprops=dict(connectionstyle="arc3, rad=0.1",
+                                     arrowstyle="->", shrinkA=0, shrinkB=2, relpos=(0, 0.5),
+                                     alpha=0.3),
+                     ha="left", va="top")
+    for x, y in [(df_region_mean["2023/24"].iloc[-2], len(df_region_mean)-1.65)]:
+        plt.annotate(text="Regional average",
+                     fontsize="x-small", alpha=0.5, xy=(x, y), xytext=(x + 0.08, y + 0.1),
+                     arrowprops=dict(connectionstyle="arc3, rad=-0.1",
+                                     arrowstyle="->", shrinkA=0, shrinkB=3, relpos=(0, 0.5),
+                                     alpha=0.3),
+                     ha="left", va="top")
+fig.savefig(assets_output + "Figure_8.1.svg")
+plt.show(block=False)
+```
+
+## Tables in an Excel file
+
+```{python}
+#| output: asis
+import os
+sheetname = "Sheet1"
+qmdfile = os.getenv("QUARTO_DOCUMENT_FILE")
+filename = assets_output + qmdfile[:-4]+".xlsx"
+with pd.ExcelWriter(filename) as writer:
+    next_row = 0
+    for k, v in excel_output.items():
+        pd.DataFrame([k]).to_excel(writer, sheet_name=sheetname, header=False, index=False, startrow=next_row)
+        next_row += 1
+        v.to_excel(writer, sheet_name=sheetname, startrow=next_row, float_format="%.1f")
+        next_row += (
+            (1 if not isinstance(v.columns, pd.MultiIndex) else 1 + len(v.columns.levels))
+            + len(v) + 1)
+print(f"[Excel file](./{filename})")
+```

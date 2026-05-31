@@ -733,7 +733,7 @@ import seaborn as sns
 import matplotlib
 
 
-def plot_odds_r(dv_str, dv_ref_cat, iv_ref_cats, results_or_final, x_max=None, wrap=None, replacements={}, theme={}):
+def plot_odds_r(dv_str, dv_ref_cat, iv_ref_cats, results_or_final, x_max=None, wrap=None, replacements={}, theme={}, figsize=(9.5, 6)):
     global figure_major_i, figure_minor_i
     f_i = f"{figure_major_i}.{figure_minor_i}"
     plot_or = results_or_final.dropna()
@@ -788,8 +788,8 @@ def plot_odds_r(dv_str, dv_ref_cat, iv_ref_cats, results_or_final, x_max=None, w
     plot_or["*"] = (plot_or["*"] == "*") & plot_or["*"].notna()
     # lines = plot_or[["dv", "iv"]].assign(line_1=1)
     # log_plot_or = pd.concat([plot_or.iloc[:, :-3], np.log(plot_or.iloc[:, -3:])], axis=1)
-    fig = plt.figure(figsize=(9.5, 6))
-    fig.suptitle("Odds ratios for " + dv_str[:1].lower() + dv_str[1:])
+    fig = plt.figure(figsize=figsize)
+    fig.suptitle("Odds ratios for " + dv_str[:1].lower() + dv_str[1:], wrap=True)
     txt = fig.supxlabel(t=footer_text, x=0.01, y=0.01, ha="left", va="bottom", fontsize="small", wrap=True)
     # fig_top, fig_bottom = fig.subfigures(2, 1, height_ratios=[44, 1])
     # fig_top = fig
@@ -1253,7 +1253,7 @@ excel_output[f"Logit: '{dv_str}', odds ratios"] = results_or_final
 ```{python}
 figure_minor_i += 1
 ref_cats_used = {k: v for k, v in ref_cats.items() if k in iv_cols_used and v[-6:] != "_False"}
-fig_str = plot_odds_r(dv_str, None, ref_cats_used, results_or_final)
+fig_str = plot_odds_r(dv_str, None, ref_cats_used, results_or_final, figsize=(6, 4))
 plt.show(block=False)
 ```
 
@@ -1352,7 +1352,7 @@ excel_output[f"Logit: '{dv_str}', odds ratios"] = results_or_final
 ```{python}
 figure_minor_i += 1
 ref_cats_used = {k: v for k, v in ref_cats.items() if k in iv_cols_used and v[-6:] != "_False"}
-fig_str = plot_odds_r(dv_str, None, ref_cats_used, results_or_final)
+fig_str = plot_odds_r(dv_str, None, ref_cats_used, results_or_final, figsize=(6, 4))
 plt.show(block=False)
 ```
 
@@ -1474,7 +1474,7 @@ excel_output[f"Logit: '{dv_str}', odds ratios"] = results_or_final
 ```{python}
 figure_minor_i += 1
 ref_cats_used = {k: v for k, v in ref_cats.items() if k in iv_cols_used and v[-6:] != "_False"}
-fig_str = plot_odds_r(dv_str, None, ref_cats_used, results_or_final, x_max=None)
+fig_str = plot_odds_r(dv_str, None, ref_cats_used, results_or_final, x_max=None, figsize=(6, 4))
 plt.show(block=False)
 ```
 

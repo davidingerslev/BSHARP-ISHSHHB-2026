@@ -732,7 +732,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib
 
-def plot_odds_r(dv_str, dv_ref_cat, iv_ref_cats, results_or_final, x_max=None, wrap=None):
+
+def plot_odds_r(dv_str, dv_ref_cat, iv_ref_cats, results_or_final, x_max=None, wrap=None, replacements={}, theme={}):
     global figure_major_i, figure_minor_i
     f_i = f"{figure_major_i}.{figure_minor_i}"
     plot_or = results_or_final.dropna()
@@ -782,6 +783,8 @@ def plot_odds_r(dv_str, dv_ref_cat, iv_ref_cats, results_or_final, x_max=None, w
         binaries_bold = {i: r"$\bf{" + i.replace("_", r"\ ") + "}$" for i in binaries}
         plot_or["iv"] = plot_or["iv"].replace(binaries_bold)
 
+    for pat, repl in replacements.items():
+        plot_or["iv"] = plot_or["iv"].str.replace(pat, repl)
     plot_or["*"] = (plot_or["*"] == "*") & plot_or["*"].notna()
     # lines = plot_or[["dv", "iv"]].assign(line_1=1)
     # log_plot_or = pd.concat([plot_or.iloc[:, :-3], np.log(plot_or.iloc[:, -3:])], axis=1)
@@ -799,14 +802,17 @@ def plot_odds_r(dv_str, dv_ref_cat, iv_ref_cats, results_or_final, x_max=None, w
     x_limits = (np.exp(-max_x_axis_exp), np.exp(max_x_axis_exp))
     palette = sns.color_palette("Paired")
     colours = [palette[1], palette[0]]
+    colours[1] = tuple((c * 0.8 for c in colours[1]))
+    updated_theme = {"font.size": 9, "xtick.labelsize": "small", "ytick.labelsize": "medium",
+                     "axes.titlesize": "medium", "axes.grid.which": "both"}
+    updated_theme.update(theme)
     p = (so.Plot(data=plot_or, y="iv", x="odds_r", xmin=ci_lo, xmax=ci_hi, color="*")
          .label(x="", y="")
          .limit(x=x_limits)
          # .layout(size=(9.5, 6), engine="constrained")
-         .theme({"font.size": 9, "xtick.labelsize": "small", "ytick.labelsize": "medium",
-                 "axes.titlesize": "medium", "axes.grid.which": "both"})
+         .theme(updated_theme)
          .scale(color=colours)
-         .add(so.Dot(pointsize=6))
+         .add(so.Dots(pointsize=6, fillalpha=1.0, artist_kws={"zorder": 2.5}))
          .add(so.Range())
          .add(so.Dash(), x=ci_lo, width=0.2)
          .add(so.Dash(), x=ci_hi, width=0.2)
@@ -820,7 +826,7 @@ def plot_odds_r(dv_str, dv_ref_cat, iv_ref_cats, results_or_final, x_max=None, w
     fig.legends.pop(0)
     plt.xscale("log")
     for ax in fig.axes:
-        ax.axvline(x=1, color="black", alpha=0.5, linestyle=(0, (5, 3)))
+        ax.axvline(x=1, color="black", alpha=0.5, linestyle=(0, (5, 3)), zorder=1.01)
         ax.xaxis.grid(True, which="both")
         # ax.xaxis.set_major_formatter(matplotlib.ticker.LogFormatterExponent())
     ax.xaxis.set_major_formatter(matplotlib.ticker.StrMethodFormatter("{x:g}"))
@@ -830,9 +836,19 @@ def plot_odds_r(dv_str, dv_ref_cat, iv_ref_cats, results_or_final, x_max=None, w
 
 
 figure_minor_i = 1
+shorter_iv = {"Local authority": "LA", "Service provider": "Provider", "SU pathway, prison wk": "SU", "_other SH": "_other",
+              "rough sleeping and SH": "RS", "Housing Options": "HPT", r"uk\ immigration\ status": "immigration"}
+theme = {"ytick.labelsize": "small"}
 ref_cats_used = {k: v for k, v in ref_cats.items() if k in iv_cols_used and v[-6:] != "_False"}
-fig_str, fig = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, results_or_final)
-plt.show(block=False)
+# Split into two plots
+for or_section, i_sub in [(slice(0, 3), "a"), (slice(3, None), "b")]:
+    save_fmi = figure_minor_i
+    temp_res_or = results_or_final.loc[results_or_final.index.levels[0][or_section]].copy()
+    temp_res_or.index = temp_res_or.index.remove_unused_levels()
+    figure_minor_i = str(figure_minor_i) + i_sub
+    fig_str, fig = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, temp_res_or, replacements=shorter_iv, theme=theme)
+    plt.show(block=False)
+    figure_minor_i = save_fmi
 ```
 
 # Route outcomes after 3.08 years
@@ -994,7 +1010,8 @@ excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
 ```{python}
 figure_minor_i += 1
 ref_cats_used = {k: v for k, v in ref_cats.items() if k in iv_cols_used and v[-6:] != "_False"}
-fig_str = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, results_or_final)
+shorter_iv = {r"uk\ immigration\ status": "immigration"}
+fig_str = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, results_or_final, replacements=shorter_iv)
 plt.show(block=False)
 ```
 
@@ -1101,7 +1118,9 @@ excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
 ```{python}
 figure_minor_i += 1
 ref_cats_used = {k: v for k, v in ref_cats.items() if k in iv_cols_used and v[-6:] != "_False"}
-fig_str = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, results_or_final)
+shorter_iv = {r"uk\ immigration\ status": "immigration"}
+fig_str = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, results_or_final, replacements=shorter_iv)
+plt.show(block=False)
 ```
 
 # People with multiple returns during 7.5 yrs
@@ -1235,6 +1254,7 @@ excel_output[f"Logit: '{dv_str}', odds ratios"] = results_or_final
 figure_minor_i += 1
 ref_cats_used = {k: v for k, v in ref_cats.items() if k in iv_cols_used and v[-6:] != "_False"}
 fig_str = plot_odds_r(dv_str, None, ref_cats_used, results_or_final)
+plt.show(block=False)
 ```
 
 # People with a route in top 10% of route durations
@@ -1333,6 +1353,7 @@ excel_output[f"Logit: '{dv_str}', odds ratios"] = results_or_final
 figure_minor_i += 1
 ref_cats_used = {k: v for k, v in ref_cats.items() if k in iv_cols_used and v[-6:] != "_False"}
 fig_str = plot_odds_r(dv_str, None, ref_cats_used, results_or_final)
+plt.show(block=False)
 ```
 
 # Returns within 2 years after moving to independent accommodation
@@ -1454,6 +1475,7 @@ excel_output[f"Logit: '{dv_str}', odds ratios"] = results_or_final
 figure_minor_i += 1
 ref_cats_used = {k: v for k, v in ref_cats.items() if k in iv_cols_used and v[-6:] != "_False"}
 fig_str = plot_odds_r(dv_str, None, ref_cats_used, results_or_final, x_max=None)
+plt.show(block=False)
 ```
 
 # Outcomes from individual placements
@@ -1641,7 +1663,9 @@ p = (so.Plot(data=b_moves_or,
 ```{python}
 figure_minor_i += 1
 ref_cats_used = {k: v for k, v in ref_cats.items() if k in iv_cols_used and v[-6:] != "_False"}
-fig_str = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, results_or_final, wrap=3)
+theme = {"ytick.labelsize": "x-small"}
+fig_str = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, results_or_final, wrap=3, theme=theme)
+plt.show(block=False)
 ```
 
 # Duration dependence - duration of route before placement (non-zero)

@@ -1639,9 +1639,17 @@ excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
 ```{python}
 figure_minor_i += 1
 ref_cats_used = {k: v for k, v in ref_cats.items() if k in iv_cols_used and v[-6:] != "_False"}
-theme = {"ytick.labelsize": "x-small"}
-fig_str = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, results_or_final, wrap=3, theme=theme)
-plt.show(block=False)
+theme = {"ytick.labelsize": "medium"}
+# fig_str = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, results_or_final, wrap=3, theme=theme)
+# plt.show(block=False)
+for or_section, i_sub in [(slice(0, 3), "a"), (slice(3, None), "b")]:
+    save_fmi = figure_minor_i
+    temp_res_or = results_or_final.loc[results_or_final.index.levels[0][or_section]].copy()
+    temp_res_or.index = temp_res_or.index.remove_unused_levels()
+    figure_minor_i = str(figure_minor_i) + i_sub
+    fig_str, fig = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, temp_res_or, replacements=shorter_iv, theme=theme)
+    plt.show(block=False)
+    figure_minor_i = save_fmi
 ```
 
 # Duration dependence - duration of route before placement (non-zero)

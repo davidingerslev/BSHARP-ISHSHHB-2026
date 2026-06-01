@@ -796,7 +796,8 @@ def plot_odds_r(dv_str, dv_ref_cat, iv_ref_cats, results_or_final, x_max=None, w
     # fig_bottom = fig
     if x_max is None:
         max_x_axis_exp = 1.04 * np.log(plot_or[ci_hi].max())
-        max_x_axis_exp = np.log(10) if max_x_axis_exp < np.log(10) else max_x_axis_exp
+        min_x_axis_exp_mag = 1.04 * abs(np.log(plot_or[ci_lo].min()))
+        max_x_axis_exp = np.log(10) if max_x_axis_exp < np.log(10) else max(max_x_axis_exp, min_x_axis_exp_mag)
     else:
         max_x_axis_exp = np.log(x_max)
     x_limits = (np.exp(-max_x_axis_exp), np.exp(max_x_axis_exp))
@@ -804,7 +805,8 @@ def plot_odds_r(dv_str, dv_ref_cat, iv_ref_cats, results_or_final, x_max=None, w
     colours = [palette[1], palette[0]]
     colours[1] = tuple((c * 0.8 for c in colours[1]))
     updated_theme = {"font.size": 9, "xtick.labelsize": "small", "ytick.labelsize": "medium",
-                     "axes.titlesize": "medium", "axes.grid.which": "both"}
+                     "axes.titlesize": "medium", "axes.grid.which": "major",
+                     "xtick.bottom": True, "xtick.minor.size": 3.5, "xtick.major.size": 7}
     updated_theme.update(theme)
     p = (so.Plot(data=plot_or, y="iv", x="odds_r", xmin=ci_lo, xmax=ci_hi, color="*")
          .label(x="", y="")
@@ -827,7 +829,7 @@ def plot_odds_r(dv_str, dv_ref_cat, iv_ref_cats, results_or_final, x_max=None, w
     plt.xscale("log")
     for ax in fig.axes:
         ax.axvline(x=1, color="black", alpha=0.5, linestyle=(0, (5, 3)), zorder=1.01)
-        ax.xaxis.grid(True, which="both")
+        ax.xaxis.grid(True, which="major")
         # ax.xaxis.set_major_formatter(matplotlib.ticker.LogFormatterExponent())
     ax.xaxis.set_major_formatter(matplotlib.ticker.StrMethodFormatter("{x:g}"))
     fig.tight_layout(rect=[0,0,1,1], pad=0.5, h_pad=1)

@@ -261,9 +261,8 @@ def plot_odds_r(dv_str, dv_ref_cat, iv_ref_cats, results_or_final, x_max=None, w
         excluded_variables_text = "No variables excluded."
     else:
         excluded_variables_text = "Variables excluded (not statistically significant in this model): " + ", ".join(cols_removed) + "."
+    footer_text = (r"Model statistics: pseudo-$R^2=" + f"{results.prsquared:.3f}$, " + pvalue_text + excluded_variables_text)
 
-    footer_text = (r"Model statistics: $Psuedo\text{-}R^2=" + f"{results.prsquared:.3f}$, " +
-                    pvalue_text + excluded_variables_text)
     if type(plot_or.index) is pd.MultiIndex:
         # 1. Remove Intercept rows
         plot_or = plot_or.drop(index=plot_or.loc[(slice(None), "(Intercept)"), :].index)

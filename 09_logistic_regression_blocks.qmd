@@ -994,7 +994,10 @@ with pd.option_context("display.float_format", "{:,.3f}".format):
     display(results_or_final)
 
 tbl_i = 0
+comp_cats = [x[0] for x in results.summary().tables[1].data if x[0].startswith(results.model.endog_names)]
 for tbl in results.summary2().tables:
+    if tbl_i != 0:
+        tbl = tbl.rename(columns={tbl.columns[0]: comp_cats[tbl_i - 1]})
     excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
     tbl_i += 1
 excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
@@ -1073,7 +1076,10 @@ with pd.option_context("display.float_format", "{:,.3f}".format):
     display(results_or_final)
 
 tbl_i = 0
+comp_cats = [x[0] for x in results.summary().tables[1].data if x[0].startswith(results.model.endog_names)]
 for tbl in results.summary2().tables:
+    if tbl_i != 0:
+        tbl = tbl.rename(columns={tbl.columns[0]: comp_cats[tbl_i - 1]})
     excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
     tbl_i += 1
 excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
@@ -1329,7 +1335,10 @@ with pd.option_context("display.float_format", "{:,.3f}".format):
     display(results_or_final)
 
 tbl_i = 0
+comp_cats = [x[0] for x in results.summary().tables[1].data if x[0].startswith(results.model.endog_names)]
 for tbl in results.summary2().tables:
+    if tbl_i != 0:
+        tbl = tbl.rename(columns={tbl.columns[0]: comp_cats[tbl_i - 1]})
     excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
     tbl_i += 1
 excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
@@ -1427,7 +1436,10 @@ with pd.option_context("display.float_format", "{:,.3f}".format):
     display(results_or_final)
 
 tbl_i = 0
+comp_cats = [x[0] for x in results.summary().tables[1].data if x[0].startswith(results.model.endog_names)]
 for tbl in results.summary2().tables:
+    if tbl_i != 0:
+        tbl = tbl.rename(columns={tbl.columns[0]: comp_cats[tbl_i - 1]})
     excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
     tbl_i += 1
 excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
@@ -2464,7 +2476,10 @@ with pd.option_context("display.float_format", "{:,.3f}".format):
     display(results_or_final)
 
 tbl_i = 0
+comp_cats = [x[0] for x in results.summary().tables[1].data if x[0].startswith(results.model.endog_names)]
 for tbl in results.summary2().tables:
+    if tbl_i != 0:
+        tbl = tbl.rename(columns={tbl.columns[0]: comp_cats[tbl_i - 1]})
     excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
     tbl_i += 1
 excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final

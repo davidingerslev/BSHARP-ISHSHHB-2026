@@ -2271,7 +2271,14 @@ plt.show(block=False)
 # Get DV
 dv_str = "Outcomes from individual placements"
 dv = dv_dict[dv_str].iloc[:, 0].astype("category")
-dv = dv.cat.reorder_categories(list(dv.value_counts().index))
+cat_order = ['Independent accommodation',
+             'Internal move: forwards',
+             'Internal move: sideways',
+             'Internal move: backwards',
+             'Returned to homelessness',
+             'Insecure outcome (external)',
+             'Died']
+dv = dv.cat.reorder_categories(cat_order)
 ```
 
 ## Prepare IVs
@@ -2442,14 +2449,6 @@ results, summary, results_or = multinomial_regression(selected_dv, selected_xc[s
 ```
 :::
 
-### MNLogit iteration 5
-::: {.callout-note collapse=true title="Results"}
-```{python}
-cols_to_remove += ["ethnicity_grouped"]
-results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
-```
-:::
-
 All other variables are significant.
 
 ## Final model
@@ -2458,7 +2457,9 @@ All other variables are significant.
 from io import StringIO
 
 display(summary)
-results_or_final = results_or.drop(columns=["prev_coef", "coef", "diff_pct"], errors="ignore").swaplevel().sort_index()
+results_or_final = (results_or.drop(columns=["prev_coef", "coef", "diff_pct"], errors="ignore")
+                    .swaplevel().sort_index()
+                    .reindex(cat_order[1:], level=0))
 with pd.option_context("display.float_format", "{:,.3f}".format):
     display(results_or_final)
 
@@ -2475,7 +2476,7 @@ excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
 from itertools import product
 figure_minor_i += 1
 theme = {"ytick.labelsize": "medium"}
-ref_cats_used = {k: v for k, v in ref_cats.items() if k in ["gender", "age_cat", "uk_immigration_status"]}
+ref_cats_used = {k: v for k, v in ref_cats.items() if k in ["gender", "age_cat", "ethnicity_grouped", "uk_immigration_status"]}
 shorter_iv = {r"uk\ immigration\ status": "immigration"}
 cols_removed = cols_to_remove
 cols_removed = [col for col in cols_to_remove if col != "multiple_disadvantage"]
@@ -2484,7 +2485,7 @@ for or_section, i_sub in [(slice(0, 3), "a"), (slice(3, None), "b")]:
     temp_res_or = results_or_final.loc[results_or_final.index.levels[0][or_section]].copy()
     temp_res_or.index = temp_res_or.index.remove_unused_levels()
     figure_minor_i = str(figure_minor_i) + i_sub
-    fig_str, fig = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, temp_res_or, replacements=shorter_iv, theme=theme)
+    fig_str, fig = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, temp_res_or, replacements=shorter_iv, theme=theme, cols_removed=cols_removed)
     plt.show(block=False)
     figure_minor_i = save_fmi
 ```

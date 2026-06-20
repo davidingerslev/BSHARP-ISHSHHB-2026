@@ -2508,6 +2508,6 @@ with pd.ExcelWriter(filename) as writer:
             (1 if not isinstance(v.columns, pd.MultiIndex) else 1 + len(v.columns.levels))
             + len(v) + 1)
     float_format = writer.book.add_format({"num_format": "#,##0.000"})
-    writer.sheets[sheetname].set_column("C:G", None, float_format)
+    writer.sheets[sheetname].set_column("C:H", None, float_format)
 print(f"[Excel file](./{filename})")
 ```

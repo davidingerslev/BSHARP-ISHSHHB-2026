@@ -356,6 +356,15 @@ def plot_odds_r(dv_str, dv_ref_cat, iv_ref_cats, results_or_final, x_max=None, w
     fig.tight_layout(rect=[0,0,1,1], pad=0.5, h_pad=1)
     fig.savefig(fig_str)
     return fig_str, fig
+
+
+def add_interpretation_cols(results_or_final):
+    pvalue = results_or_final.iloc[:, 0:2]  # First 2 cols
+    odds_ratios = results_or_final.iloc[:, 2:]  # Last 3 cols
+    odds_pct_diff = ((odds_ratios - 1).map("{:.1%}".format)
+                     .where(pvalue["*"] == "*", other="")
+                     .rename(columns={"odds_r": "odds_pct_diff"}))  # Percentage different from intercept
+    return results_or_final
 ```
 
 ## Collect dependent variables
@@ -990,8 +999,9 @@ from io import StringIO
 
 display(summary)
 results_or_final = results_or.drop(columns=["prev_coef", "coef", "diff_pct"], errors="ignore").swaplevel().sort_index()
+results_or_with_pct = add_interpretation_cols(results_or_final)
 with pd.option_context("display.float_format", "{:,.3f}".format):
-    display(results_or_final)
+    display(results_or_with_pct)
 
 tbl_i = 0
 comp_cats = [x[0] for x in results.summary().tables[1].data if x[0].startswith(results.model.endog_names)]
@@ -1000,7 +1010,7 @@ for tbl in results.summary2().tables:
         tbl = tbl.rename(columns={tbl.columns[0]: comp_cats[tbl_i - 1]})
     excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
     tbl_i += 1
-excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
+excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_with_pct
 ```
 
 ### Visualisation
@@ -1072,8 +1082,9 @@ from io import StringIO
 
 display(summary)
 results_or_final = results_or.drop(columns=["prev_coef", "coef", "diff_pct"], errors="ignore").swaplevel().sort_index()
+results_or_with_pct = add_interpretation_cols(results_or_final)
 with pd.option_context("display.float_format", "{:,.3f}".format):
-    display(results_or_final)
+    display(results_or_with_pct)
 
 tbl_i = 0
 comp_cats = [x[0] for x in results.summary().tables[1].data if x[0].startswith(results.model.endog_names)]
@@ -1082,7 +1093,7 @@ for tbl in results.summary2().tables:
         tbl = tbl.rename(columns={tbl.columns[0]: comp_cats[tbl_i - 1]})
     excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
     tbl_i += 1
-excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
+excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_with_pct
 ```
 
 ## Visualisation
@@ -1331,8 +1342,9 @@ from io import StringIO
 
 display(summary)
 results_or_final = results_or.drop(columns=["prev_coef", "coef", "diff_pct"], errors="ignore").swaplevel().sort_index()
+results_or_with_pct = add_interpretation_cols(results_or_final)
 with pd.option_context("display.float_format", "{:,.3f}".format):
-    display(results_or_final)
+    display(results_or_with_pct)
 
 tbl_i = 0
 comp_cats = [x[0] for x in results.summary().tables[1].data if x[0].startswith(results.model.endog_names)]
@@ -1341,7 +1353,7 @@ for tbl in results.summary2().tables:
         tbl = tbl.rename(columns={tbl.columns[0]: comp_cats[tbl_i - 1]})
     excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
     tbl_i += 1
-excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
+excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_with_pct
 ```
 
 ### Visualisation
@@ -1432,8 +1444,9 @@ from io import StringIO
 
 display(summary)
 results_or_final = results_or.drop(columns=["prev_coef", "coef", "diff_pct"], errors="ignore").swaplevel().sort_index()
+results_or_with_pct = add_interpretation_cols(results_or_final)
 with pd.option_context("display.float_format", "{:,.3f}".format):
-    display(results_or_final)
+    display(results_or_with_pct)
 
 tbl_i = 0
 comp_cats = [x[0] for x in results.summary().tables[1].data if x[0].startswith(results.model.endog_names)]
@@ -1442,7 +1455,7 @@ for tbl in results.summary2().tables:
         tbl = tbl.rename(columns={tbl.columns[0]: comp_cats[tbl_i - 1]})
     excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
     tbl_i += 1
-excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
+excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_with_pct
 ```
 
 ## Visualisation
@@ -1704,14 +1717,15 @@ Remaining variables are all significant in this model.
 ```{python}
 display(summary)
 results_or_final = results_or.drop(columns=["prev_coef", "coef", "diff_pct"]).sort_index()
+results_or_with_pct = add_interpretation_cols(results_or_final)
 with pd.option_context("display.float_format", "{:,.3f}".format):
-    display(results_or_final)
+    display(results_or_with_pct)
 
 tbl_i = 0
 for tbl in results.summary2().tables:
     excel_output[f"Logit: '{dv_str}', table {tbl_i}"] = tbl
     tbl_i += 1
-excel_output[f"Logit: '{dv_str}', odds ratios"] = results_or_final
+excel_output[f"Logit: '{dv_str}', odds ratios"] = results_or_with_pct
 ```
 
 ## Visualisation
@@ -1969,14 +1983,15 @@ Remaining variables are all significant in this model.
 ```{python}
 display(summary)
 results_or_final = results_or.drop(columns=["prev_coef", "coef", "diff_pct"]).sort_index()
+results_or_with_pct = add_interpretation_cols(results_or_final)
 with pd.option_context("display.float_format", "{:,.3f}".format):
-    display(results_or_final)
+    display(results_or_with_pct)
 
 tbl_i = 0
 for tbl in results.summary2().tables:
     excel_output[f"Logit: '{dv_str}', table {tbl_i}"] = tbl
     tbl_i += 1
-excel_output[f"Logit: '{dv_str}', odds ratios"] = results_or_final
+excel_output[f"Logit: '{dv_str}', odds ratios"] = results_or_with_pct
 ```
 
 ## Visualisation
@@ -2254,14 +2269,15 @@ Remaining variables are all significant in this model.
 ```{python}
 display(summary)
 results_or_final = results_or.drop(columns=["prev_coef", "coef", "diff_pct"]).sort_index()
+results_or_with_pct = add_interpretation_cols(results_or_final)
 with pd.option_context("display.float_format", "{:,.3f}".format):
-    display(results_or_final)
+    display(results_or_with_pct)
 
 tbl_i = 0
 for tbl in results.summary2().tables:
     excel_output[f"Logit: '{dv_str}', table {tbl_i}"] = tbl
     tbl_i += 1
-excel_output[f"Logit: '{dv_str}', odds ratios"] = results_or_final
+excel_output[f"Logit: '{dv_str}', odds ratios"] = results_or_with_pct
 ```
 
 ## Visualisation
@@ -2472,8 +2488,9 @@ display(summary)
 results_or_final = (results_or.drop(columns=["prev_coef", "coef", "diff_pct"], errors="ignore")
                     .swaplevel().sort_index()
                     .reindex(cat_order[1:], level=0))
+results_or_with_pct = add_interpretation_cols(results_or_final)
 with pd.option_context("display.float_format", "{:,.3f}".format):
-    display(results_or_final)
+    display(results_or_with_pct)
 
 tbl_i = 0
 comp_cats = [x[0] for x in results.summary().tables[1].data if x[0].startswith(results.model.endog_names)]
@@ -2482,7 +2499,7 @@ for tbl in results.summary2().tables:
         tbl = tbl.rename(columns={tbl.columns[0]: comp_cats[tbl_i - 1]})
     excel_output[f"MNLogit: '{dv_str} (vs independent accommodation)', table {tbl_i}"] = tbl
     tbl_i += 1
-excel_output[f"MNLogit: '{dv_str} (vs independent accommodation)', odds ratios"] = results_or_final
+excel_output[f"MNLogit: '{dv_str} (vs independent accommodation)', odds ratios"] = results_or_with_pct
 ```
 
 ## Visualisation
@@ -2702,8 +2719,9 @@ from io import StringIO
 display(summary)
 results_or_final = (results_or.drop(columns=["prev_coef", "coef", "diff_pct"], errors="ignore")
                     .swaplevel().sort_index())
+results_or_with_pct = add_interpretation_cols(results_or_final)
 with pd.option_context("display.float_format", "{:,.3f}".format):
-    display(results_or_final)
+    display(results_or_with_pct)
 
 tbl_i = 0
 comp_cats = [x[0] for x in results.summary().tables[1].data if x[0].startswith(results.model.endog_names)]
@@ -2712,7 +2730,7 @@ for tbl in results.summary2().tables:
         tbl = tbl.rename(columns={tbl.columns[0]: comp_cats[tbl_i - 1]})
     excel_output[f"MNLogit: '{dv_str} (vs. forwards moves)', table {tbl_i}"] = tbl
     tbl_i += 1
-excel_output[f"MNLogit: '{dv_str} (vs. forwards moves)', odds ratios"] = results_or_final
+excel_output[f"MNLogit: '{dv_str} (vs. forwards moves)', odds ratios"] = results_or_with_pct
 ```
 
 ## Visualisation
@@ -2753,6 +2771,6 @@ with pd.ExcelWriter(filename) as writer:
             (1 if not isinstance(v.columns, pd.MultiIndex) else 1 + len(v.columns.levels))
             + len(v) + 1)
     float_format = writer.book.add_format({"num_format": "#,##0.000"})
-    writer.sheets[sheetname].set_column("B:H", None, float_format)
+    writer.sheets[sheetname].set_column("B:J", None, float_format)
 print(f"[Excel file](./{filename})")
 ```

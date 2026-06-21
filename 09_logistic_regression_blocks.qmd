@@ -362,9 +362,8 @@ def add_interpretation_cols(results_or_final):
     pvalue = results_or_final.iloc[:, 0:2]  # First 2 cols
     odds_ratios = results_or_final.iloc[:, 2:]  # Last 3 cols
     odds_pct_diff = ((odds_ratios - 1).map("{:.1%}".format)
-                     .where(pvalue["*"] == "*", other="")
-                     .rename(columns={"odds_r": "odds_pct_diff"}))  # Percentage different from intercept
-    return results_or_final
+                     .where(pvalue["*"] == "*", other=""))
+    return results_or_final.join(odds_pct_diff, rsuffix="_d%")
 ```
 
 ## Collect dependent variables

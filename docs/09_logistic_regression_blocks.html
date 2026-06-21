@@ -4383,7 +4383,7 @@ window.Quarto = {
 
 <section id="prepare" class="level1">
 <h1>Prepare</h1>
-<div id="47235f34" class="cell" data-execution_count="1">
+<div id="36326b99" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Setup code</span></span>
@@ -4739,9 +4739,8 @@ window.Quarto = {
 <span id="cb1-351"><a href="#cb1-351" aria-hidden="true" tabindex="-1"></a>    pvalue <span class="op">=</span> results_or_final.iloc[:, <span class="dv">0</span>:<span class="dv">2</span>]  <span class="co"># First 2 cols</span></span>
 <span id="cb1-352"><a href="#cb1-352" aria-hidden="true" tabindex="-1"></a>    odds_ratios <span class="op">=</span> results_or_final.iloc[:, <span class="dv">2</span>:]  <span class="co"># Last 3 cols</span></span>
 <span id="cb1-353"><a href="#cb1-353" aria-hidden="true" tabindex="-1"></a>    odds_pct_diff <span class="op">=</span> ((odds_ratios <span class="op">-</span> <span class="dv">1</span>).<span class="bu">map</span>(<span class="st">&quot;</span><span class="sc">{:.1%}</span><span class="st">&quot;</span>.<span class="bu">format</span>)</span>
-<span id="cb1-354"><a href="#cb1-354" aria-hidden="true" tabindex="-1"></a>                     .where(pvalue[<span class="st">&quot;*&quot;</span>] <span class="op">==</span> <span class="st">&quot;*&quot;</span>, other<span class="op">=</span><span class="st">&quot;&quot;</span>)</span>
-<span id="cb1-355"><a href="#cb1-355" aria-hidden="true" tabindex="-1"></a>                     .rename(columns<span class="op">=</span>{<span class="st">&quot;odds_r&quot;</span>: <span class="st">&quot;odds_pct_diff&quot;</span>}))  <span class="co"># Percentage different from intercept</span></span>
-<span id="cb1-356"><a href="#cb1-356" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> results_or_final</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-354"><a href="#cb1-354" aria-hidden="true" tabindex="-1"></a>                     .where(pvalue[<span class="st">&quot;*&quot;</span>] <span class="op">==</span> <span class="st">&quot;*&quot;</span>, other<span class="op">=</span><span class="st">&quot;&quot;</span>))</span>
+<span id="cb1-355"><a href="#cb1-355" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> results_or_final.join(odds_pct_diff, rsuffix<span class="op">=</span><span class="st">&quot;_d%&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <section id="collect-dependent-variables" class="level2">
@@ -5185,7 +5184,7 @@ window.Quarto = {
 <h1>Route outcomes after 3.08 years</h1>
 <section id="prepare-dv" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-dv">Prepare DV</h2>
-<div id="b625af04" class="cell" data-execution_count="4">
+<div id="9618423e" class="cell" data-execution_count="4">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get DV</span></span>
@@ -5197,7 +5196,7 @@ window.Quarto = {
 </section>
 <section id="prepare-ivs" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-ivs">Prepare IVs</h2>
-<div id="f5635a09" class="cell" data-execution_count="5">
+<div id="92323219" class="cell" data-execution_count="5">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>selected_ch <span class="op">=</span> {</span>
@@ -5219,7 +5218,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="model-building">Model building</h2>
 <section id="start-with-block-for-demographic-variables" class="level3">
 <h3 class="anchored" data-anchor-id="start-with-block-for-demographic-variables">Start with block for demographic variables</h3>
-<div id="29db05b8" class="cell" data-execution_count="6">
+<div id="c970009d" class="cell" data-execution_count="6">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>block_ch <span class="op">=</span> <span class="bu">list</span>(selected_ch.values())[<span class="dv">0</span>]</span>
@@ -5244,7 +5243,7 @@ Results
 <div id="callout-1" class="callout-1-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="abebd876" class="cell" data-execution_count="7">
+<div id="bf164233" class="cell" data-execution_count="7">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>chi2_crv_results, disp <span class="op">=</span> iv_assoc(iv_df, block_ch)</span>
@@ -5359,7 +5358,7 @@ Results
 </div>
 <div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="128a12aa" class="cell" data-execution_count="8">
+<div id="dcc3bbbb" class="cell" data-execution_count="8">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -5428,7 +5427,7 @@ Results
 </div>
 <div id="callout-3" class="callout-3-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="ef5f41d7" class="cell" data-execution_count="9">
+<div id="7951ea8e" class="cell" data-execution_count="9">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">=</span> []</span>
@@ -5470,7 +5469,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:26:41</td>
+<td>14:49:16</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-3089.5</td>
 </tr>
@@ -5881,7 +5880,7 @@ Results
 </div>
 <div id="callout-4" class="callout-4-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="fc6f1af7" class="cell" data-execution_count="10">
+<div id="b305c671" class="cell" data-execution_count="10">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>selected_dv, selected_xc, sel_block_ch_d <span class="op">=</span> dv_xc_remove_value(dv, Xc, block_ch_d, <span class="st">&quot;gender_Non-Binary&quot;</span>)</span>
@@ -5923,7 +5922,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:26:41</td>
+<td>14:49:17</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-3083.6</td>
 </tr>
@@ -6270,7 +6269,7 @@ Results
 </section>
 <section id="add-block-for-grouped-ethnicity-data-and-drop-global_majority" class="level3">
 <h3 class="anchored" data-anchor-id="add-block-for-grouped-ethnicity-data-and-drop-global_majority">Add block for grouped ethnicity data and drop “global_majority”</h3>
-<div id="3c9f0419" class="cell" data-execution_count="11">
+<div id="29f42614" class="cell" data-execution_count="11">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>new_block_ch <span class="op">=</span> selected_ch[<span class="st">&quot;ethnicity_related&quot;</span>]</span>
@@ -6296,7 +6295,7 @@ Results
 <div id="callout-5" class="callout-5-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="fbe44aa6" class="cell" data-execution_count="12">
+<div id="a3cb2d1f" class="cell" data-execution_count="12">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>chi2_crv_results, disp <span class="op">=</span> iv_assoc(iv_df, sel_block_ch)</span>
@@ -6438,7 +6437,7 @@ Results
 </div>
 <div id="callout-6" class="callout-6-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="2bb20563" class="cell" data-execution_count="13">
+<div id="896e31ba" class="cell" data-execution_count="13">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -6520,7 +6519,7 @@ Results
 </div>
 <div id="callout-7" class="callout-7-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="b27d6cd8" class="cell" data-execution_count="14">
+<div id="75eed550" class="cell" data-execution_count="14">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -6560,7 +6559,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:26:42</td>
+<td>14:49:18</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2505.6</td>
 </tr>
@@ -7112,7 +7111,7 @@ Results
 </div>
 </div>
 <p>Model did not converge because no-one with Mixed Heritage ethnicity died in accommodation – recoding as “other”</p>
-<div id="7ca9c52a" class="cell" data-execution_count="15">
+<div id="0db26597" class="cell" data-execution_count="15">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>selected_xc.loc[selected_xc[<span class="st">&quot;ethnicity_grouped_Mixed Heritage&quot;</span>], <span class="st">&quot;ethnicity_grouped_Other&quot;</span>] <span class="op">=</span> <span class="va">True</span></span>
@@ -7136,7 +7135,7 @@ Results
 </div>
 <div id="callout-8" class="callout-8-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="ce11e85b" class="cell" data-execution_count="16">
+<div id="ee584f40" class="cell" data-execution_count="16">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -7176,7 +7175,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:26:43</td>
+<td>14:49:18</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2510.5</td>
 </tr>
@@ -7691,7 +7690,7 @@ Results
 </div>
 <div id="callout-9" class="callout-9-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="b103fa06" class="cell" data-execution_count="17">
+<div id="322946a4" class="cell" data-execution_count="17">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;lgbtq_plus&quot;</span>]</span>
@@ -7732,7 +7731,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:26:43</td>
+<td>14:49:19</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-3008.9</td>
 </tr>
@@ -8249,7 +8248,7 @@ Results
 </section>
 <section id="add-block-for-support-needs-variables" class="level3">
 <h3 class="anchored" data-anchor-id="add-block-for-support-needs-variables">Add block for support needs variables</h3>
-<div id="b448a4e3" class="cell" data-execution_count="18">
+<div id="fc42ffba" class="cell" data-execution_count="18">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>new_block_ch <span class="op">=</span> selected_ch[<span class="st">&quot;support_needs&quot;</span>]</span>
@@ -8275,7 +8274,7 @@ Results
 <div id="callout-10" class="callout-10-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="c78d9136" class="cell" data-execution_count="19">
+<div id="b1194577" class="cell" data-execution_count="19">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>chi2_crv_results, disp <span class="op">=</span> iv_assoc(iv_df, sel_block_ch)</span>
@@ -8777,7 +8776,7 @@ Results
 </div>
 <div id="callout-11" class="callout-11-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="54c6f374" class="cell" data-execution_count="20">
+<div id="11a68e02" class="cell" data-execution_count="20">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -8875,7 +8874,7 @@ Results
 </div>
 </div>
 <p><code>multiple_disadvantage</code> has high VIF due to multicollinearity of <code>multiple_disadvantage</code>, <code>substance_use</code> and <code>mental_health</code>. Running models with MD instead of SU and MH, and with SU/MH instead of MD.</p>
-<div id="a9cf0b4c" class="cell" data-execution_count="21">
+<div id="bce8e60a" class="cell" data-execution_count="21">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove_nonMD <span class="op">=</span> cols_to_remove <span class="op">+</span> [<span class="st">&quot;multiple_disadvantage&quot;</span>]</span>
@@ -8886,7 +8885,7 @@ Results
 </section>
 <section id="md-iterations" class="level3">
 <h3 class="anchored" data-anchor-id="md-iterations">MD iterations</h3>
-<div id="6eba2def" class="cell" data-execution_count="22">
+<div id="a9c3ecc6" class="cell" data-execution_count="22">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reset prev_results</span></span>
@@ -8907,7 +8906,7 @@ Results
 </div>
 <div id="callout-12" class="callout-12-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="ad508fdf" class="cell" data-execution_count="23">
+<div id="151d9d46" class="cell" data-execution_count="23">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove_MD, dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -8947,7 +8946,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:26:47</td>
+<td>14:49:23</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2757.1</td>
 </tr>
@@ -9894,7 +9893,7 @@ Results
 </section>
 <section id="final-model-md" class="level3">
 <h3 class="anchored" data-anchor-id="final-model-md">Final model (MD)</h3>
-<div id="25cc94fa" class="cell" data-execution_count="24">
+<div id="22c93c66" class="cell" data-execution_count="24">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> io <span class="im">import</span> StringIO</span>
@@ -9944,7 +9943,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:26:47</td>
+<td>14:49:23</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2757.1</td>
 </tr>
@@ -10389,6 +10388,9 @@ Results
 <th data-quarto-table-cell-role="th">odds_r</th>
 <th data-quarto-table-cell-role="th">[0.025</th>
 <th data-quarto-table-cell-role="th">0.975]</th>
+<th data-quarto-table-cell-role="th">odds_r_d%</th>
+<th data-quarto-table-cell-role="th">[0.025_d%</th>
+<th data-quarto-table-cell-role="th">0.975]_d%</th>
 </tr>
 </thead>
 <tbody>
@@ -10400,6 +10402,9 @@ Results
 <td>0.045</td>
 <td>0.023</td>
 <td>0.088</td>
+<td>-95.5%</td>
+<td>-97.7%</td>
+<td>-91.2%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">age_cat_34-</td>
@@ -10408,6 +10413,9 @@ Results
 <td>0.359</td>
 <td>0.156</td>
 <td>0.829</td>
+<td>-64.1%</td>
+<td>-84.4%</td>
+<td>-17.1%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">ethnicity_grouped_Black</td>
@@ -10416,6 +10424,9 @@ Results
 <td>0.686</td>
 <td>0.242</td>
 <td>1.940</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">ethnicity_grouped_Other</td>
@@ -10424,6 +10435,9 @@ Results
 <td>0.367</td>
 <td>0.083</td>
 <td>1.625</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">gender_Female</td>
@@ -10432,6 +10446,9 @@ Results
 <td>0.478</td>
 <td>0.194</td>
 <td>1.178</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">multiple_disadvantage</td>
@@ -10440,6 +10457,9 @@ Results
 <td>3.629</td>
 <td>1.854</td>
 <td>7.103</td>
+<td>262.9%</td>
+<td>85.4%</td>
+<td>610.3%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">offending</td>
@@ -10448,6 +10468,9 @@ Results
 <td>0.800</td>
 <td>0.312</td>
 <td>2.054</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">physical_health</td>
@@ -10456,6 +10479,9 @@ Results
 <td>2.011</td>
 <td>1.089</td>
 <td>3.715</td>
+<td>101.1%</td>
+<td>8.9%</td>
+<td>271.5%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">risk_exploitation</td>
@@ -10464,6 +10490,9 @@ Results
 <td>0.585</td>
 <td>0.132</td>
 <td>2.589</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">risk_violence_abuse</td>
@@ -10472,6 +10501,9 @@ Results
 <td>0.256</td>
 <td>0.068</td>
 <td>0.970</td>
+<td>-74.4%</td>
+<td>-93.2%</td>
+<td>-3.0%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">rough_sleeping</td>
@@ -10480,6 +10512,9 @@ Results
 <td>0.970</td>
 <td>0.412</td>
 <td>2.283</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">sex_working</td>
@@ -10488,6 +10523,9 @@ Results
 <td>36.010</td>
 <td>3.967</td>
 <td>326.857</td>
+<td>3501.0%</td>
+<td>296.7%</td>
+<td>32585.7%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">uk_immigration_status_EEA National</td>
@@ -10496,6 +10534,9 @@ Results
 <td>2.877</td>
 <td>0.802</td>
 <td>10.313</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">uk_immigration_status_Non-EEA National</td>
@@ -10504,6 +10545,9 @@ Results
 <td>0.923</td>
 <td>0.246</td>
 <td>3.469</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td rowspan="14" data-quarto-table-cell-role="th" data-valign="top">Insecure outcome</td>
@@ -10513,6 +10557,9 @@ Results
 <td>0.608</td>
 <td>0.491</td>
 <td>0.753</td>
+<td>-39.2%</td>
+<td>-50.9%</td>
+<td>-24.7%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">age_cat_34-</td>
@@ -10521,6 +10568,9 @@ Results
 <td>1.166</td>
 <td>0.940</td>
 <td>1.447</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">ethnicity_grouped_Black</td>
@@ -10529,6 +10579,9 @@ Results
 <td>0.726</td>
 <td>0.522</td>
 <td>1.010</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">ethnicity_grouped_Other</td>
@@ -10537,6 +10590,9 @@ Results
 <td>0.893</td>
 <td>0.637</td>
 <td>1.252</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">gender_Female</td>
@@ -10545,6 +10601,9 @@ Results
 <td>0.706</td>
 <td>0.549</td>
 <td>0.906</td>
+<td>-29.4%</td>
+<td>-45.1%</td>
+<td>-9.4%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">multiple_disadvantage</td>
@@ -10553,6 +10612,9 @@ Results
 <td>2.505</td>
 <td>1.978</td>
 <td>3.172</td>
+<td>150.5%</td>
+<td>97.8%</td>
+<td>217.2%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">offending</td>
@@ -10561,6 +10623,9 @@ Results
 <td>2.159</td>
 <td>1.563</td>
 <td>2.981</td>
+<td>115.9%</td>
+<td>56.3%</td>
+<td>198.1%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">physical_health</td>
@@ -10569,6 +10634,9 @@ Results
 <td>1.297</td>
 <td>1.042</td>
 <td>1.614</td>
+<td>29.7%</td>
+<td>4.2%</td>
+<td>61.4%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">risk_exploitation</td>
@@ -10577,6 +10645,9 @@ Results
 <td>1.658</td>
 <td>1.116</td>
 <td>2.463</td>
+<td>65.8%</td>
+<td>11.6%</td>
+<td>146.3%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">risk_violence_abuse</td>
@@ -10585,6 +10656,9 @@ Results
 <td>0.717</td>
 <td>0.515</td>
 <td>0.999</td>
+<td>-28.3%</td>
+<td>-48.5%</td>
+<td>-0.1%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">rough_sleeping</td>
@@ -10593,6 +10667,9 @@ Results
 <td>1.719</td>
 <td>1.287</td>
 <td>2.296</td>
+<td>71.9%</td>
+<td>28.7%</td>
+<td>129.6%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">sex_working</td>
@@ -10601,6 +10678,9 @@ Results
 <td>8.999</td>
 <td>2.069</td>
 <td>39.146</td>
+<td>799.9%</td>
+<td>106.9%</td>
+<td>3814.6%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">uk_immigration_status_EEA National</td>
@@ -10609,6 +10689,9 @@ Results
 <td>0.885</td>
 <td>0.488</td>
 <td>1.604</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">uk_immigration_status_Non-EEA National</td>
@@ -10617,6 +10700,9 @@ Results
 <td>0.607</td>
 <td>0.404</td>
 <td>0.911</td>
+<td>-39.3%</td>
+<td>-59.6%</td>
+<td>-8.9%</td>
 </tr>
 <tr class="odd">
 <td rowspan="14" data-quarto-table-cell-role="th" data-valign="top">Returned to homelessness</td>
@@ -10626,6 +10712,9 @@ Results
 <td>0.498</td>
 <td>0.398</td>
 <td>0.624</td>
+<td>-50.2%</td>
+<td>-60.2%</td>
+<td>-37.6%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">age_cat_34-</td>
@@ -10634,6 +10723,9 @@ Results
 <td>1.050</td>
 <td>0.838</td>
 <td>1.317</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">ethnicity_grouped_Black</td>
@@ -10642,6 +10734,9 @@ Results
 <td>0.633</td>
 <td>0.442</td>
 <td>0.906</td>
+<td>-36.7%</td>
+<td>-55.8%</td>
+<td>-9.4%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">ethnicity_grouped_Other</td>
@@ -10650,6 +10745,9 @@ Results
 <td>0.640</td>
 <td>0.438</td>
 <td>0.936</td>
+<td>-36.0%</td>
+<td>-56.2%</td>
+<td>-6.4%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">gender_Female</td>
@@ -10658,6 +10756,9 @@ Results
 <td>0.583</td>
 <td>0.444</td>
 <td>0.764</td>
+<td>-41.7%</td>
+<td>-55.6%</td>
+<td>-23.6%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">multiple_disadvantage</td>
@@ -10666,6 +10767,9 @@ Results
 <td>2.844</td>
 <td>2.220</td>
 <td>3.643</td>
+<td>184.4%</td>
+<td>122.0%</td>
+<td>264.3%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">offending</td>
@@ -10674,6 +10778,9 @@ Results
 <td>2.718</td>
 <td>1.969</td>
 <td>3.753</td>
+<td>171.8%</td>
+<td>96.9%</td>
+<td>275.3%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">physical_health</td>
@@ -10682,6 +10789,9 @@ Results
 <td>1.166</td>
 <td>0.927</td>
 <td>1.465</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">risk_exploitation</td>
@@ -10690,6 +10800,9 @@ Results
 <td>1.448</td>
 <td>0.956</td>
 <td>2.193</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">risk_violence_abuse</td>
@@ -10698,6 +10811,9 @@ Results
 <td>0.828</td>
 <td>0.589</td>
 <td>1.163</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">rough_sleeping</td>
@@ -10706,6 +10822,9 @@ Results
 <td>3.350</td>
 <td>2.529</td>
 <td>4.437</td>
+<td>235.0%</td>
+<td>152.9%</td>
+<td>343.7%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">sex_working</td>
@@ -10714,6 +10833,9 @@ Results
 <td>10.633</td>
 <td>2.436</td>
 <td>46.419</td>
+<td>963.3%</td>
+<td>143.6%</td>
+<td>4541.9%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">uk_immigration_status_EEA National</td>
@@ -10722,6 +10844,9 @@ Results
 <td>1.139</td>
 <td>0.626</td>
 <td>2.071</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">uk_immigration_status_Non-EEA National</td>
@@ -10730,6 +10855,9 @@ Results
 <td>0.456</td>
 <td>0.280</td>
 <td>0.743</td>
+<td>-54.4%</td>
+<td>-72.0%</td>
+<td>-25.7%</td>
 </tr>
 </tbody>
 </table>
@@ -10740,7 +10868,7 @@ Results
 </section>
 <section id="visualisation" class="level3">
 <h3 class="anchored" data-anchor-id="visualisation">Visualisation</h3>
-<div id="95558541" class="cell" data-execution_count="25">
+<div id="99068fba" class="cell" data-execution_count="25">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>figure_minor_i <span class="op">+=</span> <span class="dv">1</span></span>
@@ -10762,7 +10890,7 @@ Results
 </section>
 <section id="separate-needs-non-md-iterations" class="level3">
 <h3 class="anchored" data-anchor-id="separate-needs-non-md-iterations">Separate needs (Non-MD) iterations</h3>
-<div id="b0217ca5" class="cell" data-execution_count="26">
+<div id="91f925bd" class="cell" data-execution_count="26">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reset prev_results</span></span>
@@ -10783,7 +10911,7 @@ Results
 </div>
 <div id="callout-13" class="callout-13-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="dfc82516" class="cell" data-execution_count="27">
+<div id="315eff47" class="cell" data-execution_count="27">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove_nonMD, dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -10823,7 +10951,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:26:50</td>
+<td>14:49:26</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2689.8</td>
 </tr>
@@ -11842,7 +11970,7 @@ Results
 </div>
 <div id="callout-14" class="callout-14-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="3a053d75" class="cell" data-execution_count="28">
+<div id="661713b7" class="cell" data-execution_count="28">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove_nonMD <span class="op">+=</span> [<span class="st">&quot;ethnicity_grouped&quot;</span>]</span>
@@ -11883,7 +12011,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:26:51</td>
+<td>14:49:27</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2770.2</td>
 </tr>
@@ -12779,7 +12907,7 @@ Results
 </div>
 <div id="callout-15" class="callout-15-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="d5f636a9" class="cell" data-execution_count="29">
+<div id="6d36d976" class="cell" data-execution_count="29">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove_nonMD <span class="op">+=</span> [<span class="st">&quot;mental_health&quot;</span>]</span>
@@ -12820,7 +12948,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:26:52</td>
+<td>14:49:28</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2772.7</td>
 </tr>
@@ -13655,7 +13783,7 @@ Results
 </div>
 <div id="callout-16" class="callout-16-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="abc58e7b" class="cell" data-execution_count="30">
+<div id="12afbf2a" class="cell" data-execution_count="30">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove_nonMD <span class="op">+=</span> [<span class="st">&quot;risk_violence_abuse&quot;</span>]</span>
@@ -13696,7 +13824,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:26:52</td>
+<td>14:49:28</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2775.2</td>
 </tr>
@@ -14460,7 +14588,7 @@ Results
 </section>
 <section id="final-model" class="level2">
 <h2 class="anchored" data-anchor-id="final-model">Final model</h2>
-<div id="99e7d1ac" class="cell" data-execution_count="31">
+<div id="12679ebb" class="cell" data-execution_count="31">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> io <span class="im">import</span> StringIO</span>
@@ -14510,7 +14638,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:26:52</td>
+<td>14:49:28</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2775.2</td>
 </tr>
@@ -14874,6 +15002,9 @@ Results
 <th data-quarto-table-cell-role="th">odds_r</th>
 <th data-quarto-table-cell-role="th">[0.025</th>
 <th data-quarto-table-cell-role="th">0.975]</th>
+<th data-quarto-table-cell-role="th">odds_r_d%</th>
+<th data-quarto-table-cell-role="th">[0.025_d%</th>
+<th data-quarto-table-cell-role="th">0.975]_d%</th>
 </tr>
 </thead>
 <tbody>
@@ -14885,6 +15016,9 @@ Results
 <td>0.022</td>
 <td>0.010</td>
 <td>0.046</td>
+<td>-97.8%</td>
+<td>-99.0%</td>
+<td>-95.4%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">age_cat_34-</td>
@@ -14893,6 +15027,9 @@ Results
 <td>0.403</td>
 <td>0.175</td>
 <td>0.927</td>
+<td>-59.7%</td>
+<td>-82.5%</td>
+<td>-7.3%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">gender_Female</td>
@@ -14901,6 +15038,9 @@ Results
 <td>0.621</td>
 <td>0.281</td>
 <td>1.374</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">offending</td>
@@ -14909,6 +15049,9 @@ Results
 <td>1.080</td>
 <td>0.432</td>
 <td>2.702</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">physical_health</td>
@@ -14917,6 +15060,9 @@ Results
 <td>2.112</td>
 <td>1.155</td>
 <td>3.864</td>
+<td>111.2%</td>
+<td>15.5%</td>
+<td>286.4%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">risk_exploitation</td>
@@ -14925,6 +15071,9 @@ Results
 <td>0.403</td>
 <td>0.093</td>
 <td>1.758</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">rough_sleeping</td>
@@ -14933,6 +15082,9 @@ Results
 <td>0.844</td>
 <td>0.361</td>
 <td>1.975</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">sex_working</td>
@@ -14941,6 +15093,9 @@ Results
 <td>16.704</td>
 <td>1.956</td>
 <td>142.661</td>
+<td>1570.4%</td>
+<td>95.6%</td>
+<td>14166.1%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">substance_use</td>
@@ -14949,6 +15104,9 @@ Results
 <td>6.528</td>
 <td>3.204</td>
 <td>13.299</td>
+<td>552.8%</td>
+<td>220.4%</td>
+<td>1229.9%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">uk_immigration_status_EEA National</td>
@@ -14957,6 +15115,9 @@ Results
 <td>2.819</td>
 <td>0.787</td>
 <td>10.092</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">uk_immigration_status_Non-EEA National</td>
@@ -14965,6 +15126,9 @@ Results
 <td>0.704</td>
 <td>0.207</td>
 <td>2.394</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td rowspan="11" data-quarto-table-cell-role="th" data-valign="top">Insecure outcome</td>
@@ -14974,6 +15138,9 @@ Results
 <td>0.408</td>
 <td>0.328</td>
 <td>0.508</td>
+<td>-59.2%</td>
+<td>-67.2%</td>
+<td>-49.2%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">age_cat_34-</td>
@@ -14982,6 +15149,9 @@ Results
 <td>1.352</td>
 <td>1.086</td>
 <td>1.682</td>
+<td>35.2%</td>
+<td>8.6%</td>
+<td>68.2%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">gender_Female</td>
@@ -14990,6 +15160,9 @@ Results
 <td>0.798</td>
 <td>0.627</td>
 <td>1.014</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">offending</td>
@@ -14998,6 +15171,9 @@ Results
 <td>2.838</td>
 <td>2.089</td>
 <td>3.857</td>
+<td>183.8%</td>
+<td>108.9%</td>
+<td>285.7%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">physical_health</td>
@@ -15006,6 +15182,9 @@ Results
 <td>1.305</td>
 <td>1.048</td>
 <td>1.624</td>
+<td>30.5%</td>
+<td>4.8%</td>
+<td>62.4%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">risk_exploitation</td>
@@ -15014,6 +15193,9 @@ Results
 <td>1.510</td>
 <td>1.022</td>
 <td>2.233</td>
+<td>51.0%</td>
+<td>2.2%</td>
+<td>123.3%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">rough_sleeping</td>
@@ -15022,6 +15204,9 @@ Results
 <td>1.632</td>
 <td>1.223</td>
 <td>2.179</td>
+<td>63.2%</td>
+<td>22.3%</td>
+<td>117.9%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">sex_working</td>
@@ -15030,6 +15215,9 @@ Results
 <td>7.461</td>
 <td>1.688</td>
 <td>32.973</td>
+<td>646.1%</td>
+<td>68.8%</td>
+<td>3197.3%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">substance_use</td>
@@ -15038,6 +15226,9 @@ Results
 <td>3.551</td>
 <td>2.860</td>
 <td>4.410</td>
+<td>255.1%</td>
+<td>186.0%</td>
+<td>341.0%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">uk_immigration_status_EEA National</td>
@@ -15046,6 +15237,9 @@ Results
 <td>0.882</td>
 <td>0.483</td>
 <td>1.611</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">uk_immigration_status_Non-EEA National</td>
@@ -15054,6 +15248,9 @@ Results
 <td>0.572</td>
 <td>0.397</td>
 <td>0.825</td>
+<td>-42.8%</td>
+<td>-60.3%</td>
+<td>-17.5%</td>
 </tr>
 <tr class="odd">
 <td rowspan="11" data-quarto-table-cell-role="th" data-valign="top">Returned to homelessness</td>
@@ -15063,6 +15260,9 @@ Results
 <td>0.257</td>
 <td>0.202</td>
 <td>0.328</td>
+<td>-74.3%</td>
+<td>-79.8%</td>
+<td>-67.2%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">age_cat_34-</td>
@@ -15071,6 +15271,9 @@ Results
 <td>1.248</td>
 <td>0.991</td>
 <td>1.572</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">gender_Female</td>
@@ -15079,6 +15282,9 @@ Results
 <td>0.707</td>
 <td>0.545</td>
 <td>0.919</td>
+<td>-29.3%</td>
+<td>-45.5%</td>
+<td>-8.1%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">offending</td>
@@ -15087,6 +15293,9 @@ Results
 <td>3.643</td>
 <td>2.674</td>
 <td>4.962</td>
+<td>264.3%</td>
+<td>167.4%</td>
+<td>396.2%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">physical_health</td>
@@ -15095,6 +15304,9 @@ Results
 <td>1.130</td>
 <td>0.897</td>
 <td>1.424</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">risk_exploitation</td>
@@ -15103,6 +15315,9 @@ Results
 <td>1.285</td>
 <td>0.850</td>
 <td>1.943</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">rough_sleeping</td>
@@ -15111,6 +15326,9 @@ Results
 <td>3.015</td>
 <td>2.271</td>
 <td>4.004</td>
+<td>201.5%</td>
+<td>127.1%</td>
+<td>300.4%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">sex_working</td>
@@ -15119,6 +15337,9 @@ Results
 <td>9.078</td>
 <td>2.034</td>
 <td>40.507</td>
+<td>807.8%</td>
+<td>103.4%</td>
+<td>3950.7%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">substance_use</td>
@@ -15127,6 +15348,9 @@ Results
 <td>5.574</td>
 <td>4.409</td>
 <td>7.047</td>
+<td>457.4%</td>
+<td>340.9%</td>
+<td>604.7%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">uk_immigration_status_EEA National</td>
@@ -15135,6 +15359,9 @@ Results
 <td>1.240</td>
 <td>0.677</td>
 <td>2.272</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">uk_immigration_status_Non-EEA National</td>
@@ -15143,6 +15370,9 @@ Results
 <td>0.423</td>
 <td>0.269</td>
 <td>0.664</td>
+<td>-57.7%</td>
+<td>-73.1%</td>
+<td>-33.6%</td>
 </tr>
 </tbody>
 </table>
@@ -15153,7 +15383,7 @@ Results
 </section>
 <section id="visualisation-1" class="level2">
 <h2 class="anchored" data-anchor-id="visualisation-1">Visualisation</h2>
-<div id="9b1bcce8" class="cell" data-execution_count="32">
+<div id="02831641" class="cell" data-execution_count="32">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>figure_minor_i <span class="op">+=</span> <span class="dv">1</span></span>
@@ -15178,7 +15408,7 @@ Results
 <h1>Outcomes 3.08 years after a person’s first route started</h1>
 <section id="prepare-dv-1" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-dv-1">Prepare DV</h2>
-<div id="4ce71718" class="cell" data-execution_count="33">
+<div id="f494194b" class="cell" data-execution_count="33">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get DV</span></span>
@@ -15190,7 +15420,7 @@ Results
 </section>
 <section id="prepare-ivs-1" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-ivs-1">Prepare IVs</h2>
-<div id="5b8d9c41" class="cell" data-execution_count="34">
+<div id="795a77f4" class="cell" data-execution_count="34">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>selected_ch <span class="op">=</span> {</span>
@@ -15212,7 +15442,7 @@ Results
 <h2 class="anchored" data-anchor-id="model-building-1">Model building</h2>
 <section id="start-with-block-for-demographic-variables-1" class="level3">
 <h3 class="anchored" data-anchor-id="start-with-block-for-demographic-variables-1">Start with block for demographic variables</h3>
-<div id="317d0e2c" class="cell" data-execution_count="35">
+<div id="587f8c41" class="cell" data-execution_count="35">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb56"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>block_ch <span class="op">=</span> <span class="bu">list</span>(selected_ch.values())[<span class="dv">0</span>]</span>
@@ -15237,7 +15467,7 @@ Results
 <div id="callout-17" class="callout-17-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="40b7ea93" class="cell" data-execution_count="36">
+<div id="c827a1f5" class="cell" data-execution_count="36">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>chi2_crv_results, disp <span class="op">=</span> iv_assoc(iv_df, block_ch)</span>
@@ -15352,7 +15582,7 @@ Results
 </div>
 <div id="callout-18" class="callout-18-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="25d3d6b5" class="cell" data-execution_count="37">
+<div id="0eda15ca" class="cell" data-execution_count="37">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb58"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -15421,7 +15651,7 @@ Results
 </div>
 <div id="callout-19" class="callout-19-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="1690434e" class="cell" data-execution_count="38">
+<div id="ed1dc6c0" class="cell" data-execution_count="38">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb59"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">=</span> []</span>
@@ -15463,7 +15693,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:26:56</td>
+<td>14:49:31</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2280.9</td>
 </tr>
@@ -15874,7 +16104,7 @@ Results
 </div>
 <div id="callout-20" class="callout-20-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="750d5345" class="cell" data-execution_count="39">
+<div id="f866971b" class="cell" data-execution_count="39">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb62"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>selected_dv, selected_xc, sel_block_ch_d <span class="op">=</span> dv_xc_remove_value(dv, Xc, block_ch_d, <span class="st">&quot;gender_Non-Binary&quot;</span>)</span>
@@ -15916,7 +16146,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:26:56</td>
+<td>14:49:32</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2275.8</td>
 </tr>
@@ -16275,7 +16505,7 @@ Results
 </div>
 <div id="callout-21" class="callout-21-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="40098eb9" class="cell" data-execution_count="40">
+<div id="2448549f" class="cell" data-execution_count="40">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb65"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;lgbtq_plus&quot;</span>]</span>
@@ -16316,7 +16546,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:26:56</td>
+<td>14:49:32</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2771.7</td>
 </tr>
@@ -16651,7 +16881,7 @@ Results
 </section>
 <section id="add-block-for-grouped-ethnicity-data-and-drop-global_majority-1" class="level3">
 <h3 class="anchored" data-anchor-id="add-block-for-grouped-ethnicity-data-and-drop-global_majority-1">Add block for grouped ethnicity data and drop “global_majority”</h3>
-<div id="f6194ef1" class="cell" data-execution_count="41">
+<div id="eea5a411" class="cell" data-execution_count="41">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb68"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>new_block_ch <span class="op">=</span> selected_ch[<span class="st">&quot;ethnicity_related&quot;</span>]</span>
@@ -16677,7 +16907,7 @@ Results
 <div id="callout-22" class="callout-22-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="f35e0f42" class="cell" data-execution_count="42">
+<div id="72095a22" class="cell" data-execution_count="42">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb69"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>chi2_crv_results, disp <span class="op">=</span> iv_assoc(iv_df, sel_block_ch)</span>
@@ -16819,7 +17049,7 @@ Results
 </div>
 <div id="callout-23" class="callout-23-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="cf51c040" class="cell" data-execution_count="43">
+<div id="cbe9a352" class="cell" data-execution_count="43">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb70"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -16885,7 +17115,7 @@ Results
 </div>
 </div>
 <p>No significant multicollinearity. Proceeding with MNLogit.</p>
-<div id="12c458d0" class="cell" data-execution_count="44">
+<div id="bd3996b5" class="cell" data-execution_count="44">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb71"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -16907,7 +17137,7 @@ Results
 </div>
 <div id="callout-24" class="callout-24-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="35eb565f" class="cell" data-execution_count="45">
+<div id="4ca6af40" class="cell" data-execution_count="45">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb72"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -16947,7 +17177,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:26:58</td>
+<td>14:49:34</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2160.5</td>
 </tr>
@@ -17523,7 +17753,7 @@ Results
 </div>
 </div>
 <p>Model did not converge because no-one with Mixed Heritage ethnicity died in accommodation – recoding as “other”</p>
-<div id="4d0990cb" class="cell" data-execution_count="46">
+<div id="394b9aa5" class="cell" data-execution_count="46">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb75"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>selected_xc.loc[selected_xc[<span class="st">&quot;ethnicity_grouped_Mixed Heritage&quot;</span>], <span class="st">&quot;ethnicity_grouped_Other&quot;</span>] <span class="op">=</span> <span class="va">True</span></span>
@@ -17547,7 +17777,7 @@ Results
 </div>
 <div id="callout-25" class="callout-25-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="81bdaf6a" class="cell" data-execution_count="47">
+<div id="946b9b8a" class="cell" data-execution_count="47">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb76"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -17587,7 +17817,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:26:58</td>
+<td>14:49:34</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2164.5</td>
 </tr>
@@ -18104,7 +18334,7 @@ Results
 </section>
 <section id="add-block-for-support-needs-variables-1" class="level3">
 <h3 class="anchored" data-anchor-id="add-block-for-support-needs-variables-1">Add block for support needs variables</h3>
-<div id="f06eee48" class="cell" data-execution_count="48">
+<div id="5d9f39fd" class="cell" data-execution_count="48">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb79"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>new_block_ch <span class="op">=</span> selected_ch[<span class="st">&quot;support_needs&quot;</span>]</span>
@@ -18130,7 +18360,7 @@ Results
 <div id="callout-26" class="callout-26-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="9dd94b31" class="cell" data-execution_count="49">
+<div id="62c78e20" class="cell" data-execution_count="49">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb80"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>chi2_crv_results, disp <span class="op">=</span> iv_assoc(iv_df, sel_block_ch)</span>
@@ -18632,7 +18862,7 @@ Results
 </div>
 <div id="callout-27" class="callout-27-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="a5b9718a" class="cell" data-execution_count="50">
+<div id="424cedc3" class="cell" data-execution_count="50">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb81"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -18730,7 +18960,7 @@ Results
 </div>
 </div>
 <p><code>multiple_disadvantage</code> has high VIF due to multicollinearity of <code>multiple_disadvantage</code>, <code>substance_use</code> and <code>mental_health</code>. Running models with MD instead of SU and MH, and with SU/MH instead of MD.</p>
-<div id="0de8cab3" class="cell" data-execution_count="51">
+<div id="7e8b5188" class="cell" data-execution_count="51">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb82"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove_nonMD <span class="op">=</span> cols_to_remove <span class="op">+</span> [<span class="st">&quot;multiple_disadvantage&quot;</span>]</span>
@@ -18741,7 +18971,7 @@ Results
 </section>
 <section id="md-iterations-1" class="level3">
 <h3 class="anchored" data-anchor-id="md-iterations-1">MD iterations</h3>
-<div id="933ce9a8" class="cell" data-execution_count="52">
+<div id="ccbcc950" class="cell" data-execution_count="52">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb83"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reset prev_results</span></span>
@@ -18762,7 +18992,7 @@ Results
 </div>
 <div id="callout-28" class="callout-28-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="99c62679" class="cell" data-execution_count="53">
+<div id="10f3e2c2" class="cell" data-execution_count="53">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb84"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove_MD, dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -18802,7 +19032,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:01</td>
+<td>14:49:37</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1988.5</td>
 </tr>
@@ -19760,7 +19990,7 @@ Results
 </div>
 <div id="callout-29" class="callout-29-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="2ee7ff5d" class="cell" data-execution_count="54">
+<div id="834d4b31" class="cell" data-execution_count="54">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb87"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove_MD <span class="op">+=</span> [<span class="st">&quot;risk_exploitation&quot;</span>]</span>
@@ -19801,7 +20031,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:02</td>
+<td>14:49:37</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1989.4</td>
 </tr>
@@ -20697,7 +20927,7 @@ Results
 </div>
 <div id="callout-30" class="callout-30-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="8c8ca861" class="cell" data-execution_count="55">
+<div id="40732a21" class="cell" data-execution_count="55">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb90"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove_MD <span class="op">+=</span> [<span class="st">&quot;risk_violence_abuse&quot;</span>]</span>
@@ -20738,7 +20968,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:02</td>
+<td>14:49:38</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1992.7</td>
 </tr>
@@ -21562,7 +21792,7 @@ Results
 </section>
 <section id="final-model-md-1" class="level3">
 <h3 class="anchored" data-anchor-id="final-model-md-1">Final model (MD)</h3>
-<div id="f91dcf46" class="cell" data-execution_count="56">
+<div id="89ddd52f" class="cell" data-execution_count="56">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb93"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> io <span class="im">import</span> StringIO</span>
@@ -21612,7 +21842,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:02</td>
+<td>14:49:38</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1992.7</td>
 </tr>
@@ -22003,6 +22233,9 @@ Results
 <th data-quarto-table-cell-role="th">odds_r</th>
 <th data-quarto-table-cell-role="th">[0.025</th>
 <th data-quarto-table-cell-role="th">0.975]</th>
+<th data-quarto-table-cell-role="th">odds_r_d%</th>
+<th data-quarto-table-cell-role="th">[0.025_d%</th>
+<th data-quarto-table-cell-role="th">0.975]_d%</th>
 </tr>
 </thead>
 <tbody>
@@ -22014,6 +22247,9 @@ Results
 <td>0.039</td>
 <td>0.019</td>
 <td>0.081</td>
+<td>-96.1%</td>
+<td>-98.1%</td>
+<td>-91.9%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">age_cat_34-</td>
@@ -22022,6 +22258,9 @@ Results
 <td>0.341</td>
 <td>0.127</td>
 <td>0.912</td>
+<td>-65.9%</td>
+<td>-87.3%</td>
+<td>-8.8%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">ethnicity_grouped_Black</td>
@@ -22030,6 +22269,9 @@ Results
 <td>0.501</td>
 <td>0.133</td>
 <td>1.880</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">ethnicity_grouped_Other</td>
@@ -22038,6 +22280,9 @@ Results
 <td>0.216</td>
 <td>0.028</td>
 <td>1.690</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">gender_Female</td>
@@ -22046,6 +22291,9 @@ Results
 <td>0.646</td>
 <td>0.257</td>
 <td>1.623</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">multiple_disadvantage</td>
@@ -22054,6 +22302,9 @@ Results
 <td>2.092</td>
 <td>0.972</td>
 <td>4.502</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">offending</td>
@@ -22062,6 +22313,9 @@ Results
 <td>1.364</td>
 <td>0.477</td>
 <td>3.896</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">physical_health</td>
@@ -22070,6 +22324,9 @@ Results
 <td>1.401</td>
 <td>0.683</td>
 <td>2.877</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">rough_sleeping</td>
@@ -22078,6 +22335,9 @@ Results
 <td>1.208</td>
 <td>0.446</td>
 <td>3.276</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">sex_working</td>
@@ -22086,6 +22346,9 @@ Results
 <td>12.305</td>
 <td>0.934</td>
 <td>162.086</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">uk_immigration_status_EEA National</td>
@@ -22094,6 +22357,9 @@ Results
 <td>2.103</td>
 <td>0.465</td>
 <td>9.511</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">uk_immigration_status_Non-EEA National</td>
@@ -22102,6 +22368,9 @@ Results
 <td>0.965</td>
 <td>0.192</td>
 <td>4.846</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td rowspan="12" data-quarto-table-cell-role="th" data-valign="top">Insecure outcome</td>
@@ -22111,6 +22380,9 @@ Results
 <td>0.418</td>
 <td>0.332</td>
 <td>0.527</td>
+<td>-58.2%</td>
+<td>-66.8%</td>
+<td>-47.3%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">age_cat_34-</td>
@@ -22119,6 +22391,9 @@ Results
 <td>1.212</td>
 <td>0.962</td>
 <td>1.528</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">ethnicity_grouped_Black</td>
@@ -22127,6 +22402,9 @@ Results
 <td>0.627</td>
 <td>0.434</td>
 <td>0.906</td>
+<td>-37.3%</td>
+<td>-56.6%</td>
+<td>-9.4%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">ethnicity_grouped_Other</td>
@@ -22135,6 +22413,9 @@ Results
 <td>0.794</td>
 <td>0.552</td>
 <td>1.140</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">gender_Female</td>
@@ -22143,6 +22424,9 @@ Results
 <td>0.791</td>
 <td>0.611</td>
 <td>1.024</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">multiple_disadvantage</td>
@@ -22151,6 +22435,9 @@ Results
 <td>2.375</td>
 <td>1.874</td>
 <td>3.009</td>
+<td>137.5%</td>
+<td>87.4%</td>
+<td>200.9%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">offending</td>
@@ -22159,6 +22446,9 @@ Results
 <td>2.259</td>
 <td>1.611</td>
 <td>3.169</td>
+<td>125.9%</td>
+<td>61.1%</td>
+<td>216.9%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">physical_health</td>
@@ -22167,6 +22457,9 @@ Results
 <td>1.324</td>
 <td>1.050</td>
 <td>1.669</td>
+<td>32.4%</td>
+<td>5.0%</td>
+<td>66.9%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">rough_sleeping</td>
@@ -22175,6 +22468,9 @@ Results
 <td>1.826</td>
 <td>1.344</td>
 <td>2.479</td>
+<td>82.6%</td>
+<td>34.4%</td>
+<td>147.9%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">sex_working</td>
@@ -22183,6 +22479,9 @@ Results
 <td>8.537</td>
 <td>1.907</td>
 <td>38.211</td>
+<td>753.7%</td>
+<td>90.7%</td>
+<td>3721.1%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">uk_immigration_status_EEA National</td>
@@ -22191,6 +22490,9 @@ Results
 <td>0.858</td>
 <td>0.462</td>
 <td>1.594</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">uk_immigration_status_Non-EEA National</td>
@@ -22199,6 +22501,9 @@ Results
 <td>0.545</td>
 <td>0.344</td>
 <td>0.863</td>
+<td>-45.5%</td>
+<td>-65.6%</td>
+<td>-13.7%</td>
 </tr>
 <tr class="odd">
 <td rowspan="12" data-quarto-table-cell-role="th" data-valign="top">Returned to homelessness</td>
@@ -22208,6 +22513,9 @@ Results
 <td>0.256</td>
 <td>0.194</td>
 <td>0.337</td>
+<td>-74.4%</td>
+<td>-80.6%</td>
+<td>-66.3%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">age_cat_34-</td>
@@ -22216,6 +22524,9 @@ Results
 <td>1.291</td>
 <td>0.988</td>
 <td>1.686</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">ethnicity_grouped_Black</td>
@@ -22224,6 +22535,9 @@ Results
 <td>0.597</td>
 <td>0.382</td>
 <td>0.933</td>
+<td>-40.3%</td>
+<td>-61.8%</td>
+<td>-6.7%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">ethnicity_grouped_Other</td>
@@ -22232,6 +22546,9 @@ Results
 <td>0.586</td>
 <td>0.369</td>
 <td>0.928</td>
+<td>-41.4%</td>
+<td>-63.1%</td>
+<td>-7.2%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">gender_Female</td>
@@ -22240,6 +22557,9 @@ Results
 <td>0.642</td>
 <td>0.467</td>
 <td>0.883</td>
+<td>-35.8%</td>
+<td>-53.3%</td>
+<td>-11.7%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">multiple_disadvantage</td>
@@ -22248,6 +22568,9 @@ Results
 <td>2.343</td>
 <td>1.765</td>
 <td>3.110</td>
+<td>134.3%</td>
+<td>76.5%</td>
+<td>211.0%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">offending</td>
@@ -22256,6 +22579,9 @@ Results
 <td>2.911</td>
 <td>2.022</td>
 <td>4.191</td>
+<td>191.1%</td>
+<td>102.2%</td>
+<td>319.1%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">physical_health</td>
@@ -22264,6 +22590,9 @@ Results
 <td>0.881</td>
 <td>0.668</td>
 <td>1.162</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">rough_sleeping</td>
@@ -22272,6 +22601,9 @@ Results
 <td>3.610</td>
 <td>2.628</td>
 <td>4.960</td>
+<td>261.0%</td>
+<td>162.8%</td>
+<td>396.0%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">sex_working</td>
@@ -22280,6 +22612,9 @@ Results
 <td>9.321</td>
 <td>1.951</td>
 <td>44.538</td>
+<td>832.1%</td>
+<td>95.1%</td>
+<td>4353.8%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">uk_immigration_status_EEA National</td>
@@ -22288,6 +22623,9 @@ Results
 <td>1.102</td>
 <td>0.557</td>
 <td>2.180</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">uk_immigration_status_Non-EEA National</td>
@@ -22296,6 +22634,9 @@ Results
 <td>0.454</td>
 <td>0.244</td>
 <td>0.845</td>
+<td>-54.6%</td>
+<td>-75.6%</td>
+<td>-15.5%</td>
 </tr>
 </tbody>
 </table>
@@ -22306,7 +22647,7 @@ Results
 </section>
 <section id="visualisation-2" class="level3">
 <h3 class="anchored" data-anchor-id="visualisation-2">Visualisation</h3>
-<div id="12fc4ab5" class="cell" data-execution_count="57">
+<div id="8a959899" class="cell" data-execution_count="57">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb94"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>figure_minor_i <span class="op">+=</span> <span class="dv">1</span></span>
@@ -22327,7 +22668,7 @@ Results
 </section>
 <section id="separate-needs-non-md-iterations-1" class="level3">
 <h3 class="anchored" data-anchor-id="separate-needs-non-md-iterations-1">Separate needs (Non-MD) iterations</h3>
-<div id="dd7bc2ba" class="cell" data-execution_count="58">
+<div id="b7b8b529" class="cell" data-execution_count="58">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb95"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reset prev_results</span></span>
@@ -22348,7 +22689,7 @@ Results
 </div>
 <div id="callout-31" class="callout-31-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="f080c3f3" class="cell" data-execution_count="59">
+<div id="d6561510" class="cell" data-execution_count="59">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb96"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove_nonMD, dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -22388,7 +22729,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:06</td>
+<td>14:49:42</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1944.5</td>
 </tr>
@@ -23407,7 +23748,7 @@ Results
 </div>
 <div id="callout-32" class="callout-32-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="28c8e68d" class="cell" data-execution_count="60">
+<div id="0507cba5" class="cell" data-execution_count="60">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb99"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove_nonMD <span class="op">+=</span> [<span class="st">&quot;ethnicity_grouped&quot;</span>]</span>
@@ -23448,7 +23789,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:06</td>
+<td>14:49:43</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2016.1</td>
 </tr>
@@ -24344,7 +24685,7 @@ Results
 </div>
 <div id="callout-33" class="callout-33-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="92a2e675" class="cell" data-execution_count="61">
+<div id="99aa0476" class="cell" data-execution_count="61">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb102"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove_nonMD <span class="op">+=</span> [<span class="st">&quot;risk_exploitation&quot;</span>]</span>
@@ -24385,7 +24726,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:07</td>
+<td>14:49:43</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2016.6</td>
 </tr>
@@ -25220,7 +25561,7 @@ Results
 </div>
 <div id="callout-34" class="callout-34-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="38793b2c" class="cell" data-execution_count="62">
+<div id="8c4c6812" class="cell" data-execution_count="62">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb105"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove_nonMD <span class="op">+=</span> [<span class="st">&quot;mental_health&quot;</span>]</span>
@@ -25261,7 +25602,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:07</td>
+<td>14:49:44</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2017.5</td>
 </tr>
@@ -26035,7 +26376,7 @@ Results
 </div>
 <div id="callout-35" class="callout-35-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="28908c9e" class="cell" data-execution_count="63">
+<div id="1234c1f2" class="cell" data-execution_count="63">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb108"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove_nonMD <span class="op">+=</span> [<span class="st">&quot;risk_violence_abuse&quot;</span>]</span>
@@ -26076,7 +26417,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:08</td>
+<td>14:49:45</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2020.3</td>
 </tr>
@@ -26789,7 +27130,7 @@ Results
 </div>
 <div id="callout-36" class="callout-36-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="5f49cb81" class="cell" data-execution_count="64">
+<div id="20f93e1a" class="cell" data-execution_count="64">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb111"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove_nonMD <span class="op">+=</span> [<span class="st">&quot;gender&quot;</span>]</span>
@@ -26830,7 +27171,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:08</td>
+<td>14:49:45</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2021.9</td>
 </tr>
@@ -27472,7 +27813,7 @@ Results
 </section>
 <section id="final-model-1" class="level2">
 <h2 class="anchored" data-anchor-id="final-model-1">Final model</h2>
-<div id="24ffec31" class="cell" data-execution_count="65">
+<div id="6e205627" class="cell" data-execution_count="65">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb114"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> io <span class="im">import</span> StringIO</span>
@@ -27522,7 +27863,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:08</td>
+<td>14:49:45</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-2021.9</td>
 </tr>
@@ -27832,6 +28173,9 @@ Results
 <th data-quarto-table-cell-role="th">odds_r</th>
 <th data-quarto-table-cell-role="th">[0.025</th>
 <th data-quarto-table-cell-role="th">0.975]</th>
+<th data-quarto-table-cell-role="th">odds_r_d%</th>
+<th data-quarto-table-cell-role="th">[0.025_d%</th>
+<th data-quarto-table-cell-role="th">0.975]_d%</th>
 </tr>
 </thead>
 <tbody>
@@ -27843,6 +28187,9 @@ Results
 <td>0.020</td>
 <td>0.010</td>
 <td>0.044</td>
+<td>-98.0%</td>
+<td>-99.0%</td>
+<td>-95.6%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">age_cat_34-</td>
@@ -27851,6 +28198,9 @@ Results
 <td>0.356</td>
 <td>0.134</td>
 <td>0.945</td>
+<td>-64.4%</td>
+<td>-86.6%</td>
+<td>-5.5%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">offending</td>
@@ -27859,6 +28209,9 @@ Results
 <td>1.674</td>
 <td>0.621</td>
 <td>4.510</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">physical_health</td>
@@ -27867,6 +28220,9 @@ Results
 <td>1.625</td>
 <td>0.810</td>
 <td>3.262</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">rough_sleeping</td>
@@ -27875,6 +28231,9 @@ Results
 <td>1.045</td>
 <td>0.388</td>
 <td>2.817</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">sex_working</td>
@@ -27883,6 +28242,9 @@ Results
 <td>10.001</td>
 <td>0.842</td>
 <td>118.859</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">substance_use</td>
@@ -27891,6 +28253,9 @@ Results
 <td>3.728</td>
 <td>1.755</td>
 <td>7.920</td>
+<td>272.8%</td>
+<td>75.5%</td>
+<td>692.0%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">uk_immigration_status_EEA National</td>
@@ -27899,6 +28264,9 @@ Results
 <td>1.988</td>
 <td>0.443</td>
 <td>8.920</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">uk_immigration_status_Non-EEA National</td>
@@ -27907,6 +28275,9 @@ Results
 <td>0.601</td>
 <td>0.138</td>
 <td>2.627</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td rowspan="9" data-quarto-table-cell-role="th" data-valign="top">Insecure outcome</td>
@@ -27916,6 +28287,9 @@ Results
 <td>0.259</td>
 <td>0.206</td>
 <td>0.326</td>
+<td>-74.1%</td>
+<td>-79.4%</td>
+<td>-67.4%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">age_cat_34-</td>
@@ -27924,6 +28298,9 @@ Results
 <td>1.392</td>
 <td>1.103</td>
 <td>1.756</td>
+<td>39.2%</td>
+<td>10.3%</td>
+<td>75.6%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">offending</td>
@@ -27932,6 +28309,9 @@ Results
 <td>3.008</td>
 <td>2.182</td>
 <td>4.145</td>
+<td>200.8%</td>
+<td>118.2%</td>
+<td>314.5%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">physical_health</td>
@@ -27940,6 +28320,9 @@ Results
 <td>1.341</td>
 <td>1.063</td>
 <td>1.691</td>
+<td>34.1%</td>
+<td>6.3%</td>
+<td>69.1%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">rough_sleeping</td>
@@ -27948,6 +28331,9 @@ Results
 <td>1.756</td>
 <td>1.293</td>
 <td>2.384</td>
+<td>75.6%</td>
+<td>29.3%</td>
+<td>138.4%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">sex_working</td>
@@ -27956,6 +28342,9 @@ Results
 <td>7.882</td>
 <td>1.736</td>
 <td>35.789</td>
+<td>688.2%</td>
+<td>73.6%</td>
+<td>3478.9%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">substance_use</td>
@@ -27964,6 +28353,9 @@ Results
 <td>3.760</td>
 <td>2.990</td>
 <td>4.728</td>
+<td>276.0%</td>
+<td>199.0%</td>
+<td>372.8%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">uk_immigration_status_EEA National</td>
@@ -27972,6 +28364,9 @@ Results
 <td>0.881</td>
 <td>0.476</td>
 <td>1.631</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">uk_immigration_status_Non-EEA National</td>
@@ -27980,6 +28375,9 @@ Results
 <td>0.502</td>
 <td>0.331</td>
 <td>0.762</td>
+<td>-49.8%</td>
+<td>-66.9%</td>
+<td>-23.8%</td>
 </tr>
 <tr class="odd">
 <td rowspan="9" data-quarto-table-cell-role="th" data-valign="top">Returned to homelessness</td>
@@ -27989,6 +28387,9 @@ Results
 <td>0.138</td>
 <td>0.104</td>
 <td>0.182</td>
+<td>-86.2%</td>
+<td>-89.6%</td>
+<td>-81.8%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">age_cat_34-</td>
@@ -27997,6 +28398,9 @@ Results
 <td>1.443</td>
 <td>1.105</td>
 <td>1.885</td>
+<td>44.3%</td>
+<td>10.5%</td>
+<td>88.5%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">offending</td>
@@ -28005,6 +28409,9 @@ Results
 <td>4.055</td>
 <td>2.879</td>
 <td>5.712</td>
+<td>305.5%</td>
+<td>187.9%</td>
+<td>471.2%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">physical_health</td>
@@ -28013,6 +28420,9 @@ Results
 <td>0.849</td>
 <td>0.644</td>
 <td>1.121</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">rough_sleeping</td>
@@ -28021,6 +28431,9 @@ Results
 <td>3.438</td>
 <td>2.503</td>
 <td>4.723</td>
+<td>243.8%</td>
+<td>150.3%</td>
+<td>372.3%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">sex_working</td>
@@ -28029,6 +28442,9 @@ Results
 <td>7.323</td>
 <td>1.514</td>
 <td>35.418</td>
+<td>632.3%</td>
+<td>51.4%</td>
+<td>3441.8%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">substance_use</td>
@@ -28037,6 +28453,9 @@ Results
 <td>4.202</td>
 <td>3.195</td>
 <td>5.526</td>
+<td>320.2%</td>
+<td>219.5%</td>
+<td>452.6%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">uk_immigration_status_EEA National</td>
@@ -28045,6 +28464,9 @@ Results
 <td>1.129</td>
 <td>0.574</td>
 <td>2.219</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">uk_immigration_status_Non-EEA National</td>
@@ -28053,6 +28475,9 @@ Results
 <td>0.414</td>
 <td>0.236</td>
 <td>0.726</td>
+<td>-58.6%</td>
+<td>-76.4%</td>
+<td>-27.4%</td>
 </tr>
 </tbody>
 </table>
@@ -28063,7 +28488,7 @@ Results
 </section>
 <section id="visualisation-3" class="level2">
 <h2 class="anchored" data-anchor-id="visualisation-3">Visualisation</h2>
-<div id="cb032585" class="cell" data-execution_count="66">
+<div id="079d11fd" class="cell" data-execution_count="66">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb115"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a>figure_minor_i <span class="op">+=</span> <span class="dv">1</span></span>
@@ -28087,7 +28512,7 @@ Results
 <h1>People with multiple returns during 7.5 yrs</h1>
 <section id="prepare-dv-2" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-dv-2">Prepare DV</h2>
-<div id="05a6f473" class="cell" data-execution_count="67">
+<div id="9e3bbd9f" class="cell" data-execution_count="67">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb116"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get DV</span></span>
@@ -28098,7 +28523,7 @@ Results
 </section>
 <section id="prepare-ivs-2" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-ivs-2">Prepare IVs</h2>
-<div id="675771a8" class="cell" data-execution_count="68">
+<div id="8f430717" class="cell" data-execution_count="68">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb117"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb117-1"><a href="#cb117-1" aria-hidden="true" tabindex="-1"></a>selected_ch <span class="op">=</span> {</span>
@@ -28120,7 +28545,7 @@ Results
 <h2 class="anchored" data-anchor-id="model-building-2">Model building</h2>
 <section id="start-with-block-for-demographic-variables-2" class="level3">
 <h3 class="anchored" data-anchor-id="start-with-block-for-demographic-variables-2">Start with block for demographic variables</h3>
-<div id="a8af8ec3" class="cell" data-execution_count="69">
+<div id="0cd8f75e" class="cell" data-execution_count="69">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb118"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a>block_ch <span class="op">=</span> <span class="bu">list</span>(selected_ch.values())[<span class="dv">0</span>]</span>
@@ -28145,7 +28570,7 @@ Results
 <div id="callout-37" class="callout-37-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="5305567f" class="cell" data-execution_count="70">
+<div id="754f350c" class="cell" data-execution_count="70">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb119"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a>chi2_crv_results, disp <span class="op">=</span> iv_assoc(iv_df, block_ch)</span>
@@ -28260,7 +28685,7 @@ Results
 </div>
 <div id="callout-38" class="callout-38-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="025fe8e3" class="cell" data-execution_count="71">
+<div id="c7afe337" class="cell" data-execution_count="71">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb120"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -28329,7 +28754,7 @@ Results
 </div>
 <div id="callout-39" class="callout-39-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="3ecd9373" class="cell" data-execution_count="72">
+<div id="e67186d2" class="cell" data-execution_count="72">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb121"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">=</span> []</span>
@@ -28371,7 +28796,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:11</td>
+<td>14:49:48</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-833.67</td>
 </tr>
@@ -28553,7 +28978,7 @@ Results
 </div>
 <div id="callout-40" class="callout-40-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="930208fd" class="cell" data-execution_count="73">
+<div id="1dd34ef7" class="cell" data-execution_count="73">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb124"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb124-1"><a href="#cb124-1" aria-hidden="true" tabindex="-1"></a>selected_dv, selected_xc, sel_block_ch_d <span class="op">=</span> dv_xc_remove_value(dv, Xc, block_ch_d, <span class="st">&quot;gender_Non-Binary&quot;</span>)</span>
@@ -28595,7 +29020,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:11</td>
+<td>14:49:49</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-833.67</td>
 </tr>
@@ -28760,7 +29185,7 @@ Results
 </div>
 <div id="callout-41" class="callout-41-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="543ccce0" class="cell" data-execution_count="74">
+<div id="9063b7e2" class="cell" data-execution_count="74">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb127"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb127-1"><a href="#cb127-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;lgbtq_plus&quot;</span>]</span>
@@ -28801,7 +29226,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:12</td>
+<td>14:49:49</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-984.41</td>
 </tr>
@@ -28953,7 +29378,7 @@ Results
 </section>
 <section id="add-block-for-grouped-ethnicity-data-and-drop-global_majority-2" class="level3">
 <h3 class="anchored" data-anchor-id="add-block-for-grouped-ethnicity-data-and-drop-global_majority-2">Add block for grouped ethnicity data and drop “global_majority”</h3>
-<div id="c21caa3b" class="cell" data-execution_count="75">
+<div id="d9a44922" class="cell" data-execution_count="75">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb130"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a>new_block_ch <span class="op">=</span> selected_ch[<span class="st">&quot;ethnicity_related&quot;</span>]</span>
@@ -28979,7 +29404,7 @@ Results
 <div id="callout-42" class="callout-42-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="80a5b72e" class="cell" data-execution_count="76">
+<div id="7a3b49ef" class="cell" data-execution_count="76">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb131"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb131-1"><a href="#cb131-1" aria-hidden="true" tabindex="-1"></a>chi2_crv_results, disp <span class="op">=</span> iv_assoc(iv_df, sel_block_ch)</span>
@@ -29121,7 +29546,7 @@ Results
 </div>
 <div id="callout-43" class="callout-43-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="5e69ea69" class="cell" data-execution_count="77">
+<div id="f35cb3a4" class="cell" data-execution_count="77">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb132"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb132-1"><a href="#cb132-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -29187,7 +29612,7 @@ Results
 </div>
 </div>
 <p>No significant multicollinearity. Proceeding with Logit.</p>
-<div id="af7354a9" class="cell" data-execution_count="78">
+<div id="25756fba" class="cell" data-execution_count="78">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb133"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb133-1"><a href="#cb133-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> binomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -29209,7 +29634,7 @@ Results
 </div>
 <div id="callout-44" class="callout-44-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="f5bd7232" class="cell" data-execution_count="79">
+<div id="c403e101" class="cell" data-execution_count="79">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb134"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb134-1"><a href="#cb134-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -29249,7 +29674,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:12</td>
+<td>14:49:50</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-920.80</td>
 </tr>
@@ -29493,7 +29918,7 @@ Results
 </div>
 <div id="callout-45" class="callout-45-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="70ac61e8" class="cell" data-execution_count="80">
+<div id="a068d50f" class="cell" data-execution_count="80">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb137"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb137-1"><a href="#cb137-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;uk_immigration_status&quot;</span>]</span>
@@ -29534,7 +29959,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:13</td>
+<td>14:49:50</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-982.90</td>
 </tr>
@@ -29725,7 +30150,7 @@ Results
 </section>
 <section id="add-block-for-support-needs-variables-2" class="level3">
 <h3 class="anchored" data-anchor-id="add-block-for-support-needs-variables-2">Add block for support needs variables</h3>
-<div id="eae4537c" class="cell" data-execution_count="81">
+<div id="5231ea07" class="cell" data-execution_count="81">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb140"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb140-1"><a href="#cb140-1" aria-hidden="true" tabindex="-1"></a>new_block_ch <span class="op">=</span> selected_ch[<span class="st">&quot;support_needs&quot;</span>]</span>
@@ -29751,7 +30176,7 @@ Results
 <div id="callout-46" class="callout-46-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="632be148" class="cell" data-execution_count="82">
+<div id="c7765383" class="cell" data-execution_count="82">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb141"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb141-1"><a href="#cb141-1" aria-hidden="true" tabindex="-1"></a>chi2_crv_results, disp <span class="op">=</span> iv_assoc(iv_df, sel_block_ch)</span>
@@ -30253,7 +30678,7 @@ Results
 </div>
 <div id="callout-47" class="callout-47-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="178e0a46" class="cell" data-execution_count="83">
+<div id="45a60d63" class="cell" data-execution_count="83">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb142"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb142-1"><a href="#cb142-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -30356,13 +30781,13 @@ Results
 </div>
 <p><code>multiple_disadvantage</code> has high VIF due to multicollinearity of <code>multiple_disadvantage</code>, <code>substance_use</code> and <code>mental_health</code>.</p>
 <p>Running without <code>multiple_disadvantage</code> as for both previous dvs separate needs variables had greater explanatory power</p>
-<div id="89fe4d13" class="cell" data-execution_count="84">
+<div id="91e42304" class="cell" data-execution_count="84">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb143"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb143-1"><a href="#cb143-1" aria-hidden="true" tabindex="-1"></a>sel_block_ch_d.remove(<span class="st">&quot;multiple_disadvantage&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="2a3eba7b" class="cell" data-execution_count="85">
+<div id="76a2c686" class="cell" data-execution_count="85">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb144"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb144-1"><a href="#cb144-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> binomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -30384,7 +30809,7 @@ Results
 </div>
 <div id="callout-48" class="callout-48-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="a75764bc" class="cell" data-execution_count="86">
+<div id="9c642426" class="cell" data-execution_count="86">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb145"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb145-1"><a href="#cb145-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -30424,7 +30849,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:16</td>
+<td>14:49:53</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-792.14</td>
 </tr>
@@ -30788,7 +31213,7 @@ Results
 </div>
 <div id="callout-49" class="callout-49-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="cc223773" class="cell" data-execution_count="87">
+<div id="e2c59297" class="cell" data-execution_count="87">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb148"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb148-1"><a href="#cb148-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;risk_violence_abuse&quot;</span>]</span>
@@ -30829,7 +31254,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:17</td>
+<td>14:49:53</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-792.41</td>
 </tr>
@@ -31173,7 +31598,7 @@ Results
 </div>
 <div id="callout-50" class="callout-50-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="54e885fd" class="cell" data-execution_count="88">
+<div id="1c99b847" class="cell" data-execution_count="88">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb151"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb151-1"><a href="#cb151-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;gender&quot;</span>]</span>
@@ -31214,7 +31639,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:17</td>
+<td>14:49:54</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-792.98</td>
 </tr>
@@ -31538,7 +31963,7 @@ Results
 </div>
 <div id="callout-51" class="callout-51-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="570d8c8e" class="cell" data-execution_count="89">
+<div id="442425c5" class="cell" data-execution_count="89">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb154"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb154-1"><a href="#cb154-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;mental_health&quot;</span>]</span>
@@ -31579,7 +32004,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:17</td>
+<td>14:49:54</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-793.75</td>
 </tr>
@@ -31883,7 +32308,7 @@ Results
 </div>
 <div id="callout-52" class="callout-52-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="cd827722" class="cell" data-execution_count="90">
+<div id="a8e9063c" class="cell" data-execution_count="90">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb157"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb157-1"><a href="#cb157-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;risk_exploitation&quot;</span>]</span>
@@ -31924,7 +32349,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:18</td>
+<td>14:49:54</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-795.04</td>
 </tr>
@@ -32208,7 +32633,7 @@ Results
 </div>
 <div id="callout-53" class="callout-53-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="ba905b19" class="cell" data-execution_count="91">
+<div id="12642a75" class="cell" data-execution_count="91">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb160"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb160-1"><a href="#cb160-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;ethnicity_grouped&quot;</span>]</span>
@@ -32249,7 +32674,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:18</td>
+<td>14:49:55</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-812.83</td>
 </tr>
@@ -32462,7 +32887,7 @@ Results
 </section>
 <section id="final-model-2" class="level2">
 <h2 class="anchored" data-anchor-id="final-model-2">Final model</h2>
-<div id="df6462a5" class="cell" data-execution_count="92">
+<div id="32aa6149" class="cell" data-execution_count="92">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb163"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb163-1"><a href="#cb163-1" aria-hidden="true" tabindex="-1"></a>display(summary)</span>
@@ -32507,7 +32932,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:18</td>
+<td>14:49:55</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-812.83</td>
 </tr>
@@ -32618,6 +33043,9 @@ Results
 <th data-quarto-table-cell-role="th">odds_r</th>
 <th data-quarto-table-cell-role="th">[0.025</th>
 <th data-quarto-table-cell-role="th">0.975]</th>
+<th data-quarto-table-cell-role="th">odds_r_d%</th>
+<th data-quarto-table-cell-role="th">[0.025_d%</th>
+<th data-quarto-table-cell-role="th">0.975]_d%</th>
 </tr>
 </thead>
 <tbody>
@@ -32628,6 +33056,9 @@ Results
 <td>0.013</td>
 <td>0.009</td>
 <td>0.020</td>
+<td>-98.7%</td>
+<td>-99.1%</td>
+<td>-98.0%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">age_cat_34-</td>
@@ -32636,6 +33067,9 @@ Results
 <td>1.653</td>
 <td>1.266</td>
 <td>2.157</td>
+<td>65.3%</td>
+<td>26.6%</td>
+<td>115.7%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">offending</td>
@@ -32644,6 +33078,9 @@ Results
 <td>2.190</td>
 <td>1.656</td>
 <td>2.897</td>
+<td>119.0%</td>
+<td>65.6%</td>
+<td>189.7%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">physical_health</td>
@@ -32652,6 +33089,9 @@ Results
 <td>1.473</td>
 <td>1.131</td>
 <td>1.918</td>
+<td>47.3%</td>
+<td>13.1%</td>
+<td>91.8%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">rough_sleeping</td>
@@ -32660,6 +33100,9 @@ Results
 <td>1.695</td>
 <td>1.288</td>
 <td>2.230</td>
+<td>69.5%</td>
+<td>28.8%</td>
+<td>123.0%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">sex_working</td>
@@ -32668,6 +33111,9 @@ Results
 <td>2.165</td>
 <td>1.137</td>
 <td>4.121</td>
+<td>116.5%</td>
+<td>13.7%</td>
+<td>312.1%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">substance_use</td>
@@ -32676,6 +33122,9 @@ Results
 <td>6.654</td>
 <td>4.567</td>
 <td>9.695</td>
+<td>565.4%</td>
+<td>356.7%</td>
+<td>869.5%</td>
 </tr>
 </tbody>
 </table>
@@ -32686,7 +33135,7 @@ Results
 </section>
 <section id="visualisation-4" class="level2">
 <h2 class="anchored" data-anchor-id="visualisation-4">Visualisation</h2>
-<div id="9abd01bd" class="cell" data-execution_count="93">
+<div id="0cacf6ed" class="cell" data-execution_count="93">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb164"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb164-1"><a href="#cb164-1" aria-hidden="true" tabindex="-1"></a>figure_minor_i <span class="op">+=</span> <span class="dv">1</span></span>
@@ -32710,7 +33159,7 @@ Results
 <h1>People with a route in top 10% of route durations</h1>
 <section id="prepare-dv-3" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-dv-3">Prepare DV</h2>
-<div id="70329997" class="cell" data-execution_count="94">
+<div id="1a953da0" class="cell" data-execution_count="94">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb165"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb165-1"><a href="#cb165-1" aria-hidden="true" tabindex="-1"></a>dv_str <span class="op">=</span> <span class="st">&quot;People with a route in top 10</span><span class="sc">% o</span><span class="st">f route durations&quot;</span></span>
@@ -32720,7 +33169,7 @@ Results
 </section>
 <section id="prepare-ivs-3" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-ivs-3">Prepare IVs</h2>
-<div id="79edd11c" class="cell" data-execution_count="95">
+<div id="306ed9bf" class="cell" data-execution_count="95">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb166"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb166-1"><a href="#cb166-1" aria-hidden="true" tabindex="-1"></a>selected_ch <span class="op">=</span> {</span>
@@ -32742,7 +33191,7 @@ Results
 <h2 class="anchored" data-anchor-id="model-building-3">Model building</h2>
 <section id="start-with-block-for-demographic-variables-3" class="level3">
 <h3 class="anchored" data-anchor-id="start-with-block-for-demographic-variables-3">Start with block for demographic variables</h3>
-<div id="6d3f1a5f" class="cell" data-execution_count="96">
+<div id="7bbc6550" class="cell" data-execution_count="96">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb167"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb167-1"><a href="#cb167-1" aria-hidden="true" tabindex="-1"></a>block_ch <span class="op">=</span> <span class="bu">list</span>(selected_ch.values())[<span class="dv">0</span>]</span>
@@ -32767,7 +33216,7 @@ Results
 <div id="callout-54" class="callout-54-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="7cf106d8" class="cell" data-execution_count="97">
+<div id="4f0b9c87" class="cell" data-execution_count="97">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb168"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb168-1"><a href="#cb168-1" aria-hidden="true" tabindex="-1"></a>chi2_crv_results, disp <span class="op">=</span> iv_assoc(iv_df, block_ch)</span>
@@ -32882,7 +33331,7 @@ Results
 </div>
 <div id="callout-55" class="callout-55-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="376131e0" class="cell" data-execution_count="98">
+<div id="c7407834" class="cell" data-execution_count="98">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb169"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb169-1"><a href="#cb169-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -32951,7 +33400,7 @@ Results
 </div>
 <div id="callout-56" class="callout-56-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="c52b95db" class="cell" data-execution_count="99">
+<div id="4f99e959" class="cell" data-execution_count="99">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb170"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb170-1"><a href="#cb170-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">=</span> []</span>
@@ -32993,7 +33442,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:20</td>
+<td>14:49:56</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1141.4</td>
 </tr>
@@ -33175,7 +33624,7 @@ Results
 </div>
 <div id="callout-57" class="callout-57-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="9a0a479b" class="cell" data-execution_count="100">
+<div id="390c91a7" class="cell" data-execution_count="100">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb173"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb173-1"><a href="#cb173-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;global_majority&quot;</span>]</span>
@@ -33216,7 +33665,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:20</td>
+<td>14:49:57</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1150.6</td>
 </tr>
@@ -33400,7 +33849,7 @@ Results
 </div>
 <div id="callout-58" class="callout-58-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="a5c3a735" class="cell" data-execution_count="101">
+<div id="c2783745" class="cell" data-execution_count="101">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb176"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb176-1"><a href="#cb176-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;lgbtq_plus&quot;</span>]</span>
@@ -33441,7 +33890,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:21</td>
+<td>14:49:57</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1444.4</td>
 </tr>
@@ -33592,7 +34041,7 @@ Results
 </section>
 <section id="add-block-for-grouped-ethnicity-data-and-drop-global_majority-3" class="level3">
 <h3 class="anchored" data-anchor-id="add-block-for-grouped-ethnicity-data-and-drop-global_majority-3">Add block for grouped ethnicity data and drop “global_majority”</h3>
-<div id="a21c0c88" class="cell" data-execution_count="102">
+<div id="118961b2" class="cell" data-execution_count="102">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb179"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb179-1"><a href="#cb179-1" aria-hidden="true" tabindex="-1"></a>new_block_ch <span class="op">=</span> selected_ch[<span class="st">&quot;ethnicity_related&quot;</span>]</span>
@@ -33618,7 +34067,7 @@ Results
 <div id="callout-59" class="callout-59-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="961a2085" class="cell" data-execution_count="103">
+<div id="97b03459" class="cell" data-execution_count="103">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb180"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb180-1"><a href="#cb180-1" aria-hidden="true" tabindex="-1"></a>chi2_crv_results, disp <span class="op">=</span> iv_assoc(iv_df, sel_block_ch)</span>
@@ -33760,7 +34209,7 @@ Results
 </div>
 <div id="callout-60" class="callout-60-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="6176f828" class="cell" data-execution_count="104">
+<div id="1a3bfc13" class="cell" data-execution_count="104">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb181"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb181-1"><a href="#cb181-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -33830,7 +34279,7 @@ Results
 </div>
 </div>
 <p>No significant multicollinearity. Proceeding with Logit.</p>
-<div id="3dd0ea8c" class="cell" data-execution_count="105">
+<div id="1956adab" class="cell" data-execution_count="105">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb182"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb182-1"><a href="#cb182-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> binomial_regression(dv, Xc[sel_block_ch_d], [], dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -33852,7 +34301,7 @@ Results
 </div>
 <div id="callout-61" class="callout-61-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="7422b9cf" class="cell" data-execution_count="106">
+<div id="1eccc48d" class="cell" data-execution_count="106">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb183"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb183-1"><a href="#cb183-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> binomial_regression(dv, Xc[sel_block_ch_d], cols_to_remove, dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -33892,7 +34341,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:22</td>
+<td>14:49:58</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1252.4</td>
 </tr>
@@ -34156,7 +34605,7 @@ Results
 </div>
 <div id="callout-62" class="callout-62-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="1873bb57" class="cell" data-execution_count="107">
+<div id="8c20b524" class="cell" data-execution_count="107">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb186"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb186-1"><a href="#cb186-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;uk_immigration_status&quot;</span>]</span>
@@ -34197,7 +34646,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:22</td>
+<td>14:49:58</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1388.3</td>
 </tr>
@@ -34421,7 +34870,7 @@ Results
 </div>
 <div id="callout-63" class="callout-63-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="1821fded" class="cell" data-execution_count="108">
+<div id="4b0d410a" class="cell" data-execution_count="108">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb189"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb189-1"><a href="#cb189-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;ethnicity_grouped&quot;</span>]</span>
@@ -34462,7 +34911,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:22</td>
+<td>14:49:59</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1444.4</td>
 </tr>
@@ -34613,7 +35062,7 @@ Results
 </section>
 <section id="add-block-for-support-needs-variables-3" class="level3">
 <h3 class="anchored" data-anchor-id="add-block-for-support-needs-variables-3">Add block for support needs variables</h3>
-<div id="73f8dd46" class="cell" data-execution_count="109">
+<div id="99f03a88" class="cell" data-execution_count="109">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb192"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb192-1"><a href="#cb192-1" aria-hidden="true" tabindex="-1"></a>new_block_ch <span class="op">=</span> selected_ch[<span class="st">&quot;support_needs&quot;</span>]</span>
@@ -34639,7 +35088,7 @@ Results
 <div id="callout-64" class="callout-64-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="c7d48c57" class="cell" data-execution_count="110">
+<div id="8b8d7bc6" class="cell" data-execution_count="110">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb193"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb193-1"><a href="#cb193-1" aria-hidden="true" tabindex="-1"></a>chi2_crv_results, disp <span class="op">=</span> iv_assoc(iv_df, sel_block_ch)</span>
@@ -35141,7 +35590,7 @@ Results
 </div>
 <div id="callout-65" class="callout-65-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="15143c60" class="cell" data-execution_count="111">
+<div id="819b1a64" class="cell" data-execution_count="111">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb194"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb194-1"><a href="#cb194-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -35248,13 +35697,13 @@ Results
 </div>
 <p><code>multiple_disadvantage</code> has high VIF due to multicollinearity of <code>multiple_disadvantage</code>, <code>substance_use</code> and <code>mental_health</code>.</p>
 <p>Running without <code>multiple_disadvantage</code> as for both previous dvs separate needs variables had greater explanatory power</p>
-<div id="3b324bc1" class="cell" data-execution_count="112">
+<div id="ebee5dc7" class="cell" data-execution_count="112">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb195"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb195-1"><a href="#cb195-1" aria-hidden="true" tabindex="-1"></a>sel_block_ch_d.remove(<span class="st">&quot;multiple_disadvantage&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="0c532c72" class="cell" data-execution_count="113">
+<div id="76462ef8" class="cell" data-execution_count="113">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb196"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb196-1"><a href="#cb196-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> binomial_regression(dv, Xc[sel_block_ch_d], [], dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -35276,7 +35725,7 @@ Results
 </div>
 <div id="callout-66" class="callout-66-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="5694c6c3" class="cell" data-execution_count="114">
+<div id="8230f5c9" class="cell" data-execution_count="114">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb197"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb197-1"><a href="#cb197-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> binomial_regression(dv, Xc[sel_block_ch_d], cols_to_remove, dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -35316,7 +35765,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:25</td>
+<td>14:50:01</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1218.0</td>
 </tr>
@@ -35639,7 +36088,7 @@ Results
 </div>
 <div id="callout-67" class="callout-67-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="8e7de163" class="cell" data-execution_count="115">
+<div id="59cadf30" class="cell" data-execution_count="115">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb200"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb200-1"><a href="#cb200-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;mental_health&quot;</span>]</span>
@@ -35680,7 +36129,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:25</td>
+<td>14:50:01</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1218.0</td>
 </tr>
@@ -35983,7 +36432,7 @@ Results
 </div>
 <div id="callout-68" class="callout-68-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="85fc1c93" class="cell" data-execution_count="116">
+<div id="aceb8991" class="cell" data-execution_count="116">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb203"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb203-1"><a href="#cb203-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;sex_working&quot;</span>]</span>
@@ -36024,7 +36473,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:25</td>
+<td>14:50:02</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1218.4</td>
 </tr>
@@ -36307,7 +36756,7 @@ Results
 </div>
 <div id="callout-69" class="callout-69-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="6c498508" class="cell" data-execution_count="117">
+<div id="dc6a7d1e" class="cell" data-execution_count="117">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb206"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb206-1"><a href="#cb206-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;physical_health&quot;</span>]</span>
@@ -36348,7 +36797,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:26</td>
+<td>14:50:02</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1220.0</td>
 </tr>
@@ -36611,7 +37060,7 @@ Results
 </div>
 <div id="callout-70" class="callout-70-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="c769065a" class="cell" data-execution_count="118">
+<div id="113a7674" class="cell" data-execution_count="118">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb209"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb209-1"><a href="#cb209-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;substance_use&quot;</span>]</span>
@@ -36652,7 +37101,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:26</td>
+<td>14:50:02</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1221.8</td>
 </tr>
@@ -36895,7 +37344,7 @@ Results
 </div>
 <div id="callout-71" class="callout-71-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="a31e0cda" class="cell" data-execution_count="119">
+<div id="a7027394" class="cell" data-execution_count="119">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb212"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb212-1"><a href="#cb212-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;risk_violence_abuse&quot;</span>]</span>
@@ -36936,7 +37385,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:26</td>
+<td>14:50:02</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1223.7</td>
 </tr>
@@ -37149,7 +37598,7 @@ Results
 </section>
 <section id="final-model-3" class="level2">
 <h2 class="anchored" data-anchor-id="final-model-3">Final model</h2>
-<div id="dd108503" class="cell" data-execution_count="120">
+<div id="0fff7246" class="cell" data-execution_count="120">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb215"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb215-1"><a href="#cb215-1" aria-hidden="true" tabindex="-1"></a>display(summary)</span>
@@ -37194,7 +37643,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:26</td>
+<td>14:50:02</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-1223.7</td>
 </tr>
@@ -37305,6 +37754,9 @@ Results
 <th data-quarto-table-cell-role="th">odds_r</th>
 <th data-quarto-table-cell-role="th">[0.025</th>
 <th data-quarto-table-cell-role="th">0.975]</th>
+<th data-quarto-table-cell-role="th">odds_r_d%</th>
+<th data-quarto-table-cell-role="th">[0.025_d%</th>
+<th data-quarto-table-cell-role="th">0.975]_d%</th>
 </tr>
 </thead>
 <tbody>
@@ -37315,6 +37767,9 @@ Results
 <td>0.318</td>
 <td>0.275</td>
 <td>0.367</td>
+<td>-68.2%</td>
+<td>-72.5%</td>
+<td>-63.3%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">age_cat_34-</td>
@@ -37323,6 +37778,9 @@ Results
 <td>0.573</td>
 <td>0.460</td>
 <td>0.715</td>
+<td>-42.7%</td>
+<td>-54.0%</td>
+<td>-28.5%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">gender_Female</td>
@@ -37331,6 +37789,9 @@ Results
 <td>0.589</td>
 <td>0.460</td>
 <td>0.756</td>
+<td>-41.1%</td>
+<td>-54.0%</td>
+<td>-24.4%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">gender_Non-Binary</td>
@@ -37339,6 +37800,9 @@ Results
 <td>0.328</td>
 <td>0.043</td>
 <td>2.506</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">offending</td>
@@ -37347,6 +37811,9 @@ Results
 <td>0.461</td>
 <td>0.332</td>
 <td>0.641</td>
+<td>-53.9%</td>
+<td>-66.8%</td>
+<td>-35.9%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">risk_exploitation</td>
@@ -37355,6 +37822,9 @@ Results
 <td>1.632</td>
 <td>1.158</td>
 <td>2.300</td>
+<td>63.2%</td>
+<td>15.8%</td>
+<td>130.0%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">rough_sleeping</td>
@@ -37363,6 +37833,9 @@ Results
 <td>0.299</td>
 <td>0.212</td>
 <td>0.422</td>
+<td>-70.1%</td>
+<td>-78.8%</td>
+<td>-57.8%</td>
 </tr>
 </tbody>
 </table>
@@ -37373,7 +37846,7 @@ Results
 </section>
 <section id="visualisation-5" class="level2">
 <h2 class="anchored" data-anchor-id="visualisation-5">Visualisation</h2>
-<div id="82f8cc97" class="cell" data-execution_count="121">
+<div id="fec1c3ba" class="cell" data-execution_count="121">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb216"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb216-1"><a href="#cb216-1" aria-hidden="true" tabindex="-1"></a>figure_minor_i <span class="op">+=</span> <span class="dv">1</span></span>
@@ -37397,7 +37870,7 @@ Results
 <h1>Returns within 2 years after moving to independent accommodation</h1>
 <section id="prepare-dv-4" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-dv-4">Prepare DV</h2>
-<div id="d95473fb" class="cell" data-execution_count="122">
+<div id="ecb69b74" class="cell" data-execution_count="122">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb217"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb217-1"><a href="#cb217-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get DV</span></span>
@@ -37408,7 +37881,7 @@ Results
 </section>
 <section id="prepare-ivs-4" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-ivs-4">Prepare IVs</h2>
-<div id="fdb3c21a" class="cell" data-execution_count="123">
+<div id="3f478f43" class="cell" data-execution_count="123">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb218"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb218-1"><a href="#cb218-1" aria-hidden="true" tabindex="-1"></a>selected_ch <span class="op">=</span> {</span>
@@ -37430,7 +37903,7 @@ Results
 <h2 class="anchored" data-anchor-id="model-building-4">Model building</h2>
 <section id="start-with-block-for-demographic-variables-4" class="level3">
 <h3 class="anchored" data-anchor-id="start-with-block-for-demographic-variables-4">Start with block for demographic variables</h3>
-<div id="d597b2ae" class="cell" data-execution_count="124">
+<div id="34b09056" class="cell" data-execution_count="124">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb219"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb219-1"><a href="#cb219-1" aria-hidden="true" tabindex="-1"></a>block_ch <span class="op">=</span> <span class="bu">list</span>(selected_ch.values())[<span class="dv">0</span>]</span>
@@ -37455,7 +37928,7 @@ Results
 <div id="callout-72" class="callout-72-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="4456d9a3" class="cell" data-execution_count="125">
+<div id="d349310b" class="cell" data-execution_count="125">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb220"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb220-1"><a href="#cb220-1" aria-hidden="true" tabindex="-1"></a>chi2_crv_results, disp <span class="op">=</span> iv_assoc(iv_df, block_ch)</span>
@@ -37570,7 +38043,7 @@ Results
 </div>
 <div id="callout-73" class="callout-73-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="1db119c8" class="cell" data-execution_count="126">
+<div id="fdc74976" class="cell" data-execution_count="126">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb221"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb221-1"><a href="#cb221-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -37639,7 +38112,7 @@ Results
 </div>
 <div id="callout-74" class="callout-74-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="04c29403" class="cell" data-execution_count="127">
+<div id="d3beae29" class="cell" data-execution_count="127">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb222"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb222-1"><a href="#cb222-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">=</span> []</span>
@@ -37681,7 +38154,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:28</td>
+<td>14:50:04</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-89.600</td>
 </tr>
@@ -37863,7 +38336,7 @@ Results
 </div>
 <div id="callout-75" class="callout-75-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="cbf695d5" class="cell" data-execution_count="128">
+<div id="59817917" class="cell" data-execution_count="128">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb225"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb225-1"><a href="#cb225-1" aria-hidden="true" tabindex="-1"></a>selected_dv, selected_xc, sel_block_ch_d <span class="op">=</span> dv_xc_remove_value(dv, Xc, block_ch_d, <span class="st">&quot;gender_Non-Binary&quot;</span>)</span>
@@ -37905,7 +38378,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:28</td>
+<td>14:50:04</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-89.600</td>
 </tr>
@@ -38069,7 +38542,7 @@ Results
 </div>
 <div id="callout-76" class="callout-76-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="2b34c773" class="cell" data-execution_count="129">
+<div id="95f5e696" class="cell" data-execution_count="129">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb228"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb228-1"><a href="#cb228-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;gender&quot;</span>]</span>
@@ -38110,7 +38583,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:28</td>
+<td>14:50:04</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-89.711</td>
 </tr>
@@ -38273,7 +38746,7 @@ Results
 </div>
 <div id="callout-77" class="callout-77-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="f234d7bb" class="cell" data-execution_count="130">
+<div id="5ac89ce1" class="cell" data-execution_count="130">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb231"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb231-1"><a href="#cb231-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;age_cat&quot;</span>]</span>
@@ -38314,7 +38787,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:28</td>
+<td>14:50:04</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-90.026</td>
 </tr>
@@ -38457,7 +38930,7 @@ Results
 </div>
 <div id="callout-78" class="callout-78-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="6928bd56" class="cell" data-execution_count="131">
+<div id="ad6d17d5" class="cell" data-execution_count="131">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb234"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb234-1"><a href="#cb234-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;global_majority&quot;</span>]</span>
@@ -38498,7 +38971,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:28</td>
+<td>14:50:04</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-91.903</td>
 </tr>
@@ -38609,7 +39082,7 @@ Results
 </section>
 <section id="add-block-for-grouped-ethnicity-data-and-drop-global_majority-4" class="level3">
 <h3 class="anchored" data-anchor-id="add-block-for-grouped-ethnicity-data-and-drop-global_majority-4">Add block for grouped ethnicity data and drop “global_majority”</h3>
-<div id="518983c9" class="cell" data-execution_count="132">
+<div id="59829f93" class="cell" data-execution_count="132">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb237"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb237-1"><a href="#cb237-1" aria-hidden="true" tabindex="-1"></a>new_block_ch <span class="op">=</span> selected_ch[<span class="st">&quot;ethnicity_related&quot;</span>]</span>
@@ -38635,7 +39108,7 @@ Results
 <div id="callout-79" class="callout-79-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="9f6e650e" class="cell" data-execution_count="133">
+<div id="fbd20dd9" class="cell" data-execution_count="133">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb238"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb238-1"><a href="#cb238-1" aria-hidden="true" tabindex="-1"></a>chi2_crv_results, disp <span class="op">=</span> iv_assoc(iv_df, sel_block_ch)</span>
@@ -38777,7 +39250,7 @@ Results
 </div>
 <div id="callout-80" class="callout-80-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="b5c4b282" class="cell" data-execution_count="134">
+<div id="703a3529" class="cell" data-execution_count="134">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb239"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb239-1"><a href="#cb239-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -38843,7 +39316,7 @@ Results
 </div>
 </div>
 <p>No significant multicollinearity. Proceeding with Logit.</p>
-<div id="2922aca9" class="cell" data-execution_count="135">
+<div id="60786dbf" class="cell" data-execution_count="135">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb240"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb240-1"><a href="#cb240-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> binomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -38865,7 +39338,7 @@ Results
 </div>
 <div id="callout-81" class="callout-81-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="8a069ac1" class="cell" data-execution_count="136">
+<div id="b118f19f" class="cell" data-execution_count="136">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb241"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb241-1"><a href="#cb241-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -38905,7 +39378,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:29</td>
+<td>14:50:05</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-75.761</td>
 </tr>
@@ -39128,7 +39601,7 @@ Results
 </div>
 <div id="callout-82" class="callout-82-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="964bd956" class="cell" data-execution_count="137">
+<div id="6f2d7728" class="cell" data-execution_count="137">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb244"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb244-1"><a href="#cb244-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;uk_immigration_status&quot;</span>]</span>
@@ -39169,7 +39642,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:29</td>
+<td>14:50:05</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-89.640</td>
 </tr>
@@ -39352,7 +39825,7 @@ Results
 </div>
 <div id="callout-83" class="callout-83-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="abc330bd" class="cell" data-execution_count="138">
+<div id="c85687e1" class="cell" data-execution_count="138">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb247"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb247-1"><a href="#cb247-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;ethnicity_grouped&quot;</span>]</span>
@@ -39393,7 +39866,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:29</td>
+<td>14:50:05</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-91.683</td>
 </tr>
@@ -39504,7 +39977,7 @@ Results
 </section>
 <section id="add-block-for-support-needs-variables-4" class="level3">
 <h3 class="anchored" data-anchor-id="add-block-for-support-needs-variables-4">Add block for support needs variables</h3>
-<div id="26e65ac8" class="cell" data-execution_count="139">
+<div id="df659094" class="cell" data-execution_count="139">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb250"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb250-1"><a href="#cb250-1" aria-hidden="true" tabindex="-1"></a>new_block_ch <span class="op">=</span> selected_ch[<span class="st">&quot;support_needs&quot;</span>]</span>
@@ -39530,7 +40003,7 @@ Results
 <div id="callout-84" class="callout-84-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="5ec78a5d" class="cell" data-execution_count="140">
+<div id="650cfe2d" class="cell" data-execution_count="140">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb251"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb251-1"><a href="#cb251-1" aria-hidden="true" tabindex="-1"></a>chi2_crv_results, disp <span class="op">=</span> iv_assoc(iv_df, sel_block_ch)</span>
@@ -40095,7 +40568,7 @@ Results
 </div>
 <div id="callout-85" class="callout-85-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="23ffbbae" class="cell" data-execution_count="141">
+<div id="14b48bf3" class="cell" data-execution_count="141">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb252"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb252-1"><a href="#cb252-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -40198,13 +40671,13 @@ Results
 </div>
 <p><code>multiple_disadvantage</code> has high VIF due to multicollinearity of <code>multiple_disadvantage</code>, <code>substance_use</code> and <code>mental_health</code>.</p>
 <p>Running without <code>multiple_disadvantage</code> as for both previous dvs separate needs variables had greater explanatory power</p>
-<div id="356d192b" class="cell" data-execution_count="142">
+<div id="49b152eb" class="cell" data-execution_count="142">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb253"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb253-1"><a href="#cb253-1" aria-hidden="true" tabindex="-1"></a>sel_block_ch_d.remove(<span class="st">&quot;multiple_disadvantage&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="b9beddbf" class="cell" data-execution_count="143">
+<div id="73a58c8e" class="cell" data-execution_count="143">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb254"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb254-1"><a href="#cb254-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> binomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -40226,7 +40699,7 @@ Results
 </div>
 <div id="callout-86" class="callout-86-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="8f9159a6" class="cell" data-execution_count="144">
+<div id="70b9a326" class="cell" data-execution_count="144">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb255"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb255-1"><a href="#cb255-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -40266,7 +40739,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:31</td>
+<td>14:50:08</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-64.879</td>
 </tr>
@@ -40549,7 +41022,7 @@ Results
 </div>
 <div id="callout-87" class="callout-87-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="a1aff52d" class="cell" data-execution_count="145">
+<div id="28cba6b0" class="cell" data-execution_count="145">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb258"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb258-1"><a href="#cb258-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;offending&quot;</span>]</span>
@@ -40590,7 +41063,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:31</td>
+<td>14:50:08</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-64.885</td>
 </tr>
@@ -40853,7 +41326,7 @@ Results
 </div>
 <div id="callout-88" class="callout-88-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="743d4a7c" class="cell" data-execution_count="146">
+<div id="8e046510" class="cell" data-execution_count="146">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb261"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb261-1"><a href="#cb261-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;risk_exploitation&quot;</span>]</span>
@@ -40894,7 +41367,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:31</td>
+<td>14:50:08</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-64.903</td>
 </tr>
@@ -41137,7 +41610,7 @@ Results
 </div>
 <div id="callout-89" class="callout-89-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="2df9bb9f" class="cell" data-execution_count="147">
+<div id="803b0f06" class="cell" data-execution_count="147">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb264"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb264-1"><a href="#cb264-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;physical_health&quot;</span>]</span>
@@ -41178,7 +41651,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:32</td>
+<td>14:50:08</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-65.069</td>
 </tr>
@@ -41401,7 +41874,7 @@ Results
 </div>
 <div id="callout-90" class="callout-90-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="54120e2d" class="cell" data-execution_count="148">
+<div id="b7518165" class="cell" data-execution_count="148">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb267"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb267-1"><a href="#cb267-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;sex_working&quot;</span>]</span>
@@ -41442,7 +41915,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:32</td>
+<td>14:50:08</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-65.292</td>
 </tr>
@@ -41645,7 +42118,7 @@ Results
 </div>
 <div id="callout-91" class="callout-91-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="ba92ae14" class="cell" data-execution_count="149">
+<div id="188af0fb" class="cell" data-execution_count="149">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb270"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb270-1"><a href="#cb270-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;mental_health&quot;</span>]</span>
@@ -41686,7 +42159,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:32</td>
+<td>14:50:08</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-65.860</td>
 </tr>
@@ -41869,7 +42342,7 @@ Results
 </div>
 <div id="callout-92" class="callout-92-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="7299a834" class="cell" data-execution_count="150">
+<div id="dd3ceeee" class="cell" data-execution_count="150">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb273"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb273-1"><a href="#cb273-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;rough_sleeping&quot;</span>]</span>
@@ -41910,7 +42383,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:32</td>
+<td>14:50:08</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-67.324</td>
 </tr>
@@ -42063,7 +42536,7 @@ Results
 </section>
 <section id="final-model-4" class="level2">
 <h2 class="anchored" data-anchor-id="final-model-4">Final model</h2>
-<div id="ab58e5b0" class="cell" data-execution_count="151">
+<div id="d3d82f8d" class="cell" data-execution_count="151">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb276"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb276-1"><a href="#cb276-1" aria-hidden="true" tabindex="-1"></a>display(summary)</span>
@@ -42108,7 +42581,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:32</td>
+<td>14:50:08</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-67.324</td>
 </tr>
@@ -42192,6 +42665,9 @@ Results
 <th data-quarto-table-cell-role="th">odds_r</th>
 <th data-quarto-table-cell-role="th">[0.025</th>
 <th data-quarto-table-cell-role="th">0.975]</th>
+<th data-quarto-table-cell-role="th">odds_r_d%</th>
+<th data-quarto-table-cell-role="th">[0.025_d%</th>
+<th data-quarto-table-cell-role="th">0.975]_d%</th>
 </tr>
 </thead>
 <tbody>
@@ -42202,6 +42678,9 @@ Results
 <td>0.005</td>
 <td>0.001</td>
 <td>0.016</td>
+<td>-99.5%</td>
+<td>-99.9%</td>
+<td>-98.4%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">lgbtq_plus</td>
@@ -42210,6 +42689,9 @@ Results
 <td>11.883</td>
 <td>2.990</td>
 <td>47.231</td>
+<td>1088.3%</td>
+<td>199.0%</td>
+<td>4623.1%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">risk_violence_abuse</td>
@@ -42218,6 +42700,9 @@ Results
 <td>3.229</td>
 <td>1.060</td>
 <td>9.838</td>
+<td>222.9%</td>
+<td>6.0%</td>
+<td>883.8%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">substance_use</td>
@@ -42226,6 +42711,9 @@ Results
 <td>14.136</td>
 <td>4.067</td>
 <td>49.134</td>
+<td>1313.6%</td>
+<td>306.7%</td>
+<td>4813.4%</td>
 </tr>
 </tbody>
 </table>
@@ -42236,7 +42724,7 @@ Results
 </section>
 <section id="visualisation-6" class="level2">
 <h2 class="anchored" data-anchor-id="visualisation-6">Visualisation</h2>
-<div id="b9dafbcd" class="cell" data-execution_count="152">
+<div id="0519f5e5" class="cell" data-execution_count="152">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb277"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb277-1"><a href="#cb277-1" aria-hidden="true" tabindex="-1"></a>figure_minor_i <span class="op">+=</span> <span class="dv">1</span></span>
@@ -42260,7 +42748,7 @@ Results
 <h1>Outcomes from individual placements - ref category independent accommodation</h1>
 <section id="prepare-dv-5" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-dv-5">Prepare DV</h2>
-<div id="1026dae5" class="cell" data-execution_count="153">
+<div id="d2f742ff" class="cell" data-execution_count="153">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb278"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb278-1"><a href="#cb278-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get DV</span></span>
@@ -42279,7 +42767,7 @@ Results
 </section>
 <section id="prepare-ivs-5" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-ivs-5">Prepare IVs</h2>
-<div id="2f1cd5aa" class="cell" data-execution_count="154">
+<div id="b030839a" class="cell" data-execution_count="154">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb279"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb279-1"><a href="#cb279-1" aria-hidden="true" tabindex="-1"></a>selected_ch <span class="op">=</span> {</span>
@@ -42301,7 +42789,7 @@ Results
 <h2 class="anchored" data-anchor-id="model-building-5">Model building</h2>
 <section id="start-with-block-for-demographic-variables-5" class="level3">
 <h3 class="anchored" data-anchor-id="start-with-block-for-demographic-variables-5">Start with block for demographic variables</h3>
-<div id="aaa8cb90" class="cell" data-execution_count="155">
+<div id="3a0bd4e1" class="cell" data-execution_count="155">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb280"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb280-1"><a href="#cb280-1" aria-hidden="true" tabindex="-1"></a>block_ch <span class="op">=</span> <span class="bu">list</span>(selected_ch.values())[<span class="dv">0</span>]</span>
@@ -42326,7 +42814,7 @@ Results
 <div id="callout-93" class="callout-93-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="9ca6bc68" class="cell" data-execution_count="156">
+<div id="1654e9ce" class="cell" data-execution_count="156">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb281"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb281-1"><a href="#cb281-1" aria-hidden="true" tabindex="-1"></a>chi2_crv_results, disp <span class="op">=</span> iv_assoc(iv_df, block_ch)</span>
@@ -42441,7 +42929,7 @@ Results
 </div>
 <div id="callout-94" class="callout-94-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="8e273abe" class="cell" data-execution_count="157">
+<div id="175844c4" class="cell" data-execution_count="157">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb282"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb282-1"><a href="#cb282-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -42510,7 +42998,7 @@ Results
 </div>
 <div id="callout-95" class="callout-95-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="88ca6c9e" class="cell" data-execution_count="158">
+<div id="4cdf322b" class="cell" data-execution_count="158">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb283"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb283-1"><a href="#cb283-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">=</span> []</span>
@@ -42552,7 +43040,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:36</td>
+<td>14:50:13</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-8585.9</td>
 </tr>
@@ -43296,7 +43784,7 @@ Results
 </div>
 <div id="callout-96" class="callout-96-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="519b97d1" class="cell" data-execution_count="159">
+<div id="1bf0a093" class="cell" data-execution_count="159">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb286"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb286-1"><a href="#cb286-1" aria-hidden="true" tabindex="-1"></a>selected_dv, selected_xc, sel_block_ch_d <span class="op">=</span> dv_xc_remove_value(dv, Xc, block_ch_d, <span class="st">&quot;gender_Non-Binary&quot;</span>)</span>
@@ -43338,7 +43826,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:38</td>
+<td>14:50:15</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-8559.4</td>
 </tr>
@@ -43978,7 +44466,7 @@ Results
 </div>
 <div id="callout-97" class="callout-97-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="b7a0a43e" class="cell" data-execution_count="160">
+<div id="402f22a9" class="cell" data-execution_count="160">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb289"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb289-1"><a href="#cb289-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;lgbtq_plus&quot;</span>]</span>
@@ -44019,7 +44507,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:39</td>
+<td>14:50:17</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-10296.</td>
 </tr>
@@ -44620,7 +45108,7 @@ Results
 </section>
 <section id="add-block-for-grouped-ethnicity-data-and-drop-global_majority-5" class="level3">
 <h3 class="anchored" data-anchor-id="add-block-for-grouped-ethnicity-data-and-drop-global_majority-5">Add block for grouped ethnicity data and drop “global_majority”</h3>
-<div id="ac4426ad" class="cell" data-execution_count="161">
+<div id="ff5c21d4" class="cell" data-execution_count="161">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb292"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb292-1"><a href="#cb292-1" aria-hidden="true" tabindex="-1"></a>new_block_ch <span class="op">=</span> selected_ch[<span class="st">&quot;ethnicity_related&quot;</span>]</span>
@@ -44646,7 +45134,7 @@ Results
 <div id="callout-98" class="callout-98-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="d2971fb4" class="cell" data-execution_count="162">
+<div id="af022c49" class="cell" data-execution_count="162">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb293"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb293-1"><a href="#cb293-1" aria-hidden="true" tabindex="-1"></a>chi2_crv_results, disp <span class="op">=</span> iv_assoc(iv_df, sel_block_ch)</span>
@@ -44788,7 +45276,7 @@ Results
 </div>
 <div id="callout-99" class="callout-99-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="e8524752" class="cell" data-execution_count="163">
+<div id="326152bb" class="cell" data-execution_count="163">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb294"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb294-1"><a href="#cb294-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -44854,7 +45342,7 @@ Results
 </div>
 </div>
 <p>No significant multicollinearity. Proceeding with MNLogit.</p>
-<div id="6aeee019" class="cell" data-execution_count="164">
+<div id="a5effbab" class="cell" data-execution_count="164">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb295"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb295-1"><a href="#cb295-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -44876,7 +45364,7 @@ Results
 </div>
 <div id="callout-100" class="callout-100-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="8df8ece0" class="cell" data-execution_count="165">
+<div id="53ddc799" class="cell" data-execution_count="165">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb296"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb296-1"><a href="#cb296-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -44916,7 +45404,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:43</td>
+<td>14:50:21</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-8965.6</td>
 </tr>
@@ -46002,7 +46490,7 @@ Results
 </section>
 <section id="add-block-for-support-needs-variables-5" class="level3">
 <h3 class="anchored" data-anchor-id="add-block-for-support-needs-variables-5">Add block for support needs variables</h3>
-<div id="cc9e9088" class="cell" data-execution_count="166">
+<div id="8a71ba96" class="cell" data-execution_count="166">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb299"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb299-1"><a href="#cb299-1" aria-hidden="true" tabindex="-1"></a>new_block_ch <span class="op">=</span> selected_ch[<span class="st">&quot;support_needs&quot;</span>]</span>
@@ -46028,7 +46516,7 @@ Results
 <div id="callout-101" class="callout-101-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="226242e3" class="cell" data-execution_count="167">
+<div id="fd0a7c1e" class="cell" data-execution_count="167">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb300"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb300-1"><a href="#cb300-1" aria-hidden="true" tabindex="-1"></a>chi2_crv_results, disp <span class="op">=</span> iv_assoc(iv_df, sel_block_ch)</span>
@@ -46593,7 +47081,7 @@ Results
 </div>
 <div id="callout-102" class="callout-102-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="df1ed53d" class="cell" data-execution_count="168">
+<div id="dc90658e" class="cell" data-execution_count="168">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb301"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb301-1"><a href="#cb301-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -46696,13 +47184,13 @@ Results
 </div>
 <p><code>multiple_disadvantage</code> has high VIF due to multicollinearity of <code>multiple_disadvantage</code>, <code>substance_use</code> and <code>mental_health</code>.</p>
 <p>Dropping <code>multiple_disadvantage</code> as previous models showed that separate needs explained more of the variance.</p>
-<div id="c655225b" class="cell" data-execution_count="169">
+<div id="c7c939db" class="cell" data-execution_count="169">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb302"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb302-1"><a href="#cb302-1" aria-hidden="true" tabindex="-1"></a>sel_block_ch_d.remove(<span class="st">&quot;multiple_disadvantage&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="de136f62" class="cell" data-execution_count="170">
+<div id="17597848" class="cell" data-execution_count="170">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb303"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb303-1"><a href="#cb303-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -46724,7 +47212,7 @@ Results
 </div>
 <div id="callout-103" class="callout-103-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="6f25403a" class="cell" data-execution_count="171">
+<div id="6d3b8893" class="cell" data-execution_count="171">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb304"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb304-1"><a href="#cb304-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -46764,7 +47252,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:51</td>
+<td>14:50:29</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-8340.1</td>
 </tr>
@@ -48819,7 +49307,7 @@ Results
 </section>
 <section id="final-model-5" class="level2">
 <h2 class="anchored" data-anchor-id="final-model-5">Final model</h2>
-<div id="9d0d52a7" class="cell" data-execution_count="172">
+<div id="8aaee945" class="cell" data-execution_count="172">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb307"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb307-1"><a href="#cb307-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> io <span class="im">import</span> StringIO</span>
@@ -48871,7 +49359,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:51</td>
+<td>14:50:29</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-8340.1</td>
 </tr>
@@ -49829,6 +50317,9 @@ Results
 <th data-quarto-table-cell-role="th">odds_r</th>
 <th data-quarto-table-cell-role="th">[0.025</th>
 <th data-quarto-table-cell-role="th">0.975]</th>
+<th data-quarto-table-cell-role="th">odds_r_d%</th>
+<th data-quarto-table-cell-role="th">[0.025_d%</th>
+<th data-quarto-table-cell-role="th">0.975]_d%</th>
 </tr>
 </thead>
 <tbody>
@@ -49840,6 +50331,9 @@ Results
 <td>0.851</td>
 <td>0.684</td>
 <td>1.058</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">age_cat_34-</td>
@@ -49848,6 +50342,9 @@ Results
 <td>1.098</td>
 <td>0.906</td>
 <td>1.330</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">ethnicity_grouped_Black</td>
@@ -49856,6 +50353,9 @@ Results
 <td>0.787</td>
 <td>0.594</td>
 <td>1.041</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">ethnicity_grouped_Mixed Heritage</td>
@@ -49864,6 +50364,9 @@ Results
 <td>0.889</td>
 <td>0.596</td>
 <td>1.327</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">ethnicity_grouped_Other</td>
@@ -49872,10 +50375,16 @@ Results
 <td>0.839</td>
 <td>0.553</td>
 <td>1.274</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">...</td>
 <td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
 <td>...</td>
 <td>...</td>
 <td>...</td>
@@ -49890,6 +50399,9 @@ Results
 <td>0.824</td>
 <td>0.423</td>
 <td>1.608</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">sex_working</td>
@@ -49898,6 +50410,9 @@ Results
 <td>7.293</td>
 <td>1.095</td>
 <td>48.555</td>
+<td>629.3%</td>
+<td>9.5%</td>
+<td>4755.5%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">substance_use</td>
@@ -49906,6 +50421,9 @@ Results
 <td>8.226</td>
 <td>4.475</td>
 <td>15.119</td>
+<td>722.6%</td>
+<td>347.5%</td>
+<td>1411.9%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">uk_immigration_status_EEA National</td>
@@ -49914,6 +50432,9 @@ Results
 <td>1.105</td>
 <td>0.318</td>
 <td>3.837</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">uk_immigration_status_Non-EEA National</td>
@@ -49922,18 +50443,21 @@ Results
 <td>0.665</td>
 <td>0.207</td>
 <td>2.136</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
 
-<p>96 rows × 5 columns</p>
+<p>96 rows × 8 columns</p>
 </div>
 </div>
 </div>
 </section>
 <section id="visualisation-7" class="level2">
 <h2 class="anchored" data-anchor-id="visualisation-7">Visualisation</h2>
-<div id="9e348158" class="cell" data-execution_count="173">
+<div id="15dfcfe2" class="cell" data-execution_count="173">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb308"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb308-1"><a href="#cb308-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> itertools <span class="im">import</span> product</span>
@@ -49973,7 +50497,7 @@ Results
 <h1>Outcomes from individual placements - ref category forwards moves</h1>
 <section id="prepare-dv-6" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-dv-6">Prepare DV</h2>
-<div id="dc6982ca" class="cell" data-execution_count="174">
+<div id="ecc0e733" class="cell" data-execution_count="174">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb309"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb309-1"><a href="#cb309-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get DV</span></span>
@@ -49985,7 +50509,7 @@ Results
 </section>
 <section id="prepare-ivs-6" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-ivs-6">Prepare IVs</h2>
-<div id="a0d04319" class="cell" data-execution_count="175">
+<div id="d64360e4" class="cell" data-execution_count="175">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb310"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb310-1"><a href="#cb310-1" aria-hidden="true" tabindex="-1"></a>selected_ch <span class="op">=</span> {</span>
@@ -50007,7 +50531,7 @@ Results
 <h2 class="anchored" data-anchor-id="model-building-6">Model building</h2>
 <section id="start-with-block-for-demographic-variables-6" class="level3">
 <h3 class="anchored" data-anchor-id="start-with-block-for-demographic-variables-6">Start with block for demographic variables</h3>
-<div id="4e1835d9" class="cell" data-execution_count="176">
+<div id="55cdde97" class="cell" data-execution_count="176">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb311"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb311-1"><a href="#cb311-1" aria-hidden="true" tabindex="-1"></a>block_ch <span class="op">=</span> <span class="bu">list</span>(selected_ch.values())[<span class="dv">0</span>]</span>
@@ -50032,7 +50556,7 @@ Results
 <div id="callout-104" class="callout-104-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="df3841b5" class="cell" data-execution_count="177">
+<div id="ed34bdbc" class="cell" data-execution_count="177">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb312"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb312-1"><a href="#cb312-1" aria-hidden="true" tabindex="-1"></a>chi2_crv_results, disp <span class="op">=</span> iv_assoc(iv_df, block_ch)</span>
@@ -50147,7 +50671,7 @@ Results
 </div>
 <div id="callout-105" class="callout-105-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="f80c8d0b" class="cell" data-execution_count="178">
+<div id="ab48a902" class="cell" data-execution_count="178">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb313"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb313-1"><a href="#cb313-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -50216,7 +50740,7 @@ Results
 </div>
 <div id="callout-106" class="callout-106-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="d196c5c2" class="cell" data-execution_count="179">
+<div id="4d88b081" class="cell" data-execution_count="179">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb314"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb314-1"><a href="#cb314-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">=</span> []</span>
@@ -50258,7 +50782,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:27:59</td>
+<td>14:50:38</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-8585.9</td>
 </tr>
@@ -51002,7 +51526,7 @@ Results
 </div>
 <div id="callout-107" class="callout-107-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="c6709cae" class="cell" data-execution_count="180">
+<div id="41544055" class="cell" data-execution_count="180">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb317"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb317-1"><a href="#cb317-1" aria-hidden="true" tabindex="-1"></a>selected_dv, selected_xc, sel_block_ch_d <span class="op">=</span> dv_xc_remove_value(dv, Xc, block_ch_d, <span class="st">&quot;gender_Non-Binary&quot;</span>)</span>
@@ -51044,7 +51568,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:28:01</td>
+<td>14:50:40</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-8559.4</td>
 </tr>
@@ -51684,7 +52208,7 @@ Results
 </div>
 <div id="callout-108" class="callout-108-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="5bd66c84" class="cell" data-execution_count="181">
+<div id="5eebfe14" class="cell" data-execution_count="181">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb320"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb320-1"><a href="#cb320-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;lgbtq_plus&quot;</span>]</span>
@@ -51725,7 +52249,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:28:02</td>
+<td>14:50:41</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-10296.</td>
 </tr>
@@ -52326,7 +52850,7 @@ Results
 </section>
 <section id="add-block-for-grouped-ethnicity-data-and-drop-global_majority-6" class="level3">
 <h3 class="anchored" data-anchor-id="add-block-for-grouped-ethnicity-data-and-drop-global_majority-6">Add block for grouped ethnicity data and drop “global_majority”</h3>
-<div id="98d262e1" class="cell" data-execution_count="182">
+<div id="6e7d6b87" class="cell" data-execution_count="182">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb323"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb323-1"><a href="#cb323-1" aria-hidden="true" tabindex="-1"></a>new_block_ch <span class="op">=</span> selected_ch[<span class="st">&quot;ethnicity_related&quot;</span>]</span>
@@ -52352,7 +52876,7 @@ Results
 <div id="callout-109" class="callout-109-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="38834bdc" class="cell" data-execution_count="183">
+<div id="c159ea66" class="cell" data-execution_count="183">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb324"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb324-1"><a href="#cb324-1" aria-hidden="true" tabindex="-1"></a>chi2_crv_results, disp <span class="op">=</span> iv_assoc(iv_df, sel_block_ch)</span>
@@ -52494,7 +53018,7 @@ Results
 </div>
 <div id="callout-110" class="callout-110-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="7dbcff66" class="cell" data-execution_count="184">
+<div id="dfb298b3" class="cell" data-execution_count="184">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb325"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb325-1"><a href="#cb325-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -52560,7 +53084,7 @@ Results
 </div>
 </div>
 <p>No significant multicollinearity. Proceeding with MNLogit.</p>
-<div id="11e1ac2c" class="cell" data-execution_count="185">
+<div id="45906ba5" class="cell" data-execution_count="185">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb326"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb326-1"><a href="#cb326-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -52582,7 +53106,7 @@ Results
 </div>
 <div id="callout-111" class="callout-111-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="ee967ac8" class="cell" data-execution_count="186">
+<div id="15930f0e" class="cell" data-execution_count="186">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb327"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb327-1"><a href="#cb327-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -52622,7 +53146,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:28:06</td>
+<td>14:50:45</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-8965.6</td>
 </tr>
@@ -53708,7 +54232,7 @@ Results
 </section>
 <section id="add-block-for-support-needs-variables-6" class="level3">
 <h3 class="anchored" data-anchor-id="add-block-for-support-needs-variables-6">Add block for support needs variables</h3>
-<div id="0d5a4d16" class="cell" data-execution_count="187">
+<div id="fecbe4c5" class="cell" data-execution_count="187">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb330"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb330-1"><a href="#cb330-1" aria-hidden="true" tabindex="-1"></a>new_block_ch <span class="op">=</span> selected_ch[<span class="st">&quot;support_needs&quot;</span>]</span>
@@ -53734,7 +54258,7 @@ Results
 <div id="callout-112" class="callout-112-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>p values indicated by asterisks: <code>***</code> if <code>p &lt; 0.001</code>, <code>**</code> if <code>p &lt; 0.01</code>, <code>*</code> if <code>p &lt; 0.05</code></p>
-<div id="61489d3e" class="cell" data-execution_count="188">
+<div id="3ac11fca" class="cell" data-execution_count="188">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb331"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb331-1"><a href="#cb331-1" aria-hidden="true" tabindex="-1"></a>chi2_crv_results, disp <span class="op">=</span> iv_assoc(iv_df, sel_block_ch)</span>
@@ -54299,7 +54823,7 @@ Results
 </div>
 <div id="callout-113" class="callout-113-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="2ac55abc" class="cell" data-execution_count="189">
+<div id="a3f2d505" class="cell" data-execution_count="189">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb332"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb332-1"><a href="#cb332-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test multicollinearity with VIF</span></span>
@@ -54402,13 +54926,13 @@ Results
 </div>
 <p><code>multiple_disadvantage</code> has high VIF due to multicollinearity of <code>multiple_disadvantage</code>, <code>substance_use</code> and <code>mental_health</code>.</p>
 <p>Dropping <code>multiple_disadvantage</code> as previous models showed that separate needs explained more of the variance.</p>
-<div id="1813adf7" class="cell" data-execution_count="190">
+<div id="cb268719" class="cell" data-execution_count="190">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb333"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb333-1"><a href="#cb333-1" aria-hidden="true" tabindex="-1"></a>sel_block_ch_d.remove(<span class="st">&quot;multiple_disadvantage&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<div id="30606865" class="cell" data-execution_count="191">
+<div id="5fc83bcd" class="cell" data-execution_count="191">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb334"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb334-1"><a href="#cb334-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -54430,7 +54954,7 @@ Results
 </div>
 <div id="callout-114" class="callout-114-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="06af5374" class="cell" data-execution_count="192">
+<div id="36dbaadf" class="cell" data-execution_count="192">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb335"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb335-1"><a href="#cb335-1" aria-hidden="true" tabindex="-1"></a>results, summary, results_or <span class="op">=</span> multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -54470,7 +54994,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:28:12</td>
+<td>14:50:51</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-8340.1</td>
 </tr>
@@ -56535,7 +57059,7 @@ Results
 </div>
 <div id="callout-115" class="callout-115-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<div id="6d7ece53" class="cell" data-execution_count="193">
+<div id="7f924c14" class="cell" data-execution_count="193">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb338"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb338-1"><a href="#cb338-1" aria-hidden="true" tabindex="-1"></a>cols_to_remove <span class="op">+=</span> [<span class="st">&quot;ethnicity_grouped&quot;</span>]</span>
@@ -56576,7 +57100,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:28:14</td>
+<td>14:50:53</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-8649.5</td>
 </tr>
@@ -58268,7 +58792,7 @@ Results
 </section>
 <section id="final-model-6" class="level2">
 <h2 class="anchored" data-anchor-id="final-model-6">Final model</h2>
-<div id="4a9e4086" class="cell" data-execution_count="194">
+<div id="ee161758" class="cell" data-execution_count="194">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb341"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb341-1"><a href="#cb341-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> io <span class="im">import</span> StringIO</span>
@@ -58319,7 +58843,7 @@ Results
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">Time:</td>
-<td>14:28:14</td>
+<td>14:50:53</td>
 <td data-quarto-table-cell-role="th">Log-Likelihood:</td>
 <td>-8649.5</td>
 </tr>
@@ -59115,6 +59639,9 @@ Results
 <th data-quarto-table-cell-role="th">odds_r</th>
 <th data-quarto-table-cell-role="th">[0.025</th>
 <th data-quarto-table-cell-role="th">0.975]</th>
+<th data-quarto-table-cell-role="th">odds_r_d%</th>
+<th data-quarto-table-cell-role="th">[0.025_d%</th>
+<th data-quarto-table-cell-role="th">0.975]_d%</th>
 </tr>
 </thead>
 <tbody>
@@ -59126,6 +59653,9 @@ Results
 <td>0.040</td>
 <td>0.021</td>
 <td>0.077</td>
+<td>-96.0%</td>
+<td>-97.9%</td>
+<td>-92.3%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">age_cat_34-</td>
@@ -59134,6 +59664,9 @@ Results
 <td>0.424</td>
 <td>0.220</td>
 <td>0.820</td>
+<td>-57.6%</td>
+<td>-78.0%</td>
+<td>-18.0%</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">gender_Female</td>
@@ -59142,6 +59675,9 @@ Results
 <td>0.537</td>
 <td>0.274</td>
 <td>1.056</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">mental_health</td>
@@ -59150,6 +59686,9 @@ Results
 <td>0.670</td>
 <td>0.412</td>
 <td>1.089</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">offending</td>
@@ -59158,10 +59697,16 @@ Results
 <td>0.901</td>
 <td>0.484</td>
 <td>1.678</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">...</td>
 <td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
 <td>...</td>
 <td>...</td>
 <td>...</td>
@@ -59176,6 +59721,9 @@ Results
 <td>2.782</td>
 <td>2.215</td>
 <td>3.496</td>
+<td>178.2%</td>
+<td>121.5%</td>
+<td>249.6%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">sex_working</td>
@@ -59184,6 +59732,9 @@ Results
 <td>0.871</td>
 <td>0.480</td>
 <td>1.579</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">substance_use</td>
@@ -59192,6 +59743,9 @@ Results
 <td>1.704</td>
 <td>1.373</td>
 <td>2.116</td>
+<td>70.4%</td>
+<td>37.3%</td>
+<td>111.6%</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">uk_immigration_status_EEA National</td>
@@ -59200,6 +59754,9 @@ Results
 <td>1.208</td>
 <td>0.727</td>
 <td>2.005</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">uk_immigration_status_Non-EEA National</td>
@@ -59208,18 +59765,21 @@ Results
 <td>0.488</td>
 <td>0.309</td>
 <td>0.773</td>
+<td>-51.2%</td>
+<td>-69.1%</td>
+<td>-22.7%</td>
 </tr>
 </tbody>
 </table>
 
-<p>78 rows × 5 columns</p>
+<p>78 rows × 8 columns</p>
 </div>
 </div>
 </div>
 </section>
 <section id="visualisation-8" class="level2">
 <h2 class="anchored" data-anchor-id="visualisation-8">Visualisation</h2>
-<div id="44d42f15" class="cell" data-execution_count="195">
+<div id="b0b06c11" class="cell" data-execution_count="195">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb342"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb342-1"><a href="#cb342-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> itertools <span class="im">import</span> product</span>

@@ -2275,7 +2275,7 @@ fig_str = plot_odds_r(dv_str, None, ref_cats_used, results_or_final, replacement
 plt.show(block=False)
 ```
 
-# Outcomes from individual placements
+# Outcomes from individual placements - ref category independent accommodation
 
 ## Prepare DV
 
@@ -2480,9 +2480,9 @@ comp_cats = [x[0] for x in results.summary().tables[1].data if x[0].startswith(r
 for tbl in results.summary2().tables:
     if tbl_i != 0:
         tbl = tbl.rename(columns={tbl.columns[0]: comp_cats[tbl_i - 1]})
-    excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
+    excel_output[f"MNLogit: '{dv_str} (vs independent accommodation)', table {tbl_i}"] = tbl
     tbl_i += 1
-excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_final
+excel_output[f"MNLogit: '{dv_str} (vs independent accommodation)', odds ratios"] = results_or_final
 ```
 
 ## Visualisation
@@ -2492,6 +2492,236 @@ from itertools import product
 figure_minor_i += 1
 theme = {"ytick.labelsize": "medium"}
 ref_cats_used = {k: v for k, v in ref_cats.items() if k in ["gender", "age_cat", "ethnicity_grouped", "uk_immigration_status"]}
+shorter_iv = {r"uk\ immigration\ status": "immigration"}
+cols_removed = cols_to_remove
+cols_removed = [col for col in cols_to_remove if col != "multiple_disadvantage"]
+for or_section, i_sub in [(slice(0, 3), "a"), (slice(3, None), "b")]:
+    save_fmi = figure_minor_i
+    temp_res_or = results_or_final.loc[results_or_final.index.levels[0][or_section]].copy()
+    temp_res_or.index = temp_res_or.index.remove_unused_levels()
+    figure_minor_i = str(figure_minor_i) + i_sub
+    fig_str, fig = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, temp_res_or, replacements=shorter_iv, theme=theme, cols_removed=cols_removed)
+    plt.show(block=False)
+    figure_minor_i = save_fmi
+```
+
+# Outcomes from individual placements - ref category forwards moves
+
+## Prepare DV
+
+```{python}
+# Get DV
+dv_str = "Outcomes from individual placements"
+dv = dv_dict[dv_str].iloc[:, 0].astype("category")
+dv = dv.cat.reorder_categories(list(dv.value_counts().index))
+```
+
+## Prepare IVs
+
+```{python}
+selected_ch = {
+    "demographics":  ["gender", "age_cat", "global_majority", "lgbtq_plus",
+                      # "ethnicity_detailed", "ethnicity_grouped",
+                      # "uk_immigration_status", "english_2nd_language",
+                      ],
+    "ethnicity_related": ["ethnicity_grouped", "uk_immigration_status"],
+    "support_needs": ["offending", "physical_health", "mental_health", "substance_use", "multiple_disadvantage",
+                      "rough_sleeping", "sex_working", "risk_violence_abuse", "risk_exploitation",],
+    # "route_variables": ["referral_agency", "rt_duration_weeks", "rt_entry_point",]
+}
+cols_to_exclude = []
+X, Xc, iv_df, iv_cols_used, ref_cats, binaries, dummy_cols = get_ivs(dv, cols_to_exclude, selected_ch)
+```
+
+## Model building
+
+### Start with block for demographic variables
+
+```{python}
+block_ch = list(selected_ch.values())[0]
+block_ch_d = ["(Intercept)"] + cols_with_dummies(block_ch, dummy_cols)
+```
+
+### Test associations between IVs for initial block
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+### MNLogit iteration 0
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove = []
+values_to_remove = []
+results, summary, results_or = multinomial_regression(dv, Xc[block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### MNLogit iteration 1
+Recode `gender=Non-Binary` as missing because there are too few data points: recode variable.
+
+::: {.callout-note collapse=true title="Results"}
+```{python}
+selected_dv, selected_xc, sel_block_ch_d = dv_xc_remove_value(dv, Xc, block_ch_d, "gender_Non-Binary")
+# cols_to_remove += ["gender_Non-Binary"]
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### MNLogit iteration 2
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["lgbtq_plus"]
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Add block for grouped ethnicity data and drop "global_majority"
+```{python}
+new_block_ch = selected_ch["ethnicity_related"]
+sel_block_ch = [ch for ch in block_ch + new_block_ch if ch != "global_majority"]
+sel_block_ch_d = [ch for ch in sel_block_ch_d + cols_with_dummies(new_block_ch, dummy_cols) if ch != "global_majority"]
+```
+
+### Test associations between IVs now a block has been added
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, sel_block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[sel_block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+No significant multicollinearity. Proceeding with MNLogit.
+
+```{python}
+#| output: false
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)
+```
+### MNLogit iteration 3
+::: {.callout-note collapse=true title="Results"}
+```{python}
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+All variables are significant. Proceeding.
+
+### Add block for support needs variables
+
+```{python}
+new_block_ch = selected_ch["support_needs"]
+sel_block_ch = sel_block_ch + new_block_ch
+sel_block_ch_d = sel_block_ch_d + cols_with_dummies(new_block_ch, dummy_cols)
+```
+
+### Test associations between IVs now a block has been added
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, sel_block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[sel_block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+`multiple_disadvantage` has high VIF due to multicollinearity of `multiple_disadvantage`, `substance_use` and `mental_health`.
+
+Dropping `multiple_disadvantage` as previous models showed that separate needs explained more of the variance.
+
+```{python}
+sel_block_ch_d.remove("multiple_disadvantage")
+```
+
+```{python}
+#| output: false
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)
+```
+### MNLogit iteration 4
+::: {.callout-note collapse=true title="Results"}
+```{python}
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### MNLogit iteration 5
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["ethnicity_grouped"]
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+All other variables are significant.
+
+## Final model
+
+```{python}
+from io import StringIO
+
+display(summary)
+results_or_final = (results_or.drop(columns=["prev_coef", "coef", "diff_pct"], errors="ignore")
+                    .swaplevel().sort_index())
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(results_or_final)
+
+tbl_i = 0
+comp_cats = [x[0] for x in results.summary().tables[1].data if x[0].startswith(results.model.endog_names)]
+for tbl in results.summary2().tables:
+    if tbl_i != 0:
+        tbl = tbl.rename(columns={tbl.columns[0]: comp_cats[tbl_i - 1]})
+    excel_output[f"MNLogit: '{dv_str} (vs. forwards moves)', table {tbl_i}"] = tbl
+    tbl_i += 1
+excel_output[f"MNLogit: '{dv_str} (vs. forwards moves)', odds ratios"] = results_or_final
+```
+
+## Visualisation
+
+```{python}
+from itertools import product
+figure_minor_i += 1
+theme = {"ytick.labelsize": "medium"}
+ref_cats_used = {k: v for k, v in ref_cats.items() if k in ["gender", "age_cat", "uk_immigration_status"]}
 shorter_iv = {r"uk\ immigration\ status": "immigration"}
 cols_removed = cols_to_remove
 cols_removed = [col for col in cols_to_remove if col != "multiple_disadvantage"]

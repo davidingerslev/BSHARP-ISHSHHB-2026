@@ -1,0 +1,99 @@
+---
+title: "10. Social Housing Lettings"
+date: 2026-06-24
+warning: false
+---
+
+```{python}
+# Setup code
+import pandas as pd
+
+import matplotlib
+import matplotlib.pyplot as plt
+matplotlib.rcParams.update({
+    'figure.figsize': (6, 9.5),
+    'font.size': 12,
+    'figure.constrained_layout.use': True
+})
+
+# https://dr.homechoicebristol.co.uk/Data/Pub/PublicWebsite/ImageLibrary/HomeChoice%20Bristol%20Information%20Sheet%2018-19%20-%20Jan%202019.docx
+# https://services.bristol.gov.uk/files/documents/10032-homechoice-bristol-information-sheet-07-24/file
+lettings_2013_2024 = {
+'FY': ['2013-2014', '2014-2015', '2015-2016', '2016-2017', '2017-2018',
+       '2019-2020', '2020-2021', '2021-2022', '2022-2023', '2023-2024'],
+ 'Bristol City Council ': [1532, 1329, 1363, 1445, 1301,
+                           1402, 1138, 1065, 1030, 970],
+ 'Housing Association ': [652, 700, 633, 603, 514, 480, 441, 391, 494, 565],
+ 'Total': [2184, 2029, 1996, 2048, 1815, 1882, 1579, 1456, 1524, 1535]
+}
+source_df = pd.DataFrame(lettings_2013_2024).set_index("FY")
+source_df.loc["2018-2019"] = pd.NA
+source_df.loc["2024-2025"] = pd.NA
+source_df = source_df.sort_index().reset_index()
+
+asset_themes = {"opaque": "assets_output/",
+                "transparent_lightbg": "assets_transparent_lightbg/",
+                "transparent_darkbg": "assets_transparent_darkbg/"}
+assets_output = asset_themes["opaque"]
+output_dir = assets_output
+transparent = False
+excel_output = {}
+```
+
+## Social housing lettings
+
+### All years
+
+```{python}
+import seaborn.objects as so
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+df = source_df
+wrap_width = 13
+fig = plt.figure(figsize=(6, 4))
+fig_title = "Social housing lettings in Bristol (all sizes)"
+fig.suptitle(fig_title)
+p = (so.Plot(df, x="FY", y="Total")
+     .add(so.Dots(fillalpha=0.7, alpha=1.0, pointsize=6, stroke=1.5))
+     .add(so.Line(linewidth=2.5))
+     .add(so.Line(linewidth=2.5, linestyle=(4, 2), color=".6"), so.PolyFit(1))
+     .label(x="", y="")
+     .limit(y=(0, 2300), x=(-0.5, 11.35))
+     .theme({"xtick.bottom": True})
+     .on(fig)
+     .plot()
+     )
+fig.axes[0].tick_params(axis="x", labelrotation=35, labelrotation_mode="xtick", length=7.5, pad=-2)
+plt.tight_layout()
+rect = patches.Rectangle((3.75, 50), 7.5, 2200, linewidth=2, edgecolor=".6", facecolor="none")
+fig.axes[0].add_patch(rect)
+rect = patches.Rectangle((-0.5, 0), 4.25 , 2300, linewidth=2, edgecolor="none", facecolor=".8", alpha=0.5, zorder=2)
+fig.axes[0].add_patch(rect)
+plt.text(11.1, 100, "Bristol SH research period", color=".5", ha="right")
+# fig.savefig(assets_output + "Figure_10.1.svg")
+plt.show(block=False)
+```
+
+### Relevant years
+
+```{python}
+df = source_df.iloc[4:]
+wrap_width = 13
+fig = plt.figure(figsize=(6, 4))
+fig_title = "Social housing lettings in Bristol (all sizes)"
+fig.suptitle(fig_title)
+p = (so.Plot(df, x="FY", y="Total")
+     .add(so.Dots(fillalpha=0.7, alpha=1.0, pointsize=6, stroke=1.5))
+     .add(so.Line(linewidth=2.5))
+     .add(so.Line(linewidth=2.5, linestyle=(4, 2), color=".6"), so.PolyFit(1))
+     .label(x="", y="")
+     .limit(y=(0, 2300))
+     .on(fig)
+     .plot()
+     )
+fig.axes[0].xaxis.set_tick_params(rotation=45)
+plt.tight_layout()
+fig.savefig(assets_output + "Figure_10.2.svg")
+plt.show(block=False)
+
+```

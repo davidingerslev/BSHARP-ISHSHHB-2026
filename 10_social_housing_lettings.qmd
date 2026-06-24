@@ -70,7 +70,7 @@ fig.axes[0].add_patch(rect)
 rect = patches.Rectangle((-0.5, 0), 4.25 , 2300, linewidth=2, edgecolor="none", facecolor=".8", alpha=0.5, zorder=2)
 fig.axes[0].add_patch(rect)
 plt.text(11.1, 100, "Bristol SH research period", color=".5", ha="right")
-# fig.savefig(assets_output + "Figure_10.1.svg")
+fig.savefig(assets_output + "Figure_10.1.svg")
 plt.show(block=False)
 ```
 

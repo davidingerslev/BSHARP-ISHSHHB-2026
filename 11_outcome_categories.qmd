@@ -165,7 +165,7 @@ fig = go.Figure(data=[go.Sankey(
     link=dict(source=source, target=target, value=value, color=colour)
 )])
 
-fig.update_layout(title_text="Route outcome category grouping and sizes", font_size=10, font_family="Arial")
+fig.update_layout(title=dict(text="Mapping of route outcomes into grouped categories", x=0.5, xanchor="center"), font_family="Arial")
 fig.write_image(assets_output + "Figure_11.1.svg", width=1050, height=650)
 fig.show()
 ```

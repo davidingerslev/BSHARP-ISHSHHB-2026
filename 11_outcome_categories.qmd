@@ -114,6 +114,8 @@ for x in outcome_classification.columns[:-1]:
 order_df = pd.concat(order_grp, axis=1)
 order_df = order_df.sort_values(list(reversed(order_df.columns)), ascending=False)
 outcome_classification = outcome_classification.loc[order_df.index]
+outcome_classification = outcome_classification.replace({"Independent accommodation": "Independent accom.",
+                                                         "Custody - Court Hearing/Arrest Warrant for Prior Offence": "Custody - As Result Of Prior Offence"})
 ```
 
 ```{python}
@@ -132,6 +134,7 @@ outcome_labels = unique_outcomes.copy()
 outcome_labels.loc[outcome_labels["col"] == "rt_outcome_lt", "outcome"] = (
     outcome_labels.loc[outcome_labels["col"] == "rt_outcome_lt", "outcome"].replace(val_dict))
 node_labels = outcome_labels["outcome"]
+node_labels.loc[34] = ""
 colours = sns.color_palette(n_colors=len(unique_outcomes))
 colours = np.round([[x*256 for x in colour] for colour in colours]).astype("int")
 colours = [f"rgba({r},{g},{b},0.7)" for r, g, b in colours]

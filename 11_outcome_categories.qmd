@@ -1,0 +1,162 @@
+---
+title: "11. Outcome categories"
+date: 2026-06-24
+warning: false
+---
+
+```{python}
+#|output: false
+# Setup code
+import pandas as pd
+from python_scripts import setup
+from python_scripts import services
+from python_scripts import helper
+from python_scripts import routes
+df, dffp = setup.setup(verbose=False)
+
+from python_scripts import distinct_pathways
+dpw_pls = distinct_pathways.get_distinct_pathways_routes(dffp)
+qrows = dpw_pls["rt_end_cat"] == "[Not ended or invalid end reason]"
+dpw_pls.loc[dpw_pls.pl_end_dt > distinct_pathways.dpw_end_dt, ["pl_end_dt", "pl_end_reason", "dur"]] = pd.NA
+dpw_pls.loc[qrows, "rt_end_cat"] = dpw_pls.loc[qrows, "pl_end_dt"].isna().map({True: "[Not ended]", False: "Missing data/error"})
+dpw_pls["rt_end_cat"] = dpw_pls["rt_end_cat"].str.replace("To care/hosp.", "To care/hospital")
+dpw_rt_starts = dpw_pls.groupby("route_id").head(1)
+dpw_rt_ends = dpw_pls.groupby("route_id").tail(1)
+dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1)  # 1 duplicate client but first entry has more detailed answers
+
+
+import matplotlib
+import matplotlib.pyplot as plt
+matplotlib.rcParams.update({
+    'figure.figsize': (6, 9.5),
+    'font.size': 12,
+    'figure.constrained_layout.use': True
+})
+
+asset_themes = {"opaque": "assets_output/",
+                "transparent_lightbg": "assets_transparent_lightbg/",
+                "transparent_darkbg": "assets_transparent_darkbg/"}
+assets_output = asset_themes["opaque"]
+output_dir = assets_output
+```
+
+```{python}
+periodMult = {"d": 1, "m": 365.25/12, "y": 365.25}
+years = periodMult["y"]
+time_measure = pd.Timedelta(days=(3.08 * years))
+dpw_rt_ends = dpw_pls.groupby("route_id").tail(1)
+dpw_rt_ends = dpw_rt_ends.set_index("route_id", drop=False)
+end_cols_to_drop = dpw_rt_ends.columns[
+    (
+        dpw_rt_ends.columns.isin(["gap", "dur"])
+        | dpw_rt_ends.columns.str.startswith("prev_")
+        | dpw_rt_ends.columns.str.startswith("vac_")
+        | dpw_rt_ends.columns.str.startswith("pl_")
+    )].to_list()
+end_cols_to_drop.remove("pl_end_reason")
+dpw_routes = dpw_rt_ends.drop(columns=end_cols_to_drop)
+dpw_routes["rt_start_dt"] = dpw_rt_starts.set_index("route_id")["pl_start_dt"].rename("rt_start_dt")
+dpw_routes["rt_end_dt"] = dpw_rt_ends["pl_end_dt"].rename("rt_end_dt")
+# Set up map from categories to outcomes
+rt_outcomes_map = {
+    'Independent accommodation': ['To social housing', 'To private rented'],
+    'Insecure outcome': ['To friends/family', 'Custody', '[Not ended]', 'To care/hospital', 'To external supported'],
+    'Returned to homelessness': ['Evicted', 'Abandoned'],
+    'Died': ['Died'],
+    # '_excluded': ['Other', 'Missing data/error']
+}
+rt_end_cat_map = {cat: outcome for outcome in rt_outcomes_map.keys() for cat in rt_outcomes_map[outcome]}
+dpw_rt_outcomes = dpw_routes[
+    # Only include routes where there has been long enough for the outcome to happen
+    (dpw_routes["rt_start_dt"] <= distinct_pathways.dpw_end_dt - time_measure)
+    # Only include routes that have a rt_end_cat that corresponds to an outcome
+    & (dpw_routes["rt_end_cat"].isin(rt_end_cat_map.keys()))]
+dpw_rt_outcomes["rt_outcome"] = dpw_rt_outcomes["rt_end_cat"].map(rt_end_cat_map)
+dpw_pl_endreason = (dpw_rt_outcomes["pl_end_reason"].astype("string")
+                    .str.replace(r" \([Pp]lanned\)$| \(Unplanned\)$|^\(A\&A\) |^\(FS\) ", "", regex=True)
+                    .where(dpw_rt_outcomes["rt_end_dt"] <= dpw_rt_outcomes["rt_start_dt"] + time_measure,
+                           other="[Not ended]")
+                    .copy())
+dpw_rt_end_cat = (dpw_rt_outcomes["rt_end_cat"].astype("string")
+                    .where(dpw_rt_outcomes["rt_end_dt"] <= dpw_rt_outcomes["rt_start_dt"] + time_measure,
+                           other="[Not ended]")
+                    .copy())
+dpw_rt_outcomes_0  = (dpw_rt_outcomes["rt_outcome"].astype("string")
+                    .where(dpw_rt_outcomes["rt_end_dt"] <= dpw_rt_outcomes["rt_start_dt"] + time_measure,
+                           other="[Not ended]")
+                    .copy())
+# Still being in supported accommodation is generally an insecure outcome
+dpw_rt_outcomes.loc[
+    (dpw_rt_outcomes["rt_end_dt"] > (dpw_rt_outcomes["rt_start_dt"] + time_measure)),
+    "rt_outcome"] = "Insecure outcome"
+# But being in level 3 or 4 of the homelessness pathways in self-contained (not shared)
+# means having your own flat with support staff occasionally visiting, i.e. similar
+# to independent accommdoation
+dpw_rt_timemeasure_dt = (dpw_rt_outcomes["rt_start_dt"] + time_measure).rename("rt_timemeasure_dt")
+rt_pls = dpw_pls.join(dpw_rt_timemeasure_dt, on="route_id", how="inner")
+rt_pls_at_timemeasures = rt_pls[(rt_pls["pl_start_dt"] < rt_pls["rt_timemeasure_dt"])
+                                & (
+                                    rt_pls["pl_end_dt"].isna()
+                                    | (rt_pls["pl_end_dt"] > rt_pls["rt_timemeasure_dt"])
+                                )].set_index("route_id")
+dpw_rt_outcomes.loc[
+    (dpw_rt_outcomes["rt_end_dt"] > (dpw_rt_outcomes["rt_start_dt"] + time_measure))
+    & (rt_pls_at_timemeasures["pathway_level"].isin(["3", "4"]))
+    & (rt_pls_at_timemeasures["shared"] == "No"),
+    "rt_outcome"] = "Independent accommodation"
+dpw_rt_outcomes_1 = dpw_rt_outcomes["rt_outcome"].rename("rt_outcome_lt").copy()
+
+cols = [dpw_pl_endreason, dpw_rt_end_cat, dpw_rt_outcomes_0, dpw_rt_outcomes_1]
+outcome_classification = pd.concat(cols, axis=1).value_counts().reset_index()
+order_grp = []
+for x in outcome_classification.columns[:-1]:
+    order_grp.append(outcome_classification.groupby(x)["count"].transform("sum").rename(x))
+order_df = pd.concat(order_grp, axis=1)
+order_df = order_df.sort_values(list(reversed(order_df.columns)), ascending=False)
+outcome_classification = outcome_classification.loc[order_df.index]
+```
+
+```{python}
+import plotly.graph_objects as go
+import numpy as np
+import seaborn as sns
+sns.set()
+
+unique_outcomes = pd.concat([outcome_classification[x].to_frame().stack().drop_duplicates().reset_index(1)
+                             for x in ["pl_end_reason", "rt_end_cat", "rt_outcome", "rt_outcome_lt"]],
+                            ignore_index=True).rename(columns={"level_1": "col", 0: "outcome"})
+node_labels = unique_outcomes["outcome"]
+colours = sns.color_palette("husl", n_colors=len(unique_outcomes))
+colours = np.round([[x*256 for x in colour] for colour in colours]).astype("int")
+colours = [f"rgb({r},{g},{b})" for r, g, b in colours]
+outcome_idx = unique_outcomes.reset_index().set_index(["col", "outcome"])
+link_grp = (outcome_classification.drop(columns="count").stack().rename("outcome").reset_index(1).rename(columns={"level_1": "col"})
+            .join(outcome_idx, on=["col", "outcome"]).drop(columns="outcome")
+            .pivot(columns="col", values="index"))
+link_grp["value"] = outcome_classification["count"]
+source = []
+target = []
+value = []
+for a, b in [("pl_end_reason", "rt_end_cat"),
+             ("rt_end_cat", "rt_outcome"),
+             ("rt_outcome", "rt_outcome_lt")]:
+    comparison = link_grp.groupby([a, b])["value"].sum().reset_index()
+    source += comparison[a].to_list()
+    target += comparison[b].to_list()
+    value += comparison["value"].to_list()
+
+fig = go.Figure(data=[go.Sankey(
+    node = dict(
+      pad = 15,
+      thickness = 20,
+      line = dict(color = "black", width = 0.5),
+      label = node_labels,
+    ),
+    link = dict( source = source, target = target, value = value)
+)])
+
+fig.update_layout(title_text="Route outcome category grouping and sizes", font_size=10, font_family="Arial")
+fig.write_image(assets_output + "Figure_11.1.svg")
+fig.show()
+```
+

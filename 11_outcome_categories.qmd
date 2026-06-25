@@ -125,18 +125,26 @@ sns.set()
 unique_outcomes = pd.concat([outcome_classification[x].to_frame().stack().drop_duplicates().reset_index(1)
                              for x in ["pl_end_reason", "rt_end_cat", "rt_outcome", "rt_outcome_lt"]],
                             ignore_index=True).rename(columns={"level_1": "col", 0: "outcome"})
-node_labels = unique_outcomes["outcome"]
-colours = sns.color_palette("husl", n_colors=len(unique_outcomes))
+val_dicts = (outcome_classification.groupby("rt_outcome_lt")["count"].sum().reset_index()
+             .apply(lambda x: {x["rt_outcome_lt"]: x["rt_outcome_lt"] + f" ({x["count"]:,})"}, axis=1))
+val_dict = {k: v for d in val_dicts for k, v in d.items()}
+outcome_labels = unique_outcomes.copy()
+outcome_labels.loc[outcome_labels["col"] == "rt_outcome_lt", "outcome"] = (
+    outcome_labels.loc[outcome_labels["col"] == "rt_outcome_lt", "outcome"].replace(val_dict))
+node_labels = outcome_labels["outcome"]
+colours = sns.color_palette(n_colors=len(unique_outcomes))
 colours = np.round([[x*256 for x in colour] for colour in colours]).astype("int")
-colours = [f"rgb({r},{g},{b})" for r, g, b in colours]
+colours = [f"rgba({r},{g},{b},0.7)" for r, g, b in colours]
 outcome_idx = unique_outcomes.reset_index().set_index(["col", "outcome"])
-link_grp = (outcome_classification.drop(columns="count").stack().rename("outcome").reset_index(1).rename(columns={"level_1": "col"})
+link_grp = (outcome_classification.drop(columns="count")
+            .stack().rename("outcome").reset_index(1).rename(columns={"level_1": "col"})
             .join(outcome_idx, on=["col", "outcome"]).drop(columns="outcome")
             .pivot(columns="col", values="index"))
 link_grp["value"] = outcome_classification["count"]
 source = []
 target = []
 value = []
+colour = []
 for a, b in [("pl_end_reason", "rt_end_cat"),
              ("rt_end_cat", "rt_outcome"),
              ("rt_outcome", "rt_outcome_lt")]:
@@ -144,19 +152,21 @@ for a, b in [("pl_end_reason", "rt_end_cat"),
     source += comparison[a].to_list()
     target += comparison[b].to_list()
     value += comparison["value"].to_list()
+    colour += comparison[b].apply(lambda x: colours[x] if x!= 21 else colours[0]).to_list()
 
 fig = go.Figure(data=[go.Sankey(
-    node = dict(
-      pad = 15,
-      thickness = 20,
-      line = dict(color = "black", width = 0.5),
-      label = node_labels,
+    node=dict(
+      pad=15,
+      thickness=20,
+      line=dict(color="black", width=0.5),
+      label=node_labels,
+      color=colours[0]
     ),
-    link = dict( source = source, target = target, value = value)
+    link=dict(source=source, target=target, value=value, color=colour)
 )])
 
 fig.update_layout(title_text="Route outcome category grouping and sizes", font_size=10, font_family="Arial")
-fig.write_image(assets_output + "Figure_11.1.svg")
+fig.write_image(assets_output + "Figure_11.1.svg", width=1050, height=650)
 fig.show()
 ```
 

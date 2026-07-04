@@ -27,6 +27,7 @@ def _get_trusted_assessments_real(
         dtype=tr_a_dtypes,
         parse_dates=tr_a_dates,
         dayfirst=True,
+        low_memory=False,
     )
     # Short column names
     df_tr_a = df_tr_a.rename(columns=tr_a_col_map)
@@ -46,6 +47,7 @@ def _get_trusted_assessments_real(
             dir / filename,
             dtype=tr_a_sn_dtypes[prefix],
             usecols=tr_a_sn_dtypes[prefix].keys(),
+            low_memory=False,
         )
         df_tr_a_sn = helper.short_cols(df_tr_a_sn, symbol_replacement="_")
         df_tr_a_sn = df_tr_a_sn.dropna(subset="tr_a_id").set_index("tr_a_id")

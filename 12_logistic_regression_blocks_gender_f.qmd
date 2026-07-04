@@ -1,0 +1,2786 @@
+---
+title: "12. Logistic regression modelling in blocks by gender (female) WIP"
+date: 2026-06-28
+warning: false
+toc: true
+---
+
+
+# Prepare
+
+```{python}
+# Setup code
+import pandas as pd
+from python_scripts import setup
+from python_scripts import services
+from python_scripts import helper
+from python_scripts import routes
+df, dffp = setup.setup(verbose=False)
+
+from python_scripts import distinct_pathways
+dpw_pls = distinct_pathways.get_distinct_pathways_routes(dffp)
+qrows = dpw_pls["rt_end_cat"] == "[Not ended or invalid end reason]"
+dpw_pls.loc[dpw_pls.pl_end_dt > distinct_pathways.dpw_end_dt, ["pl_end_dt", "pl_end_reason", "dur"]] = pd.NA
+dpw_pls.loc[qrows, "rt_end_cat"] = dpw_pls.loc[qrows, "pl_end_dt"].isna().map({True: "[Not ended]", False: "Missing data/error"})
+dpw_pls["rt_end_cat"] = dpw_pls["rt_end_cat"].str.replace("To care/hosp.", "To care/hospital")
+dpw_pls = dpw_pls[dpw_pls["gender"] == "Female"]
+dpw_rt_starts = dpw_pls.groupby("route_id").head(1)
+dpw_rt_ends = dpw_pls.groupby("route_id").tail(1)
+dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1)  # 1 duplicate client but first entry has more detailed answers
+
+import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn.objects as so
+import seaborn as sns
+
+matplotlib.rcParams.update({
+    'figure.figsize': (6.2, 4.1),
+    'font.size': 12,
+    'figure.constrained_layout.use': True
+})
+
+import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor as sm_vif
+import scipy.stats as ss
+import itertools
+import json
+from IPython.display import Markdown
+
+asset_themes = {"opaque": "assets_output/",
+                "transparent_lightbg": "assets_transparent_lightbg/",
+                "transparent_darkbg": "assets_transparent_darkbg/"}
+assets_output = asset_themes["opaque"]
+output_dir = assets_output
+transparent = False
+excel_output = {}
+dpw_pls_orig = dpw_pls
+odds_r_tables = []
+figure_major_i = 9
+figure_minor_i = 0
+# Alpha
+alpha = 0.05
+
+
+def get_frequencies(series, sort=True, dropna=True, dropna_pct=True):
+    n = series.value_counts(sort=sort, dropna=dropna).rename("n")
+    pct = 100 * series.value_counts(sort=sort, dropna=(dropna or dropna_pct), normalize=True).rename("pct")
+    fq_tbl = pd.concat([n, pct], axis=1)
+    return fq_tbl
+
+
+def cols_with_dummies(cols, dummy_cols):
+    return sum([dummy_cols[col] if col in dummy_cols.keys() else [col] for col in cols], [])
+
+
+def get_ivs(dv, cols_to_exclude, selected_chrs=None):
+    global dpw_pls, dpw_rt_starts, dpw_clis, characteristics
+    if selected_chrs is None:
+        iv_cols_used = sum(characteristics.values(), [])
+    else:
+        iv_cols_used = sum(selected_chrs.values(), [])
+    iv_cols_used = [col for col in iv_cols_used if col not in cols_to_exclude]
+    # Get relevant IVs
+    idx_type = dv.index.name
+    match idx_type:
+        case "vac_id":
+            iv_df = dpw_pls
+        case "route_id":
+            iv_df = dpw_rt_starts
+        case "o_cli_id":
+            iv_df = dpw_clis
+    iv_df = iv_df[[idx_type] + iv_cols_used].set_index(idx_type).loc[dv.index]
+
+    # Add non-categorical variables
+    Xarr = [iv_df.select_dtypes(exclude="category")]
+
+    # Add dummies for categorical variables
+    ref_cats = {}
+    dummy_cols = {}
+    na_values = ["_[Missing data]", "_Unknown"]
+    cat_cols = iv_df.select_dtypes(include="category")
+    for col, content in cat_cols.items():
+        cat_cols[col] = cat_cols[col].replace(na_values, pd.NA)
+        cat_order = list(cat_cols[col].value_counts().index)
+        ref_cats[col] = f"{col}_{cat_order[0]}"  # Reference category is most common one
+        cat_cols[col] = cat_cols[col].cat.reorder_categories(cat_order)
+        # Get dummies for this characteristic
+        Xn = pd.get_dummies(cat_cols[col], prefix=col, drop_first=True).astype("boolean")
+        Xn.loc[cat_cols[col].isnull()] = pd.NA
+        dummy_cols[col] = list(Xn.columns)
+        Xarr.append(Xn)
+    binaries = list(iv_df.select_dtypes(include="boolean").columns)
+
+    col_order = cols_with_dummies(iv_cols_used, dummy_cols)
+
+    X = pd.concat(Xarr, axis=1)[col_order]
+    # X = X.dropna()
+
+    # Add a constant to ensure intercept is calculated
+    Xc = sm.add_constant(X).rename(columns={"const": "(Intercept)"})
+    return X, Xc, iv_df, iv_cols_used, ref_cats, binaries, dummy_cols
+
+
+def dv_xc_remove_value(dv, xc, cols_d, value):
+    selected_xc = Xc[~Xc[value]].drop(columns=value)
+    selected_dv = dv.loc[selected_xc.index]
+    cols_d = [x for x in cols_d if x != value]
+    return selected_dv, selected_xc, cols_d
+
+
+def chi2_cramers(iv_df_used, iv1, iv2):
+    ct = pd.crosstab(iv_df_used[iv1], iv_df_used[iv2])
+    chi2, pvalue, dof, arr = ss.chi2_contingency(ct)
+    if pvalue < 0.001:
+        p_sig = "***"
+    elif pvalue < 0.01:
+        p_sig = "**"
+    elif pvalue < alpha:
+        p_sig = "*"
+    else:
+        p_sig = ""
+    cr_v = ss.contingency.association(ct, method="cramer")
+    return (chi2, pvalue, p_sig, dof, cr_v)
+
+
+def iv_assoc(iv_df, iv_cols):
+    iv_df_used = iv_df[iv_cols]
+    iv_df_used = iv_df_used.dropna()
+    # Test chi squared and Cramer's V for contingency tables
+    iv_prod = [(iv1, iv2)
+               for iv1, iv2
+               in itertools.product(iv_df_used.select_dtypes(exclude="number").columns, repeat=2)
+               if iv1 != iv2]
+    results = (pd.DataFrame([(iv1, iv2) + chi2_cramers(iv_df_used, iv1, iv2) for iv1, iv2 in iv_prod],
+                            columns=["iv1", "iv2", "chi2", "p", "*", "df", "V"]))
+    results["iv1"] = pd.Categorical(results["iv1"], categories=iv_cols)
+    results["iv2"] = pd.Categorical(results["iv2"], categories=iv_cols)
+    results["*"] = pd.Categorical(results["*"], categories=["", "*", "**", "***"])
+    short_ivs = results["iv2"].cat.categories.str.replace(r"^(.)[^_]*|_(.)[^_]*", r"\1\2", regex=True)
+    results["iv2"] = results["iv2"].cat.rename_categories(short_ivs)
+    disp = results.pivot(index="iv2", columns="iv1", values=["V", "*"]).T.swaplevel().sort_index(ascending=[True, False])
+    results["iv2"] = results["iv2"].cat.rename_categories(iv_cols)
+    return results, disp
+
+
+def vif(Xc):
+    vif_data = pd.DataFrame()
+    vif_data["Feature"] = Xc.columns
+    vif_data["VIF"] = [sm_vif(Xc.dropna().astype("float").values, i) for i in range(len(Xc.columns))]
+    vif_data = vif_data.set_index("Feature").sort_values("VIF", ascending=False)
+    return vif_data
+
+
+def binomial_regression(dv, Xc, cols_to_remove, dummy_cols):
+    global prev_results
+    selectedXc = Xc.loc[:, ~Xc.columns.isin(cols_with_dummies(cols_to_remove, dummy_cols))].dropna()
+    selecteddv = dv.loc[selectedXc.index]
+    results = sm.Logit(selecteddv, selectedXc.astype("float")).fit()
+    summary = results.summary(alpha=alpha)
+    params = results.params
+    coef = params.rename("odds_r")
+    ci = results.conf_int()
+    ci.columns = [f"[{alpha/2:.3f}", f"{1-alpha/2:.3f}]"]
+    odds_ratios = np.exp(pd.concat([coef, ci], axis=1))
+    pvalues = results.pvalues
+    pvalues = pvalues.rename("p")
+    pvalues_sig = (pvalues <= alpha).replace({True: "*", False: ""}).rename("*")
+    results_or = pd.concat([pvalues, pvalues_sig, odds_ratios], axis=1)
+    results_or.columns.name = "Odds Ratios"
+    if len(cols_to_remove) != 0:
+        summary.add_extra_txt([f"Variables removed: {cols_to_remove}"])
+        prev_coef = prev_results.params
+        prev_coef = prev_coef.rename("prev_coef")
+        coef = results.params
+        coef = coef.rename("coef")
+        diff = (pd.concat([prev_coef.loc[coef.index], coef], axis=1)
+                .assign(diff_pct=lambda x: 100*(x.diff(axis=1).iloc[:, -1]/x["prev_coef"]).round(3)))
+        results_or = pd.concat([results_or, diff], axis=1)
+    prev_results = results
+    display(summary)
+    results_or = results_or.loc[results_or["p"].sort_values(ascending=False).index]
+    with pd.option_context("display.float_format", "{:,.3f}".format):
+        display(results_or)
+    print(f"Psuedo R^2: {results.prsquared}")
+    print("-" * 50)
+    print("")
+    return results, summary, results_or
+
+
+def multinomial_regression(dv, Xc, cols_to_remove, dummy_cols):
+    global prev_results
+    selectedXc = Xc.loc[:, ~Xc.columns.isin(cols_with_dummies(cols_to_remove, dummy_cols))].dropna()
+    selecteddv = dv.loc[selectedXc.index]
+    results = sm.MNLogit(selecteddv, selectedXc.astype("float")).fit()
+    summary = results.summary(alpha=alpha)
+    params = results.params
+    params.columns = list(dv.cat.categories[1:])
+    coef = params.unstack().rename("odds_r")
+    ci = results.conf_int()
+    ci.columns = [f"[{alpha/2:.3f}", f"{1-alpha/2:.3f}]"]
+    odds_ratios = np.exp(pd.concat([coef, ci], axis=1))
+    pvalues = results.pvalues
+    pvalues.columns = list(dv.cat.categories[1:])
+    pvalues = pvalues.unstack().rename("p")
+    pvalues_sig = (pvalues <= alpha).replace({True: "*", False: ""}).rename("*")
+    results_or = pd.concat([pvalues, pvalues_sig, odds_ratios], axis=1)
+    results_or.columns.name = "Odds Ratios"
+    if len(cols_to_remove) != 0:
+        summary.add_extra_txt([f"Variables removed: {cols_to_remove}"])
+        prev_coef = prev_results.params
+        prev_coef.columns = list(dv.cat.categories[1:])
+        prev_coef = prev_coef.unstack().rename("prev_coef")
+        coef = results.params
+        coef.columns = list(dv.cat.categories[1:])
+        coef = coef.unstack().rename("coef")
+        diff = (pd.concat([prev_coef.loc[coef.index], coef], axis=1)
+                .assign(diff_pct=lambda x: 100*(x.diff(axis=1).iloc[:, -1]/x["prev_coef"]).round(3)))
+        results_or = pd.concat([results_or, diff], axis=1)
+    prev_results = results
+    display(summary)
+    results_or = results_or.loc[results_or["p"].groupby(level=1).transform("min").sort_values(ascending=False).index].swaplevel()
+    with pd.option_context("display.float_format", "{:,.3f}".format, "display.max_rows", 120):
+        display(results_or.head(120))
+    print(f"Psuedo R^2: {results.prsquared}")
+    print("-" * 50)
+    print("")
+    return results, summary, results_or
+
+
+def plot_odds_r(dv_str, dv_ref_cat, iv_ref_cats, results_or_final, x_max=None, wrap=None, replacements={}, theme={}, figsize=(9.5, 6), cols_removed=[]):
+    global figure_major_i, figure_minor_i
+    f_i = f"{figure_major_i}.{figure_minor_i}"
+    plot_or = results_or_final.dropna()
+    ci_lo = plot_or.columns[-2]
+    ci_hi = plot_or.columns[-1]
+
+    if results.llr_pvalue < 0.001:
+        pvalue_text = r"$p<0.001$. "
+    else:
+        pvalue_text = r"$p=" + f"{results.llr_pvalue:.3f}$. "
+    if len(cols_removed) == 0:
+        excluded_variables_text = "No variables excluded."
+    else:
+        excluded_variables_text = "Variables excluded (not statistically significant in this model): " + ", ".join(cols_removed) + "."
+    footer_text = (r"Model statistics: pseudo-$R^2=" + f"{results.prsquared:.3f}$, " + pvalue_text + excluded_variables_text)
+
+    if type(plot_or.index) is pd.MultiIndex:
+        # 1. Remove Intercept rows
+        plot_or = plot_or.drop(index=plot_or.loc[(slice(None), "(Intercept)"), :].index)
+        # 2. Add iv_ref_cat rows with odds_r and both C.I.s == 1.0 for IVs still in the model
+        ref_cat_data = {"p": pd.NA, "*": "", "odds_r": 1.0, ci_lo: 1.0, ci_hi: 1.0}
+        ref_cat_idx = pd.MultiIndex.from_tuples(itertools.product(plot_or.index.levels[0], iv_ref_cats.values()))
+        ref_cat_df = pd.DataFrame(data=ref_cat_data, index=ref_cat_idx)
+        ref_cat_title_data = {"p": pd.NA, "*": "", "odds_r": pd.NA, ci_lo: pd.NA, ci_hi: pd.NA}
+        ref_cat_title_bold = {i: r"$\bf{" + i.replace("_", r"\ ") + "}$" for i in iv_ref_cats.keys()}
+        ref_cat_title_idx = pd.MultiIndex.from_tuples(itertools.product(plot_or.index.levels[0], iv_ref_cats.keys()))
+        ref_cat_title_df = pd.DataFrame(data=ref_cat_title_data, index=ref_cat_title_idx)
+        plot_or = pd.concat([plot_or, ref_cat_df, ref_cat_title_df]).sort_index().rename_axis(index=["dv", "iv"]).reset_index()
+        # Shorten IVs by separating into groups
+        plot_or["iv"] = plot_or["iv"].str.replace("|".join([x + "_" for x in iv_ref_cats.keys()]), "", regex=True)
+        plot_or["iv"] = plot_or["iv"].replace(ref_cat_title_bold)
+        # Bold binaries
+        binaries_bold = {i: r"$\bf{" + i.replace("_", r"\ ") + "}$" for i in binaries}
+        plot_or["iv"] = plot_or["iv"].replace(binaries_bold)
+        # short_ivs = plot_or.index.levels[1].str.replace("|".join([x + "_" for x in iv_ref_cats.keys()]), "", regex=True)
+        # 3. Add title "vs dv_ref_cat"
+        # plot_or.index = plot_or.index.set_levels(plot_or.index.levels[0] + "\nvs.\n" + dv_ref_cat, level=0)
+        # plot_or.index = plot_or.index + "\nvs.\n" + dv_ref_cat
+        plot_or["dv"] = plot_or["dv"] + "\nvs.\n" + dv_ref_cat
+    else:
+        # 1. Remove Intercept rows
+        plot_or = plot_or.drop(index="(Intercept)")
+        # 2. Add iv_ref_cat rows with odds_r and both C.I.s == 1.0 for IVs still in the model
+        ref_cat_data = {"p": pd.NA, "*": "", "odds_r": 1.0, ci_lo: 1.0, ci_hi: 1.0}
+        ref_cat_idx = list(iv_ref_cats.values())
+        ref_cat_df = pd.DataFrame(data=ref_cat_data, index=ref_cat_idx)
+        ref_cat_title_data = {"p": pd.NA, "*": "", "odds_r": pd.NA, ci_lo: pd.NA, ci_hi: pd.NA}
+        ref_cat_title_bold = {i: r"$\bf{" + i.replace("_", r"\ ") + "}$" for i in iv_ref_cats.keys()}
+        ref_cat_title_idx = iv_ref_cats.keys()
+        ref_cat_title_df = pd.DataFrame(data=ref_cat_title_data, index=ref_cat_title_idx)
+        plot_or = pd.concat([plot_or, ref_cat_df, ref_cat_title_df]).sort_index().rename_axis(index="iv").reset_index()
+        plot_or["iv"] = plot_or["iv"].str.replace("|".join([x + "_" for x in iv_ref_cats.keys()]), "", regex=True)
+        plot_or["iv"] = plot_or["iv"].replace(ref_cat_title_bold)
+        binaries_bold = {i: r"$\bf{" + i.replace("_", r"\ ") + "}$" for i in binaries}
+        plot_or["iv"] = plot_or["iv"].replace(binaries_bold)
+
+    for pat, repl in replacements.items():
+        plot_or["iv"] = plot_or["iv"].str.replace(pat, repl)
+    plot_or["*"] = (plot_or["*"] == "*") & plot_or["*"].notna()
+    # lines = plot_or[["dv", "iv"]].assign(line_1=1)
+    # log_plot_or = pd.concat([plot_or.iloc[:, :-3], np.log(plot_or.iloc[:, -3:])], axis=1)
+    fig = plt.figure(figsize=figsize)
+    fig.suptitle("Odds ratios for " + dv_str[:1].lower() + dv_str[1:], wrap=True)
+    txt = fig.supxlabel(t=footer_text, x=0.01, y=0.01, ha="left", va="bottom", fontsize="small", wrap=True)
+    # fig_top, fig_bottom = fig.subfigures(2, 1, height_ratios=[44, 1])
+    # fig_top = fig
+    # fig_bottom = fig
+    if x_max is None:
+        max_x_axis_exp = 1.04 * np.log(plot_or[ci_hi].max())
+        min_x_axis_exp_mag = 1.04 * abs(np.log(plot_or[ci_lo].min()))
+        max_x_axis_exp = max(max_x_axis_exp, min_x_axis_exp_mag)
+        max_x_axis_exp = np.log(10) if max_x_axis_exp < np.log(10) else max_x_axis_exp
+    else:
+        max_x_axis_exp = np.log(x_max)
+    x_limits = (np.exp(-max_x_axis_exp), np.exp(max_x_axis_exp))
+    palette = sns.color_palette("Paired")
+    colours = [palette[1], palette[0]]
+    colours[1] = tuple((c * 0.8 for c in colours[1]))
+    updated_theme = {"font.size": 9, "xtick.labelsize": "small", "ytick.labelsize": "medium",
+                     "axes.titlesize": "medium", "axes.grid.which": "major",
+                     "xtick.bottom": True, "xtick.minor.size": 3.5, "xtick.major.size": 7}
+    updated_theme.update(theme)
+    p = (so.Plot(data=plot_or, y="iv", x="odds_r", xmin=ci_lo, xmax=ci_hi, color="*")
+         .label(x="", y="")
+         .limit(x=x_limits)
+         # .layout(size=(9.5, 6), engine="constrained")
+         .theme(updated_theme)
+         .scale(color=colours)
+         .add(so.Dots(pointsize=6, fillalpha=1.0, artist_kws={"zorder": 2.5}))
+         .add(so.Range())
+         .add(so.Dash(), x=ci_lo, width=0.2)
+         .add(so.Dash(), x=ci_hi, width=0.2)
+         )
+    if type(results_or_final.index) is pd.MultiIndex:
+        p = p.facet("dv", wrap=wrap)
+    fig_str = assets_output + f"Figure_{f_i}.svg"
+    pl = p.on(fig).plot()
+    # txt_bb = txt.get_window_extent(renderer=fig.canvas.get_renderer())
+    # fig.get_layout_engine().set(h_pad=(6/72, 0))
+    fig.legends.pop(0)
+    plt.xscale("log")
+    for ax in fig.axes:
+        ax.axvline(x=1, color="black", alpha=0.5, linestyle=(0, (5, 3)), zorder=1.01)
+        ax.xaxis.grid(True, which="major")
+        # ax.xaxis.set_major_formatter(matplotlib.ticker.LogFormatterExponent())
+    ax.xaxis.set_major_formatter(matplotlib.ticker.StrMethodFormatter("{x:g}"))
+    fig.tight_layout(rect=[0,0,1,1], pad=0.5, h_pad=1)
+    fig.savefig(fig_str)
+    return fig_str, fig
+
+
+def add_interpretation_cols(results_or_final):
+    pvalue = results_or_final.iloc[:, 0:2]  # First 2 cols
+    odds_ratios = results_or_final.iloc[:, 2:]  # Last 3 cols
+    odds_pct_diff = ((odds_ratios - 1).map("{:.1%}".format)
+                     .where(pvalue["*"] == "*", other=""))
+    return results_or_final.join(odds_pct_diff, rsuffix="_d%")
+```
+
+## Collect dependent variables
+
+```{python}
+#| output: asis
+dv_dict = {}
+#####################################
+# 3.1 Entry point into BAHSA services
+#####################################
+rt_entries = dpw_rt_starts.copy()
+rt_entries["pathway"] = rt_entries["svc_type_short"]
+rt_entries["pathway_type"] = (rt_entries["pathway"] == "Substance Misuse Pathway").map({True: "Substance Misuse", False: "Homelessness"})
+dv_dict["Entry point into BAHSA services (pathway type and level)"] = (
+    rt_entries[["route_id", "pathway_type", "pathway_level"]].set_index("route_id"))
+#################################################
+# 3.1.1 Entry point into BAHSA: pathway and level
+#################################################
+rt_entries = dpw_rt_starts.copy()
+print(f"Routes: {len(rt_entries):,}")
+rt_entries["pway_and_lvl"] = rt_entries["svc_typelvl"]
+dv_dict["Entry point into BAHSA services (pathway and level)"] = (
+    rt_entries[["route_id", "pway_and_lvl"]].set_index("route_id"))
+#####################################
+# 3.2 Route outcomes after 3.08 years
+#####################################
+periodMult = {"d": 1, "m": 365.25/12, "y": 365.25}
+years = periodMult["y"]
+time_measure = pd.Timedelta(days=(3.08 * years))
+dpw_rt_ends = dpw_pls.groupby("route_id").tail(1)
+dpw_rt_ends = dpw_rt_ends.set_index("route_id", drop=False)
+end_cols_to_drop = dpw_rt_ends.columns[
+    (
+        dpw_rt_ends.columns.isin(["gap", "dur"])
+        | dpw_rt_ends.columns.str.startswith("prev_")
+        | dpw_rt_ends.columns.str.startswith("vac_")
+        | dpw_rt_ends.columns.str.startswith("pl_")
+    )]
+dpw_routes = dpw_rt_ends.drop(columns=end_cols_to_drop)
+dpw_routes["rt_start_dt"] = dpw_rt_starts.set_index("route_id")["pl_start_dt"].rename("rt_start_dt")
+dpw_routes["rt_end_dt"] = dpw_rt_ends["pl_end_dt"].rename("rt_end_dt")
+# Set up map from categories to outcomes
+rt_outcomes_map = {
+    'Independent accommodation': ['To social housing', 'To private rented'],
+    'Insecure outcome': ['To friends/family', 'Custody', '[Not ended]', 'To care/hospital', 'To external supported'],
+    'Returned to homelessness': ['Evicted', 'Abandoned'],
+    'Died': ['Died'],
+    # '_excluded': ['Other', 'Missing data/error']
+}
+rt_end_cat_map = {cat: outcome for outcome in rt_outcomes_map.keys() for cat in rt_outcomes_map[outcome]}
+dpw_rt_outcomes = dpw_routes[
+    # Only include routes where there has been long enough for the outcome to happen
+    (dpw_routes["rt_start_dt"] <= distinct_pathways.dpw_end_dt - time_measure)
+    # Only include routes that have a rt_end_cat that corresponds to an outcome
+    & (dpw_routes["rt_end_cat"].isin(rt_end_cat_map.keys()))]
+dpw_rt_outcomes["rt_outcome"] = dpw_rt_outcomes["rt_end_cat"].map(rt_end_cat_map)
+# Still being in supported accommodation is generally an insecure outcome
+dpw_rt_outcomes.loc[
+    (dpw_rt_outcomes["rt_end_dt"] > (dpw_rt_outcomes["rt_start_dt"] + time_measure)),
+    "rt_outcome"] = "Insecure outcome"
+# But being in level 3 or 4 of the homelessness pathways in self-contained (not shared)
+# means having your own flat with support staff occasionally visiting, i.e. similar
+# to independent accommdoation
+dpw_rt_timemeasure_dt = (dpw_rt_outcomes["rt_start_dt"] + time_measure).rename("rt_timemeasure_dt")
+rt_pls = dpw_pls.join(dpw_rt_timemeasure_dt, on="route_id", how="inner")
+rt_pls_at_timemeasures = rt_pls[(rt_pls["pl_start_dt"] < rt_pls["rt_timemeasure_dt"])
+                                & (
+                                    rt_pls["pl_end_dt"].isna()
+                                    | (rt_pls["pl_end_dt"] > rt_pls["rt_timemeasure_dt"])
+                                )].set_index("route_id")
+dpw_rt_outcomes.loc[
+    (dpw_rt_outcomes["rt_end_dt"] > (dpw_rt_outcomes["rt_start_dt"] + time_measure))
+    & (rt_pls_at_timemeasures["pathway_level"].isin(["3", "4"]))
+    & (rt_pls_at_timemeasures["shared"] == "No"),
+    "rt_outcome"] = "Independent accommodation"
+dv_dict["Route outcomes after 3.08 years"] = (
+                          dpw_rt_outcomes[["route_id", "rt_outcome"]].set_index("route_id"))
+#######################################################################
+# 3.3 Outcomes at a period of time after a person's first route started
+#######################################################################
+# dpw_cli_outcomes is the dpw_rt_outcome that is active after the measured time since the person's first route started
+time_measure = pd.Timedelta(days=(3.08 * years))
+# Relevant date for each client is their first route start date plus the time measure period
+dpw_cli_timemeasure_dt = (dpw_rt_outcomes
+                          .set_index("o_cli_id")
+                          .groupby("o_cli_id")
+                          .head(1)
+                          ["rt_start_dt"]
+                          + time_measure).rename("cli_timemeasure_dt")
+dpw_cli_outcomes = dpw_rt_outcomes.join(dpw_cli_timemeasure_dt, on="o_cli_id").set_index("o_cli_id")
+# Select the latest route that started before the outcome date
+dpw_cli_outcomes = ((dpw_cli_outcomes[dpw_cli_outcomes["rt_start_dt"] <= dpw_cli_outcomes["cli_timemeasure_dt"]])
+                    .groupby("o_cli_id").tail(1)).rename(columns={"rt_outcome": "cli_outcome"})
+cli_pls = dpw_pls.join(dpw_cli_timemeasure_dt, on="o_cli_id")
+cli_pls_at_timemeasures = cli_pls[(cli_pls["pl_start_dt"] < cli_pls["cli_timemeasure_dt"])
+                                  & (
+                                      cli_pls["pl_end_dt"].isna()
+                                      | (cli_pls["pl_end_dt"] > cli_pls["cli_timemeasure_dt"])
+                                  )].set_index("o_cli_id")
+# Still being in supported accommodation is generally an insecure outcome
+dpw_cli_outcomes.loc[cli_pls_at_timemeasures.index, "cli_outcome"] = "Insecure outcome"
+# But being in level 3 or 4 of the homelessness pathways in self-contained (not shared)
+# means having your own flat with support staff occasionally visiting, i.e. similar
+# to independent accommdoation
+equiv_ind_at_time = cli_pls_at_timemeasures[
+    (cli_pls_at_timemeasures["shared"] == "No")
+    & cli_pls_at_timemeasures["pathway_level"].isin(["3", "4"])]
+dpw_cli_outcomes.loc[equiv_ind_at_time.index, "cli_outcome"] = "Independent accommodation"
+dpw_cli_outcomes["cli_start_dt"] = (dpw_rt_starts.set_index("o_cli_id")
+                                    .groupby("o_cli_id").head(1)["pl_start_dt"])
+dpw_cli_outcomes["cli_end_dt"] = (dpw_rt_ends.set_index("o_cli_id")
+                                  .groupby("o_cli_id").tail(1)["pl_end_dt"])
+dv_dict["Outcomes 3.08 years after a person's first route started"] = (
+                          dpw_cli_outcomes[["cli_outcome"]])
+##############################################
+# 3.4 Returning to use services multiple times
+##############################################
+dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1).set_index("o_cli_id")
+dpw_clis["multiple_returns"] = (dpw_rt_starts.groupby(['o_cli_id']).size() >= 3).rename("multiple_returns")
+dv_dict["People with multiple returns during 7.5 yrs"] = (
+                          dpw_clis[["multiple_returns"]])
+################################
+# 3.5 Using services longer-term
+################################
+durations = dpw_pls.set_index(["o_cli_id", "route_id"])[["dur", "pl_start_dt"]]
+durations["dur_days"] = durations["dur"].dt.days
+durations["dur_days"] = durations["dur_days"].fillna(1 + (distinct_pathways.dpw_end_dt - durations.pl_start_dt).dt.days)
+durations = durations.drop(columns=["dur", "pl_start_dt"]).groupby(["o_cli_id", "route_id"]).sum()
+# Set threshold to top 10% of route durations
+longer_term_threshold_days = durations.quantile(0.9)
+dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1).set_index("o_cli_id")
+dpw_clis["has_longer_term_rt"] = ((durations > longer_term_threshold_days)
+                                  .groupby("o_cli_id").any())
+dv_dict["People with a route in top 10% of route durations"] = (
+                          dpw_clis[["has_longer_term_rt"]])
+######################################################################
+# 3.6 Returns within 2 years after moving to independent accommodation
+######################################################################
+# Note: Not enough returns after moves to independent accommodation to analyse much further.
+# time_measure options: ['90d', '6m', '15m', '18m', '2y', '5y']
+time_measure = "2y"
+time_offset = distinct_pathways.stable_offsets[time_measure]
+return_col = f"after_rt_ret_within_{time_measure}"
+eligible_route_ends = dpw_rt_ends[
+    # Only include routes that have a rt_end_cat that corresponds to independent accommodation
+    dpw_rt_ends["rt_end_cat"].isin(["To social housing", "To private rented"])
+    # Only include routes where there has been long enough for the outcome to happen
+    & (dpw_rt_ends["pl_end_dt"] < distinct_pathways.dpw_end_dt - time_offset)]
+dv_dict["Returns within 2 years after moving to independent accommodation"] = (
+                          eligible_route_ends[["route_id", return_col]].set_index("route_id"))
+#########################################
+# 3.7 Outcomes from individual placements
+#########################################
+pl_excluded = {}
+pl_end_cat_map = routes.get_end_cats_map()
+pl_outcomes = dpw_pls.set_index("vac_id")
+pl_outcomes["pl_end_cat"] = pl_outcomes["pl_end_reason"].map(pl_end_cat_map)
+next_pls = (dpw_pls.loc[dpw_pls["prev_vac_id"].notna()]
+            .rename(columns={"vac_id": "next_vac_id", "prev_vac_id": "vac_id", "svc_type_short": "pathway"})
+            .set_index("vac_id"))
+next_pls["pathway"] = next_pls["pathway"].cat.remove_unused_categories()
+pl_outcomes.loc[next_pls.index, "pl_end_cat"] = "Internal move"
+pl_outcomes.loc[dpw_pls.loc[dpw_pls["prev_svc_id"] == dpw_pls["svc_id"], "prev_vac_id"].values, "pl_end_cat"] = "Internal move: same service"
+pl_outcomes["pathway"] = pl_outcomes["svc_type_short"].cat.remove_unused_categories()
+pl_outcomes["pathway_type"] = (pl_outcomes["pathway"] == "Substance Misuse Pathway").map({True: "Substance Misuse", False: "Homelessness"})
+pl_outcomes["ended"] = pl_outcomes["pl_end_dt"].isna().map({True: "Current", False: "Ended"})
+level_diff = (pl_outcomes.loc[pl_outcomes["pl_end_cat"] == "Internal move", ["pathway", "pathway_level"]]
+              .join(next_pls[["pathway", "pathway_level"]].add_prefix("next_"))
+              .assign(level_diff=lambda df: df[["pathway_level", "next_pathway_level"]]
+              .astype("Int64").diff(axis=1).iloc[:, -1]))
+# Difference in level is meaningful except that moves to/from SU pathway are different..
+pl_outcomes = pl_outcomes.join((level_diff[["next_pathway_level", "level_diff"]]
+                                .where((level_diff["pathway"] == level_diff["next_pathway"])
+                                       | (level_diff["pathway"] != "Substance Misuse Pathway")
+                                       | (level_diff["next_pathway"] != "Substance Misuse Pathway"))))
+pl_outcomes.loc[pl_outcomes["level_diff"].notna(), "pl_end_cat"] = (
+    "Internal move: " + np.sign(pl_outcomes.level_diff).map({-1: "backwards", 0: "sideways", 1: "forwards"})
+)
+# Exclude 738 placements that have not ended
+pl_outcomes = pl_outcomes[pl_outcomes["dur"].notna()]
+# Exclude 42 0-day placements
+pl_outcomes = pl_outcomes[pl_outcomes["dur"] > pd.Timedelta(days=0)]
+pl_outcomes_map = {
+    'Independent accommodation': ['To social housing', 'To private rented'],
+    'Insecure outcome (external)': ['To friends/family', 'Custody', '[Not ended]', 'To care/hospital', 'To external supported'],
+    'Returned to homelessness': ['Evicted', 'Abandoned'],
+    'Died': ['Died'],
+    # '_excluded': ['Other', 'Missing data/error']
+}
+pl_end_cat_map = {cat: outcome for outcome in pl_outcomes_map.keys() for cat in pl_outcomes_map[outcome]}
+pl_outcomes["pl_outcome"] = pl_outcomes["pl_end_cat"].map(pl_end_cat_map)
+pl_outcomes.loc[
+    pl_outcomes["pl_end_cat"].fillna("").str.startswith("Internal move"),
+    "pl_outcome"] = pl_outcomes["pl_end_cat"]
+# Exclude 1,310 moves within the same service
+pl_outcomes_excl_same_svc = pl_outcomes[pl_outcomes["pl_end_cat"] != "Internal move: same service"]
+# Exclude 277 moves due to end reasons: 53 missing reaons, 200 "Other"
+# TODO: Should "Other" really be excluded?
+pl_outcomes_excl_same_svc = pl_outcomes_excl_same_svc[pl_outcomes_excl_same_svc["pl_outcome"].notna()]
+dv_dict["Outcomes from individual placements"] = (
+                              pl_outcomes_excl_same_svc[["pl_outcome"]])
+dv_dict_desc = list(dv_dict.keys())
+dv_dict_cats = {k: list(v.iloc[:, 0].astype("string").fillna("<N/A>").unique()) for k, v in dv_dict.items()}
+display(dv_dict_desc)
+```
+
+## Collect independent variables
+```{python}
+#| output: asis
+from collections import defaultdict
+dpw_pls = dpw_pls_orig
+# Add route entry point as an IV as well as a DV
+tdf = dv_dict["Entry point into BAHSA services (pathway type and level)"]
+rt_entry_point = (tdf["pathway_type"].map({"Homelessness": "H ", "Substance Misuse": "SU "})
+                  + tdf["pathway_level"].astype("string")).rename("rt_entry_point").astype("category")
+dpw_pls = dpw_pls.join(rt_entry_point, on="route_id")
+# Age category at year of first route during studied period
+dpw_pls["gender"] = dpw_pls["gender"].map({
+    "Male": "Male", "Female": "Female", "Don't Know": "_Unknown",
+    "Prefer not to say": "_Unknown", "Transgender": "Non-Binary",
+    "Non-Binary": "Non-Binary"
+}).astype("category")
+dpw_pls["age_cat"] = (dpw_pls["pl_start_dt"].dt.year - dpw_pls["yob"]>= 35).map({True: "35+", False: "34-"}).astype("category")
+
+dpw_pls["global_majority"] = dpw_pls["ethnicity"].map(defaultdict(
+    lambda: True,
+    {
+      "English/Welsh/Scottish/Northern Irish/British": False, "White British": False,
+      "White Other Origin": False, "Any other White background": False, "White European": False,
+      "Eastern European": False, "Turkish": False, "White Irish": False, "Irish": False,
+      "White Gypsy/Irish Traveller": False, "Gypsy (inc English, Scottish or Roma Gypsy) or Irish Traveller": False,
+      "Don't know": pd.NA, "Prefer not to say": pd.NA, "Refused to answer question": pd.NA
+    })).astype("boolean")
+eth_dtl_map = {
+    "White British": [
+        "English/Welsh/Scottish/Northern Irish/British"
+    ],
+    pd.NA: [
+        "Don't know",
+        "Prefer not to say",
+        "Refused to answer question"
+    ],
+    "Black/Black British - African": [
+        "African (non Somali)",
+        "Somali",
+        "Black/Black British - Somali",
+        "Black or Black British Ghanaian"
+    ],
+    "Black/Black British - Caribbean": [
+        "Caribbean"
+    ],
+    "White Other": [
+        "White Other Origin",
+        "Any other White background",
+        "White Irish",
+        "Irish",
+        "White European",
+        "Eastern European",
+        "Turkish"
+    ],
+    "Mixed/Dual Heritage - White+Black Caribbean": [
+        "White and Black Caribbean"
+    ],
+    "Black/Black British - Other": [
+        "Black/Black British - Other",
+        "Any other Black/African/Caribbean background"
+    ],
+    "Arab": [
+        "Iranian",
+        "Iraqi",
+    ],
+    "Asian/Asian British": [
+        "Asian/Asian British - Other",
+        "Pakistani",
+        "Bangladeshi",
+        "Asian/Asian British - Chinese",
+        "Asian/Asian British - Bangladeshi",
+        "Asian/Asian British - Indian",
+        "Indian",
+        "Asian/Asian British - Asian African",
+        "Chinese",
+        "Asian/Asian British - Pakistani",
+        "Asian or Asian British Sri Lankan",
+        "Any other Asian background",
+    ],
+    "Any other Mixed/multiple ethnic background": [
+        "Mixed/Dual Heritage - White+Asian",
+        "Mixed/Dual Heritage - Other",
+        "White and Asian",
+        "Mixed/Dual Heritage - White+Chinese"
+    ],
+    "Mixed/Dual Heritage - White+Black African": [
+        "White and Black African (non Somali)"
+    ],
+    "Other": [
+        "Any other ethnic group",
+        "Kurdish"
+    ],
+    "White Gypsy/Irish Traveller": [
+        "Gypsy (inc English, Scottish or Roma Gypsy) or Irish Traveller"
+    ]
+}
+mapper = {k: v for v, k in pd.Series(eth_dtl_map).explode().items()}
+dpw_pls["ethnicity_detailed"] = dpw_pls["ethnicity"].astype("string").replace(mapper).astype("category")
+eth_grp_map = {
+    "White": [
+        "White British",
+        "White Other",
+        "White Gypsy/Irish Traveller",
+    ],
+    "Black": [
+        "Black/Black British - African",
+        "Black/Black British - Caribbean",
+        "Black/Black British - Other",
+    ],
+    "Mixed Heritage": [
+        "Mixed/Dual Heritage - White+Black African",
+        "Mixed/Dual Heritage - White+Black Caribbean",
+        "Any other Mixed/multiple ethnic background",
+    ],
+    "Other": [
+        "Asian/Asian British",
+        "Arab",
+    ]
+}
+mapper = {k: v for v,k in pd.Series(eth_grp_map).explode().items()}
+dpw_pls["ethnicity_grouped"] = dpw_pls["ethnicity_detailed"].astype("string").replace(mapper).astype("category")
+dpw_pls["lgbtq_plus"] = dpw_pls["sexual_orientation"].map({
+    "Bi-sexual": True, "Gay/Lesbian": True, "other": True, "Lesbian": True,
+    "Heterosexual": False, "Don't Know": pd.NA, "Rather not state": pd.NA,
+}).astype("boolean")
+dpw_pls["uk_immigration_status"] = dpw_pls["uk_immigration_status"].map({
+    "Other Protection Leave to Remain": "Non-EEA National",
+    "Indefinite Leave to Remain": "Non-EEA National",
+    "Other Non-EEA National": "Non-EEA National",
+    "Limited Leave to Remain": "Non-EEA National",
+    "EEA National": "EEA National",
+    "UK/Irish National": "UK/Irish National",
+}).astype("category")
+dpw_pls["english_2nd_language"] = dpw_pls["english_2nd_language"].map({"Yes": True, "No": False}).astype("boolean")
+ref_cats = dpw_pls["ref_agency"].cat.categories
+ref_cat_map = {
+    "Local authority (Housing Options)": ["B.C.C. Homelessness Prevention Team"],
+    "Local authority (_other)": list(ref_cats[ref_cats.str.startswith(("B.C.C", "Bcc"))
+                                     & (ref_cats != "B.C.C. Homelessness Prevention Team")]),
+    "Service provider (rough sleeping and SH)": ["St. Mungo's", "St Mungo's", "Outreach"],
+    "Service provider (SU pathway, prison wk)": ["A.R.A"],
+    "Service provider (_other SH)": ["E.C.H.G. Riverside", "Elim", "Livewest", "Missing Link", "Places For People",
+                                     "Salvation Army", "Second Step", "Self Help"]
+}
+ref_cat_map["_Others"] = ref_cats[~ref_cats.isin(sum(list(ref_cat_map.values()), []))]
+ref_agency_mapper = {k: v for v, k in pd.Series(ref_cat_map).explode().items()}
+dpw_pls["referral_agency"] = (dpw_pls["ref_agency"].map(ref_agency_mapper)
+                              .fillna("_[Missing data]")).astype("category")
+support_need_cols = {
+    "hsn_prison_leaveron_probationrisk_of_offending": "offending",
+    "hsn_physical_health": "physical_health",
+    "hsn_mental_health": "mental_health",
+    "hsn_rough_sleeper": "rough_sleeping",
+    "hsn_sex_working": "sex_working",  # only women recorded as sex working
+    "hsn_risk_of_violenceabuse_victim": "risk_violence_abuse",
+    "hsn_risk_of_exploitation": "risk_exploitation",
+}
+for k, v in support_need_cols.items():
+    dpw_pls[v] = dpw_pls[k].astype("boolean")
+dpw_pls
+dpw_pls["hsn_drug_or_alcohol_use"] = (dpw_pls["hsn_drug_use"].astype("boolean")
+                                      | dpw_pls["hsn_alcohol_use"].astype("boolean"))
+dpw_pls["multiple_disadvantage"] = (  # Current support needs for 3 out of 5 SMD dimensions
+  dpw_pls[["hsn_prison_leaveron_probationrisk_of_offending",
+           "hsn_drug_or_alcohol_use",
+           "hsn_risk_of_violenceabuse_victim",
+           "hsn_mental_health"
+           ]].assign(hsn_homelessness=True).astype("boolean").sum(axis=1, skipna=False) >= 3
+  )
+dpw_pls["substance_use"] = dpw_pls["hsn_drug_or_alcohol_use"]
+dpw_pls["pl_duration_weeks"] = (dpw_pls["pl_end_dt"]
+                                .fillna(distinct_pathways.dpw_end_dt + pd.Timedelta(days=1))
+                                .sub(dpw_pls["pl_start_dt"])
+                                .dt.days
+                                .div(7)
+                                )
+dpw_pls["pl_prev_dur_sum_weeks"] = dpw_pls.groupby("route_id")["pl_duration_weeks"].cumsum() - dpw_pls["pl_duration_weeks"]
+dpw_pls["rt_duration_weeks"] = dpw_pls.groupby("route_id")["pl_duration_weeks"].transform("sum")
+dpw_pls["pway_lvl"] = (dpw_pls["svc_typelvl"]
+                       .str.replace(r"M |M/F |F ", "H ", regex=True)
+                       .str.replace(" ", "_")
+                       .astype("category"))
+dpw_rt_starts = dpw_pls.groupby("route_id").head(1)
+dpw_rt_ends = dpw_pls.groupby("route_id").tail(1)
+dpw_clis = dpw_pls.groupby(["o_cli_id"]).head(1)  # 1 duplicate client but first entry has more detailed answers
+characteristics = {
+    "demographics": [
+        "gender",
+        "global_majority",
+        "ethnicity_grouped",
+        "ethnicity_detailed",
+        "age_cat",
+        "lgbtq_plus",
+        "uk_immigration_status",
+        "english_2nd_language",
+    ],
+    "support_needs": [
+        "offending",
+        "physical_health",
+        "mental_health",
+        "substance_use",
+        "multiple_disadvantage",
+        "rough_sleeping",
+        "sex_working",
+        "risk_violence_abuse",
+        "risk_exploitation",
+    ],
+    "placement_variables": [
+        "pl_duration_weeks",
+        "pl_prev_dur_sum_weeks",
+        "pway_lvl"
+    ],
+    "route_variables": [
+        "referral_agency",
+        "rt_duration_weeks",
+        "rt_entry_point",
+    ]
+}
+print(json.dumps(characteristics, indent=4))
+```
+
+# Route outcomes after 3.08 years
+
+## Prepare DV
+
+```{python}
+# Get DV
+dv_str = "Route outcomes after 3.08 years"
+dv = dv_dict[dv_str].iloc[:, 0].astype("category")
+dv = dv.cat.reorder_categories(['Independent accommodation', 'Insecure outcome', 'Returned to homelessness', 'Died'])
+```
+
+## Prepare IVs
+
+```{python}
+selected_ch = {
+    "demographics":  ["gender", "age_cat", "global_majority", "lgbtq_plus",
+                      # "ethnicity_detailed", "ethnicity_grouped",
+                      # "uk_immigration_status", "english_2nd_language",
+                      ],
+    "ethnicity_related": ["ethnicity_grouped", "uk_immigration_status"],
+    "support_needs": ["offending", "physical_health", "mental_health", "substance_use", "multiple_disadvantage",
+                      "rough_sleeping", "sex_working", "risk_violence_abuse", "risk_exploitation",],
+    "route_variables": ["referral_agency", "rt_duration_weeks", "rt_entry_point",]
+}
+cols_to_exclude = []
+X, Xc, iv_df, iv_cols_used, ref_cats, binaries, dummy_cols = get_ivs(dv, cols_to_exclude, selected_ch)
+```
+
+## Model building
+
+### Start with block for demographic variables
+
+```{python}
+block_ch = list(selected_ch.values())[0]
+block_ch_d = ["(Intercept)"] + cols_with_dummies(block_ch, dummy_cols)
+```
+
+### Test associations between IVs for initial block
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+### MNLogit iteration 0
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove = []
+values_to_remove = []
+results, summary, results_or = multinomial_regression(dv, Xc[block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### MNLogit iteration 1
+`lgbtq_plus` is not significant
+
+::: {.callout-note collapse=true title="Results"}
+```{python}
+selected_dv, selected_xc, sel_block_ch_d = dv, Xc, block_ch_d
+cols_to_remove += ["lgbtq_plus"]
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### MNLogit iteration 2
+`age_cat` is not significant
+
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["age_cat"]
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+Remaining variable is significant
+
+### Add block for grouped ethnicity data and drop "global_majority"
+```{python}
+new_block_ch = selected_ch["ethnicity_related"]
+sel_block_ch = [ch for ch in block_ch + new_block_ch if ch != "global_majority"]
+sel_block_ch_d = [ch for ch in sel_block_ch_d + cols_with_dummies(new_block_ch, dummy_cols) if ch != "global_majority"]
+```
+
+### Test associations between IVs now a block has been added
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, sel_block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[sel_block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+No significant multicollinearity. Proceeding with MNLogit.
+
+### MNLogit iteration 2
+::: {.callout-note collapse=true title="Results"}
+```{python}
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+Model did not converge because no-one with Mixed Heritage ethnicity died in accommodation -- recoding as "other"
+```{python}
+selected_xc.loc[selected_xc["ethnicity_grouped_Mixed Heritage"], "ethnicity_grouped_Other"] = True
+selected_xc = selected_xc.drop(columns="ethnicity_grouped_Mixed Heritage")
+for lst in [sel_block_ch_d, dummy_cols["ethnicity_grouped"]]:
+    lst.remove("ethnicity_grouped_Mixed Heritage")
+
+```
+### MNLogit iteration 3
+::: {.callout-note collapse=true title="Results"}
+```{python}
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+`lgbtq_plus` no longer significant as variance better explained by other variables
+
+### MNLogit iteration 4
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["lgbtq_plus"]
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Add block for support needs variables
+
+```{python}
+new_block_ch = selected_ch["support_needs"]
+sel_block_ch = block_ch + new_block_ch
+sel_block_ch_d = sel_block_ch_d + cols_with_dummies(new_block_ch, dummy_cols)
+```
+
+### Test associations between IVs now a block has been added
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, sel_block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[sel_block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+`multiple_disadvantage` has high VIF due to multicollinearity of `multiple_disadvantage`, `substance_use` and `mental_health`.
+Running models with MD instead of SU and MH, and with SU/MH instead of MD.
+
+```{python}
+cols_to_remove_nonMD = cols_to_remove + ["multiple_disadvantage"]
+cols_to_remove_MD = cols_to_remove + ["substance_use", "mental_health"]
+```
+
+### MD iterations
+
+```{python}
+#| output: false
+# Reset prev_results
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)
+```
+
+#### MNLogit iteration 5: MD
+::: {.callout-note collapse=true title="Results"}
+```{python}
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove_MD, dummy_cols)
+```
+:::
+
+Major increase in pseudo $R^2$, so model with MD explains much more of the variance.
+
+Remaining results are significant.
+
+### Final model (MD)
+
+```{python}
+from io import StringIO
+
+display(summary)
+results_or_final = results_or.drop(columns=["prev_coef", "coef", "diff_pct"], errors="ignore").swaplevel().sort_index()
+results_or_with_pct = add_interpretation_cols(results_or_final)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(results_or_with_pct)
+
+tbl_i = 0
+comp_cats = [x[0] for x in results.summary().tables[1].data if x[0].startswith(results.model.endog_names)]
+for tbl in results.summary2().tables:
+    if tbl_i != 0:
+        tbl = tbl.rename(columns={tbl.columns[0]: comp_cats[tbl_i - 1]})
+    excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
+    tbl_i += 1
+excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_with_pct
+```
+
+### Visualisation
+
+```{python}
+figure_minor_i += 1
+ref_cats_used = {k: v for k, v in ref_cats.items() if k in ["gender", "age_cat", "ethnicity_grouped", "uk_immigration_status"]}
+shorter_iv = {r"uk\ immigration\ status": "immigration"}
+cols_removed = cols_to_remove_MD
+cols_removed = [col for col in cols_to_remove_MD if col != "substance_use" and col != "mental_health"]
+fig_str = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, results_or_final, replacements=shorter_iv, cols_removed=cols_removed)
+plt.show(block=False)
+```
+
+### Separate needs (Non-MD) iterations
+
+```{python}
+#| output: false
+# Reset prev_results
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)
+```
+
+#### MNLogit iteration 5: separate needs
+::: {.callout-note collapse=true title="Results"}
+```{python}
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove_nonMD, dummy_cols)
+```
+:::
+
+Major increase in pseudo $R^2$, so model with support needs explains much more of the variance. 
+Separate support needs explain more variance than MD.
+
+`ethnicity_grouped` no longer significant as variance better explained by other variables
+
+#### MNLogit iteration 6: separate needs
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove_nonMD += ["ethnicity_grouped"]
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove_nonMD, dummy_cols)
+```
+:::
+
+`mental_health` no longer significant as variance better explained by other variables
+
+#### MNLogit iteration 7: separate needs
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove_nonMD += ["mental_health"]
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove_nonMD, dummy_cols)
+```
+:::
+
+`risk_violence_abuse` no longer significant as variance better explained by other variables
+
+#### MNLogit iteration 5: separate needs
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove_nonMD += ["risk_violence_abuse"]
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove_nonMD, dummy_cols)
+```
+:::
+
+Remaining results are significant.
+
+## Final model
+
+```{python}
+from io import StringIO
+
+display(summary)
+results_or_final = results_or.drop(columns=["prev_coef", "coef", "diff_pct"], errors="ignore").swaplevel().sort_index()
+results_or_with_pct = add_interpretation_cols(results_or_final)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(results_or_with_pct)
+
+tbl_i = 0
+comp_cats = [x[0] for x in results.summary().tables[1].data if x[0].startswith(results.model.endog_names)]
+for tbl in results.summary2().tables:
+    if tbl_i != 0:
+        tbl = tbl.rename(columns={tbl.columns[0]: comp_cats[tbl_i - 1]})
+    excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
+    tbl_i += 1
+excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_with_pct
+```
+
+## Visualisation
+
+```{python}
+figure_minor_i += 1
+ref_cats_used = {k: v for k, v in ref_cats.items() if k in ["gender", "age_cat", "uk_immigration_status"]}
+shorter_iv = {r"uk\ immigration\ status": "immigration"}
+cols_removed = cols_to_remove_nonMD
+cols_removed = [col for col in cols_to_remove_nonMD if col != "multiple_disadvantage"]
+fig_str = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, results_or_final, replacements=shorter_iv, cols_removed=cols_removed)
+plt.show(block=False)
+```
+
+# Outcomes 3.08 years after a person's first route started
+
+## Prepare DV
+
+```{python}
+# Get DV
+dv_str = "Outcomes 3.08 years after a person's first route started"
+dv = dv_dict[dv_str].iloc[:, 0].astype("category")
+dv = dv.cat.reorder_categories(['Independent accommodation', 'Insecure outcome', 'Returned to homelessness', 'Died'])
+```
+
+## Prepare IVs
+
+```{python}
+selected_ch = {
+    "demographics":  ["gender", "age_cat", "global_majority", "lgbtq_plus",
+                      # "ethnicity_detailed", "ethnicity_grouped",
+                      # "uk_immigration_status", "english_2nd_language",
+                      ],
+    "ethnicity_related": ["ethnicity_grouped", "uk_immigration_status"],
+    "support_needs": ["offending", "physical_health", "mental_health", "substance_use", "multiple_disadvantage",
+                      "rough_sleeping", "sex_working", "risk_violence_abuse", "risk_exploitation",],
+    # "route_variables": ["referral_agency", "rt_duration_weeks", "rt_entry_point",]
+}
+cols_to_exclude = []
+X, Xc, iv_df, iv_cols_used, ref_cats, binaries, dummy_cols = get_ivs(dv, cols_to_exclude, selected_ch)
+```
+
+## Model building
+
+### Start with block for demographic variables
+
+```{python}
+block_ch = list(selected_ch.values())[0]
+block_ch_d = ["(Intercept)"] + cols_with_dummies(block_ch, dummy_cols)
+```
+
+### Test associations between IVs for initial block
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+### MNLogit iteration 0
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove = []
+values_to_remove = []
+results, summary, results_or = multinomial_regression(dv, Xc[block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### MNLogit iteration 1
+Recode `gender=Non-Binary` as missing because there are too few data points: recode variable.
+
+::: {.callout-note collapse=true title="Results"}
+```{python}
+selected_dv, selected_xc, sel_block_ch_d = dv_xc_remove_value(dv, Xc, block_ch_d, "gender_Non-Binary")
+# cols_to_remove += ["gender_Non-Binary"]
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+`lgbtq_plus` not significant as variance better explained by other variables
+
+### MNLogit iteration 2
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["lgbtq_plus"]
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+All remaining variables have significant findings. All are associated with reducing the odds of negative outcomes
+(compared to independent accommodation), apart from being 34 or younger which is associated with increased odds of
+returning to homelessness.
+
+### Add block for grouped ethnicity data and drop "global_majority"
+```{python}
+new_block_ch = selected_ch["ethnicity_related"]
+sel_block_ch = [ch for ch in block_ch + new_block_ch if ch != "global_majority"]
+sel_block_ch_d = [ch for ch in sel_block_ch_d + cols_with_dummies(new_block_ch, dummy_cols) if ch != "global_majority"]
+```
+
+### Test associations between IVs now a block has been added
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, sel_block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[sel_block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+No significant multicollinearity. Proceeding with MNLogit.
+
+```{python}
+#| output: false
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)
+```
+### MNLogit iteration 3
+::: {.callout-note collapse=true title="Results"}
+```{python}
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+Model did not converge because no-one with Mixed Heritage ethnicity died in accommodation -- recoding as "other"
+
+```{python}
+selected_xc.loc[selected_xc["ethnicity_grouped_Mixed Heritage"], "ethnicity_grouped_Other"] = True
+selected_xc = selected_xc.drop(columns="ethnicity_grouped_Mixed Heritage")
+for lst in [sel_block_ch_d, dummy_cols["ethnicity_grouped"]]:
+    lst.remove("ethnicity_grouped_Mixed Heritage")
+
+```
+### MNLogit iteration 3
+::: {.callout-note collapse=true title="Results"}
+```{python}
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Add block for support needs variables
+
+```{python}
+new_block_ch = selected_ch["support_needs"]
+sel_block_ch = block_ch + new_block_ch
+sel_block_ch_d = sel_block_ch_d + cols_with_dummies(new_block_ch, dummy_cols)
+```
+
+### Test associations between IVs now a block has been added
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, sel_block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[sel_block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+`multiple_disadvantage` has high VIF due to multicollinearity of `multiple_disadvantage`, `substance_use` and `mental_health`.
+Running models with MD instead of SU and MH, and with SU/MH instead of MD.
+
+```{python}
+cols_to_remove_nonMD = cols_to_remove + ["multiple_disadvantage"]
+cols_to_remove_MD = cols_to_remove + ["substance_use", "mental_health"]
+```
+
+### MD iterations
+
+```{python}
+#| output: false
+# Reset prev_results
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)
+```
+
+#### MNLogit iteration 4: MD
+::: {.callout-note collapse=true title="Results"}
+```{python}
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove_MD, dummy_cols)
+```
+:::
+
+Major increase in pseudo $R^2$, so model with MD explains much more of the variance.
+
+`risk_exploitation` is not significant.
+
+#### MNLogit iteration 5: MD
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove_MD += ["risk_exploitation"]
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove_MD, dummy_cols)
+```
+:::
+
+`risk_violece_abuse` is not significant.
+
+#### MNLogit iteration 6: MD
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove_MD += ["risk_violence_abuse"]
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove_MD, dummy_cols)
+```
+:::
+
+Remaining results are significant.
+
+### Final model (MD)
+
+```{python}
+from io import StringIO
+
+display(summary)
+results_or_final = results_or.drop(columns=["prev_coef", "coef", "diff_pct"], errors="ignore").swaplevel().sort_index()
+results_or_with_pct = add_interpretation_cols(results_or_final)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(results_or_with_pct)
+
+tbl_i = 0
+comp_cats = [x[0] for x in results.summary().tables[1].data if x[0].startswith(results.model.endog_names)]
+for tbl in results.summary2().tables:
+    if tbl_i != 0:
+        tbl = tbl.rename(columns={tbl.columns[0]: comp_cats[tbl_i - 1]})
+    excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
+    tbl_i += 1
+excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_with_pct
+```
+
+### Visualisation
+
+```{python}
+figure_minor_i += 1
+ref_cats_used = {k: v for k, v in ref_cats.items() if k in ["gender", "age_cat", "ethnicity_grouped", "uk_immigration_status"]}
+shorter_iv = {r"uk\ immigration\ status": "immigration"}
+cols_removed = [col for col in cols_to_remove_MD if col != "substance_use" and col != "mental_health"]
+fig_str = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, results_or_final, replacements=shorter_iv, cols_removed=cols_removed)
+plt.show(block=False)
+```
+
+### Separate needs (Non-MD) iterations
+
+```{python}
+#| output: false
+# Reset prev_results
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)
+```
+
+#### MNLogit iteration 4: separate needs
+::: {.callout-note collapse=true title="Results"}
+```{python}
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove_nonMD, dummy_cols)
+```
+:::
+
+Major increase in pseudo $R^2$, so model with support needs explains much more of the variance. 
+Separate support needs explain more variance than MD.
+
+`ethnicity_grouped` no longer significant as variance better explained by other variables
+
+#### MNLogit iteration 5: separate needs
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove_nonMD += ["ethnicity_grouped"]
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove_nonMD, dummy_cols)
+```
+:::
+
+`risk_exploitation` no longer significant as variance better explained by other variables
+
+#### MNLogit iteration 6: separate needs
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove_nonMD += ["risk_exploitation"]
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove_nonMD, dummy_cols)
+```
+:::
+
+`mental_health` no longer significant as variance better explained by other variables
+
+#### MNLogit iteration 7: separate needs
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove_nonMD += ["mental_health"]
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove_nonMD, dummy_cols)
+```
+:::
+
+`risk_violence_abuse` no longer significant as variance better explained by other variables
+
+#### MNLogit iteration 5: separate needs
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove_nonMD += ["risk_violence_abuse"]
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove_nonMD, dummy_cols)
+```
+:::
+
+`gender` no longer significant as variance better explained by other variables
+
+#### MNLogit iteration 6: separate needs
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove_nonMD += ["gender"]
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove_nonMD, dummy_cols)
+```
+:::
+
+Remaining results are significant.
+
+## Final model
+
+```{python}
+from io import StringIO
+
+display(summary)
+results_or_final = results_or.drop(columns=["prev_coef", "coef", "diff_pct"], errors="ignore").swaplevel().sort_index()
+results_or_with_pct = add_interpretation_cols(results_or_final)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(results_or_with_pct)
+
+tbl_i = 0
+comp_cats = [x[0] for x in results.summary().tables[1].data if x[0].startswith(results.model.endog_names)]
+for tbl in results.summary2().tables:
+    if tbl_i != 0:
+        tbl = tbl.rename(columns={tbl.columns[0]: comp_cats[tbl_i - 1]})
+    excel_output[f"MNLogit: '{dv_str}', table {tbl_i}"] = tbl
+    tbl_i += 1
+excel_output[f"MNLogit: '{dv_str}', odds ratios"] = results_or_with_pct
+```
+
+## Visualisation
+
+```{python}
+figure_minor_i += 1
+ref_cats_used = {k: v for k, v in ref_cats.items() if k in ["age_cat", "uk_immigration_status"]}
+shorter_iv = {r"uk\ immigration\ status": "immigration"}
+cols_removed = [col for col in cols_to_remove_nonMD if col != "multiple_disadvantage"]
+fig_str = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, results_or_final, replacements=shorter_iv, cols_removed=cols_removed)
+plt.show(block=False)
+```
+
+# People with multiple returns during 7.5 yrs
+
+## Prepare DV
+
+```{python}
+# Get DV
+dv_str = "People with multiple returns during 7.5 yrs"
+dv = dv_dict[dv_str].iloc[:, 0]
+```
+
+## Prepare IVs
+
+```{python}
+selected_ch = {
+    "demographics":  ["gender", "age_cat", "global_majority", "lgbtq_plus",
+                      # "ethnicity_detailed", "ethnicity_grouped",
+                      # "uk_immigration_status", "english_2nd_language",
+                      ],
+    "ethnicity_related": ["ethnicity_grouped", "uk_immigration_status"],
+    "support_needs": ["offending", "physical_health", "mental_health", "substance_use", "multiple_disadvantage",
+                      "rough_sleeping", "sex_working", "risk_violence_abuse", "risk_exploitation",],
+    # "route_variables": ["referral_agency", "rt_duration_weeks", "rt_entry_point",]
+}
+cols_to_exclude = []
+X, Xc, iv_df, iv_cols_used, ref_cats, binaries, dummy_cols = get_ivs(dv, cols_to_exclude, selected_ch)
+```
+
+## Model building
+
+### Start with block for demographic variables
+
+```{python}
+block_ch = list(selected_ch.values())[0]
+block_ch_d = ["(Intercept)"] + cols_with_dummies(block_ch, dummy_cols)
+```
+
+### Test associations between IVs for initial block
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+### Logit iteration 0
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove = []
+values_to_remove = []
+results, summary, results_or = binomial_regression(dv, Xc[block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Logit iteration 1
+Recode `gender=Non-Binary` as missing because there are too few data points: recode variable.
+
+::: {.callout-note collapse=true title="Results"}
+```{python}
+selected_dv, selected_xc, sel_block_ch_d = dv_xc_remove_value(dv, Xc, block_ch_d, "gender_Non-Binary")
+# cols_to_remove += ["gender_Non-Binary"]
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+`lgbtq_plus` not significant as variance better explained by other variables
+
+### Logit iteration 2
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["lgbtq_plus"]
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+`gender` appears not significant but p=0.08 -- leaving in for now.
+
+### Add block for grouped ethnicity data and drop "global_majority"
+```{python}
+new_block_ch = selected_ch["ethnicity_related"]
+sel_block_ch = [ch for ch in block_ch + new_block_ch if ch != "global_majority"]
+sel_block_ch_d = [ch for ch in sel_block_ch_d + cols_with_dummies(new_block_ch, dummy_cols) if ch != "global_majority"]
+```
+
+### Test associations between IVs now a block has been added
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, sel_block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[sel_block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+No significant multicollinearity. Proceeding with Logit.
+
+```{python}
+#| output: false
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)
+```
+### Logit iteration 3
+::: {.callout-note collapse=true title="Results"}
+```{python}
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+`uk_immigration_status` not significant as variance better explained by other variables
+
+### Logit iteration 4
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["uk_immigration_status"]
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Add block for support needs variables
+
+```{python}
+new_block_ch = selected_ch["support_needs"]
+sel_block_ch = block_ch + new_block_ch
+sel_block_ch_d = sel_block_ch_d + cols_with_dummies(new_block_ch, dummy_cols)
+```
+
+### Test associations between IVs now a block has been added
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, sel_block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[sel_block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+`multiple_disadvantage` has high VIF due to multicollinearity of `multiple_disadvantage`, `substance_use` and `mental_health`.
+
+Running without `multiple_disadvantage` as for both previous dvs separate needs variables had greater explanatory power
+
+
+```{python}
+sel_block_ch_d.remove("multiple_disadvantage")
+```
+
+```{python}
+#| output: false
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)
+```
+### Logit iteration 5
+::: {.callout-note collapse=true title="Results"}
+```{python}
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+`risk_violence_abuse` not significant as variance better explained by other variables
+
+### Logit iteration 6
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["risk_violence_abuse"]
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+`gender` not significant as variance better explained by other variables
+
+### Logit iteration 7
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["gender"]
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+`mental_health` not significant as variance better explained by other variables
+
+### Logit iteration 8
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["mental_health"]
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+`risk_exploitation` not significant as variance better explained by other variables
+
+### Logit iteration 8
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["risk_exploitation"]
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+`ethnicity` not significant as variance better explained by other variables
+
+### Logit iteration 8
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["ethnicity_grouped"]
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+Remaining variables are all significant in this model.
+
+## Final model
+
+```{python}
+display(summary)
+results_or_final = results_or.drop(columns=["prev_coef", "coef", "diff_pct"]).sort_index()
+results_or_with_pct = add_interpretation_cols(results_or_final)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(results_or_with_pct)
+
+tbl_i = 0
+for tbl in results.summary2().tables:
+    excel_output[f"Logit: '{dv_str}', table {tbl_i}"] = tbl
+    tbl_i += 1
+excel_output[f"Logit: '{dv_str}', odds ratios"] = results_or_with_pct
+```
+
+## Visualisation
+
+```{python}
+figure_minor_i += 1
+ref_cats_used = {k: v for k, v in ref_cats.items() if k in ["age_cat"]}
+shorter_iv = {r"uk\ immigration\ status": "immigration"}
+cols_removed = [col for col in cols_to_remove if col != "multiple_disadvantage"]
+fig_str = plot_odds_r(dv_str, None, ref_cats_used, results_or_final, replacements=shorter_iv, cols_removed=cols_removed, figsize=(6, 4))
+plt.show(block=False)
+```
+
+# People with a route in top 10% of route durations
+
+## Prepare DV
+
+```{python}
+dv_str = "People with a route in top 10% of route durations"
+dv = dv_dict[dv_str].iloc[:, 0]
+```
+
+## Prepare IVs
+
+```{python}
+selected_ch = {
+    "demographics":  ["gender", "age_cat", "global_majority", "lgbtq_plus",
+                      # "ethnicity_detailed", "ethnicity_grouped",
+                      # "uk_immigration_status", "english_2nd_language",
+                      ],
+    "ethnicity_related": ["ethnicity_grouped", "uk_immigration_status"],
+    "support_needs": ["offending", "physical_health", "mental_health", "substance_use", "multiple_disadvantage",
+                      "rough_sleeping", "sex_working", "risk_violence_abuse", "risk_exploitation",],
+    # "route_variables": ["referral_agency", "rt_duration_weeks", "rt_entry_point",]
+}
+cols_to_exclude = []
+X, Xc, iv_df, iv_cols_used, ref_cats, binaries, dummy_cols = get_ivs(dv, cols_to_exclude, selected_ch)
+```
+
+## Model building
+
+### Start with block for demographic variables
+
+```{python}
+block_ch = list(selected_ch.values())[0]
+block_ch_d = ["(Intercept)"] + cols_with_dummies(block_ch, dummy_cols)
+```
+
+### Test associations between IVs for initial block
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+### Logit iteration 0
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove = []
+values_to_remove = []
+results, summary, results_or = binomial_regression(dv, Xc[block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+`global_majority` not significant as variance better explained by other variables
+
+### Logit iteration 1
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["global_majority"]
+results, summary, results_or = binomial_regression(dv, Xc[block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+`lgbtq_plus` not significant as variance better explained by other variables
+
+### Logit iteration 2
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["lgbtq_plus"]
+results, summary, results_or = binomial_regression(dv, Xc[block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Add block for grouped ethnicity data and drop "global_majority"
+```{python}
+new_block_ch = selected_ch["ethnicity_related"]
+sel_block_ch = [ch for ch in block_ch + new_block_ch if ch != "global_majority"]
+sel_block_ch_d = [ch for ch in block_ch_d + cols_with_dummies(new_block_ch, dummy_cols) if ch != "global_majority"]
+```
+
+### Test associations between IVs now a block has been added
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, sel_block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[sel_block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+No significant multicollinearity. Proceeding with Logit.
+
+```{python}
+#| output: false
+results, summary, results_or = binomial_regression(dv, Xc[sel_block_ch_d], [], dummy_cols)
+```
+### Logit iteration 3
+::: {.callout-note collapse=true title="Results"}
+```{python}
+results, summary, results_or = binomial_regression(dv, Xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+`uk_immigration_status` not significant as variance better explained by other variables
+
+### Logit iteration 4
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["uk_immigration_status"]
+results, summary, results_or = binomial_regression(dv, Xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+`ethnicity_grouped` not significant as variance better explained by other variables
+
+### Logit iteration 4
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["ethnicity_grouped"]
+results, summary, results_or = binomial_regression(dv, Xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Add block for support needs variables
+
+```{python}
+new_block_ch = selected_ch["support_needs"]
+sel_block_ch = block_ch + new_block_ch
+sel_block_ch_d = sel_block_ch_d + cols_with_dummies(new_block_ch, dummy_cols)
+```
+
+### Test associations between IVs now a block has been added
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, sel_block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[sel_block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+`multiple_disadvantage` has high VIF due to multicollinearity of `multiple_disadvantage`, `substance_use` and `mental_health`.
+
+Running without `multiple_disadvantage` as for both previous dvs separate needs variables had greater explanatory power
+
+
+```{python}
+sel_block_ch_d.remove("multiple_disadvantage")
+```
+
+```{python}
+#| output: false
+results, summary, results_or = binomial_regression(dv, Xc[sel_block_ch_d], [], dummy_cols)
+```
+### Logit iteration 5
+::: {.callout-note collapse=true title="Results"}
+```{python}
+results, summary, results_or = binomial_regression(dv, Xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Logit iteration 6
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["mental_health"]
+results, summary, results_or = binomial_regression(dv, Xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Logit iteration 7
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["sex_working"]
+results, summary, results_or = binomial_regression(dv, Xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Logit iteration 8
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["physical_health"]
+results, summary, results_or = binomial_regression(dv, Xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Logit iteration 9
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["substance_use"]
+results, summary, results_or = binomial_regression(dv, Xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Logit iteration 10
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["risk_violence_abuse"]
+results, summary, results_or = binomial_regression(dv, Xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+Remaining variables are all significant in this model.
+
+## Final model
+
+```{python}
+display(summary)
+results_or_final = results_or.drop(columns=["prev_coef", "coef", "diff_pct"]).sort_index()
+results_or_with_pct = add_interpretation_cols(results_or_final)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(results_or_with_pct)
+
+tbl_i = 0
+for tbl in results.summary2().tables:
+    excel_output[f"Logit: '{dv_str}', table {tbl_i}"] = tbl
+    tbl_i += 1
+excel_output[f"Logit: '{dv_str}', odds ratios"] = results_or_with_pct
+```
+
+## Visualisation
+
+```{python}
+figure_minor_i += 1
+ref_cats_used = {k: v for k, v in ref_cats.items() if k in ["age_cat", "gender"]}
+shorter_iv = {r"uk\ immigration\ status": "immigration"}
+cols_removed = [col for col in cols_to_remove if col != "multiple_disadvantage"]
+fig_str = plot_odds_r(dv_str, None, ref_cats_used, results_or_final, replacements=shorter_iv, cols_removed=cols_removed, figsize=(6, 4), x_max=1/0.04)
+plt.show(block=False)
+```
+
+# Returns within 2 years after moving to independent accommodation
+
+## Prepare DV
+
+```{python}
+# Get DV
+dv_str = "Returns within 2 years after moving to independent accommodation"
+dv = dv_dict[dv_str].iloc[:, 0].map({"Yes": True, "No": False})
+```
+
+## Prepare IVs
+
+```{python}
+selected_ch = {
+    "demographics":  ["gender", "age_cat", "global_majority", "lgbtq_plus",
+                      # "ethnicity_detailed", "ethnicity_grouped",
+                      # "uk_immigration_status", "english_2nd_language",
+                      ],
+    "ethnicity_related": ["ethnicity_grouped", "uk_immigration_status"],
+    "support_needs": ["offending", "physical_health", "mental_health", "substance_use", "multiple_disadvantage",
+                      "rough_sleeping", "sex_working", "risk_violence_abuse", "risk_exploitation",],
+    # "route_variables": ["referral_agency", "rt_duration_weeks", "rt_entry_point",]
+}
+cols_to_exclude = []
+X, Xc, iv_df, iv_cols_used, ref_cats, binaries, dummy_cols = get_ivs(dv, cols_to_exclude, selected_ch)
+```
+
+## Model building
+
+### Start with block for demographic variables
+
+```{python}
+block_ch = list(selected_ch.values())[0]
+block_ch_d = ["(Intercept)"] + cols_with_dummies(block_ch, dummy_cols)
+```
+
+### Test associations between IVs for initial block
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+### Logit iteration 0
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove = []
+values_to_remove = []
+results, summary, results_or = binomial_regression(dv, Xc[block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Logit iteration 1
+Recode `gender=Non-Binary` as missing because there are too few data points: recode variable.
+
+::: {.callout-note collapse=true title="Results"}
+```{python}
+selected_dv, selected_xc, sel_block_ch_d = dv_xc_remove_value(dv, Xc, block_ch_d, "gender_Non-Binary")
+# cols_to_remove += ["gender_Non-Binary"]
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Logit iteration 2
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["gender"]
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Logit iteration 3
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["age_cat"]
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Logit iteration 4
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["global_majority"]
+results, summary, results_or = binomial_regression(dv, Xc[block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Add block for grouped ethnicity data and drop "global_majority"
+```{python}
+new_block_ch = selected_ch["ethnicity_related"]
+sel_block_ch = [ch for ch in block_ch + new_block_ch if ch != "global_majority"]
+sel_block_ch_d = [ch for ch in sel_block_ch_d + cols_with_dummies(new_block_ch, dummy_cols) if ch != "global_majority"]
+```
+
+### Test associations between IVs now a block has been added
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, sel_block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[sel_block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+No significant multicollinearity. Proceeding with Logit.
+
+```{python}
+#| output: false
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)
+```
+### Logit iteration 5
+::: {.callout-note collapse=true title="Results"}
+```{python}
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Logit iteration 6
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["uk_immigration_status"]
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Logit iteration 7
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["ethnicity_grouped"]
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Add block for support needs variables
+
+```{python}
+new_block_ch = selected_ch["support_needs"]
+sel_block_ch = sel_block_ch + new_block_ch
+sel_block_ch_d = sel_block_ch_d + cols_with_dummies(new_block_ch, dummy_cols)
+```
+
+### Test associations between IVs now a block has been added
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, sel_block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[sel_block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+`multiple_disadvantage` has high VIF due to multicollinearity of `multiple_disadvantage`, `substance_use` and `mental_health`.
+
+Running without `multiple_disadvantage` as for both previous dvs separate needs variables had greater explanatory power
+
+
+```{python}
+sel_block_ch_d.remove("multiple_disadvantage")
+```
+
+```{python}
+#| output: false
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)
+```
+### Logit iteration 8
+::: {.callout-note collapse=true title="Results"}
+```{python}
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Logit iteration 9
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["offending"]
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Logit iteration 10
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["risk_exploitation"]
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Logit iteration 11
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["physical_health"]
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Logit iteration 12
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["sex_working"]
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Logit iteration 13
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["mental_health"]
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Logit iteration 14
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["rough_sleeping"]
+results, summary, results_or = binomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+Remaining variables are all significant in this model.
+
+## Final model
+
+```{python}
+display(summary)
+results_or_final = results_or.drop(columns=["prev_coef", "coef", "diff_pct"]).sort_index()
+results_or_with_pct = add_interpretation_cols(results_or_final)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(results_or_with_pct)
+
+tbl_i = 0
+for tbl in results.summary2().tables:
+    excel_output[f"Logit: '{dv_str}', table {tbl_i}"] = tbl
+    tbl_i += 1
+excel_output[f"Logit: '{dv_str}', odds ratios"] = results_or_with_pct
+```
+
+## Visualisation
+
+```{python}
+figure_minor_i += 1
+ref_cats_used = {}
+shorter_iv = {r"uk\ immigration\ status": "immigration"}
+cols_removed = [col for col in cols_to_remove if col != "multiple_disadvantage"]
+fig_str = plot_odds_r(dv_str, None, ref_cats_used, results_or_final, replacements=shorter_iv, cols_removed=cols_removed, figsize=(6, 4))
+plt.show(block=False)
+```
+
+# Outcomes from individual placements - ref category independent accommodation
+
+## Prepare DV
+
+```{python}
+# Get DV
+dv_str = "Outcomes from individual placements"
+dv = dv_dict[dv_str].iloc[:, 0].astype("category")
+cat_order = ['Independent accommodation',
+             'Internal move: forwards',
+             'Internal move: sideways',
+             'Internal move: backwards',
+             'Returned to homelessness',
+             'Insecure outcome (external)',
+             'Died']
+dv = dv.cat.reorder_categories(cat_order)
+```
+
+## Prepare IVs
+
+```{python}
+selected_ch = {
+    "demographics":  ["gender", "age_cat", "global_majority", "lgbtq_plus",
+                      # "ethnicity_detailed", "ethnicity_grouped",
+                      # "uk_immigration_status", "english_2nd_language",
+                      ],
+    "ethnicity_related": ["ethnicity_grouped", "uk_immigration_status"],
+    "support_needs": ["offending", "physical_health", "mental_health", "substance_use", "multiple_disadvantage",
+                      "rough_sleeping", "sex_working", "risk_violence_abuse", "risk_exploitation",],
+    # "route_variables": ["referral_agency", "rt_duration_weeks", "rt_entry_point",]
+}
+cols_to_exclude = []
+X, Xc, iv_df, iv_cols_used, ref_cats, binaries, dummy_cols = get_ivs(dv, cols_to_exclude, selected_ch)
+```
+
+## Model building
+
+### Start with block for demographic variables
+
+```{python}
+block_ch = list(selected_ch.values())[0]
+block_ch_d = ["(Intercept)"] + cols_with_dummies(block_ch, dummy_cols)
+```
+
+### Test associations between IVs for initial block
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+### MNLogit iteration 0
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove = []
+values_to_remove = []
+results, summary, results_or = multinomial_regression(dv, Xc[block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### MNLogit iteration 1
+Recode `gender=Non-Binary` as missing because there are too few data points: recode variable.
+
+::: {.callout-note collapse=true title="Results"}
+```{python}
+selected_dv, selected_xc, sel_block_ch_d = dv_xc_remove_value(dv, Xc, block_ch_d, "gender_Non-Binary")
+# cols_to_remove += ["gender_Non-Binary"]
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### MNLogit iteration 2
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["lgbtq_plus"]
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Add block for grouped ethnicity data and drop "global_majority"
+```{python}
+new_block_ch = selected_ch["ethnicity_related"]
+sel_block_ch = [ch for ch in block_ch + new_block_ch if ch != "global_majority"]
+sel_block_ch_d = [ch for ch in sel_block_ch_d + cols_with_dummies(new_block_ch, dummy_cols) if ch != "global_majority"]
+```
+
+### Test associations between IVs now a block has been added
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, sel_block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[sel_block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+No significant multicollinearity. Proceeding with MNLogit.
+
+```{python}
+#| output: false
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)
+```
+### MNLogit iteration 3
+::: {.callout-note collapse=true title="Results"}
+```{python}
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+All variables are significant. Proceeding.
+
+### Add block for support needs variables
+
+```{python}
+new_block_ch = selected_ch["support_needs"]
+sel_block_ch = sel_block_ch + new_block_ch
+sel_block_ch_d = sel_block_ch_d + cols_with_dummies(new_block_ch, dummy_cols)
+```
+
+### Test associations between IVs now a block has been added
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, sel_block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[sel_block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+`multiple_disadvantage` has high VIF due to multicollinearity of `multiple_disadvantage`, `substance_use` and `mental_health`.
+
+Dropping `multiple_disadvantage` as previous models showed that separate needs explained more of the variance.
+
+```{python}
+sel_block_ch_d.remove("multiple_disadvantage")
+```
+
+```{python}
+#| output: false
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)
+```
+### MNLogit iteration 4
+::: {.callout-note collapse=true title="Results"}
+```{python}
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+All other variables are significant.
+
+## Final model
+
+```{python}
+from io import StringIO
+
+display(summary)
+results_or_final = (results_or.drop(columns=["prev_coef", "coef", "diff_pct"], errors="ignore")
+                    .swaplevel().sort_index()
+                    .reindex(cat_order[1:], level=0))
+results_or_with_pct = add_interpretation_cols(results_or_final)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(results_or_with_pct)
+
+tbl_i = 0
+comp_cats = [x[0] for x in results.summary().tables[1].data if x[0].startswith(results.model.endog_names)]
+for tbl in results.summary2().tables:
+    if tbl_i != 0:
+        tbl = tbl.rename(columns={tbl.columns[0]: comp_cats[tbl_i - 1]})
+    excel_output[f"MNLogit: '{dv_str} (vs independent accommodation)', table {tbl_i}"] = tbl
+    tbl_i += 1
+excel_output[f"MNLogit: '{dv_str} (vs independent accommodation)', odds ratios"] = results_or_with_pct
+```
+
+## Visualisation
+
+```{python}
+from itertools import product
+figure_minor_i += 1
+theme = {"ytick.labelsize": "medium"}
+ref_cats_used = {k: v for k, v in ref_cats.items() if k in ["gender", "age_cat", "ethnicity_grouped", "uk_immigration_status"]}
+shorter_iv = {r"uk\ immigration\ status": "immigration"}
+cols_removed = cols_to_remove
+cols_removed = [col for col in cols_to_remove if col != "multiple_disadvantage"]
+for or_section, i_sub in [(slice(0, 3), "a"), (slice(3, None), "b")]:
+    save_fmi = figure_minor_i
+    temp_res_or = results_or_final.loc[results_or_final.index.levels[0][or_section]].copy()
+    temp_res_or.index = temp_res_or.index.remove_unused_levels()
+    figure_minor_i = str(figure_minor_i) + i_sub
+    fig_str, fig = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, temp_res_or, replacements=shorter_iv, theme=theme, cols_removed=cols_removed)
+    plt.show(block=False)
+    figure_minor_i = save_fmi
+```
+
+# Outcomes from individual placements - ref category forwards moves
+
+## Prepare DV
+
+```{python}
+# Get DV
+dv_str = "Outcomes from individual placements"
+dv = dv_dict[dv_str].iloc[:, 0].astype("category")
+dv = dv.cat.reorder_categories(list(dv.value_counts().index))
+```
+
+## Prepare IVs
+
+```{python}
+selected_ch = {
+    "demographics":  ["gender", "age_cat", "global_majority", "lgbtq_plus",
+                      # "ethnicity_detailed", "ethnicity_grouped",
+                      # "uk_immigration_status", "english_2nd_language",
+                      ],
+    "ethnicity_related": ["ethnicity_grouped", "uk_immigration_status"],
+    "support_needs": ["offending", "physical_health", "mental_health", "substance_use", "multiple_disadvantage",
+                      "rough_sleeping", "sex_working", "risk_violence_abuse", "risk_exploitation",],
+    # "route_variables": ["referral_agency", "rt_duration_weeks", "rt_entry_point",]
+}
+cols_to_exclude = []
+X, Xc, iv_df, iv_cols_used, ref_cats, binaries, dummy_cols = get_ivs(dv, cols_to_exclude, selected_ch)
+```
+
+## Model building
+
+### Start with block for demographic variables
+
+```{python}
+block_ch = list(selected_ch.values())[0]
+block_ch_d = ["(Intercept)"] + cols_with_dummies(block_ch, dummy_cols)
+```
+
+### Test associations between IVs for initial block
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+### MNLogit iteration 0
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove = []
+values_to_remove = []
+results, summary, results_or = multinomial_regression(dv, Xc[block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### MNLogit iteration 1
+Recode `gender=Non-Binary` as missing because there are too few data points: recode variable.
+
+::: {.callout-note collapse=true title="Results"}
+```{python}
+selected_dv, selected_xc, sel_block_ch_d = dv_xc_remove_value(dv, Xc, block_ch_d, "gender_Non-Binary")
+# cols_to_remove += ["gender_Non-Binary"]
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### MNLogit iteration 2
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["lgbtq_plus"]
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### Add block for grouped ethnicity data and drop "global_majority"
+```{python}
+new_block_ch = selected_ch["ethnicity_related"]
+sel_block_ch = [ch for ch in block_ch + new_block_ch if ch != "global_majority"]
+sel_block_ch_d = [ch for ch in sel_block_ch_d + cols_with_dummies(new_block_ch, dummy_cols) if ch != "global_majority"]
+```
+
+### Test associations between IVs now a block has been added
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, sel_block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[sel_block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+No significant multicollinearity. Proceeding with MNLogit.
+
+```{python}
+#| output: false
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)
+```
+### MNLogit iteration 3
+::: {.callout-note collapse=true title="Results"}
+```{python}
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+All variables are significant. Proceeding.
+
+### Add block for support needs variables
+
+```{python}
+new_block_ch = selected_ch["support_needs"]
+sel_block_ch = sel_block_ch + new_block_ch
+sel_block_ch_d = sel_block_ch_d + cols_with_dummies(new_block_ch, dummy_cols)
+```
+
+### Test associations between IVs now a block has been added
+
+#### Cramer's V 
+::: {.callout-note collapse=true title="Results"}
+p values indicated by asterisks: `***` if `p < 0.001`, `**` if `p < 0.01`, `*` if `p < 0.05` 
+```{python}
+chi2_crv_results, disp = iv_assoc(iv_df, sel_block_ch)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(disp)
+```
+:::
+
+#### Variance Inflation Factor (VIF)
+::: {.callout-note collapse=true title="Results"}
+```{python}
+# Test multicollinearity with VIF
+vif_data = vif(Xc[sel_block_ch_d[1:]])
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(vif_data)
+```
+:::
+
+`multiple_disadvantage` has high VIF due to multicollinearity of `multiple_disadvantage`, `substance_use` and `mental_health`.
+
+Dropping `multiple_disadvantage` as previous models showed that separate needs explained more of the variance.
+
+```{python}
+sel_block_ch_d.remove("multiple_disadvantage")
+```
+
+```{python}
+#| output: false
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], [], dummy_cols)
+```
+### MNLogit iteration 4
+::: {.callout-note collapse=true title="Results"}
+```{python}
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+### MNLogit iteration 5
+::: {.callout-note collapse=true title="Results"}
+```{python}
+cols_to_remove += ["ethnicity_grouped"]
+results, summary, results_or = multinomial_regression(selected_dv, selected_xc[sel_block_ch_d], cols_to_remove, dummy_cols)
+```
+:::
+
+All other variables are significant.
+
+## Final model
+
+```{python}
+from io import StringIO
+
+display(summary)
+results_or_final = (results_or.drop(columns=["prev_coef", "coef", "diff_pct"], errors="ignore")
+                    .swaplevel().sort_index())
+results_or_with_pct = add_interpretation_cols(results_or_final)
+with pd.option_context("display.float_format", "{:,.3f}".format):
+    display(results_or_with_pct)
+
+tbl_i = 0
+comp_cats = [x[0] for x in results.summary().tables[1].data if x[0].startswith(results.model.endog_names)]
+for tbl in results.summary2().tables:
+    if tbl_i != 0:
+        tbl = tbl.rename(columns={tbl.columns[0]: comp_cats[tbl_i - 1]})
+    excel_output[f"MNLogit: '{dv_str} (vs. forwards moves)', table {tbl_i}"] = tbl
+    tbl_i += 1
+excel_output[f"MNLogit: '{dv_str} (vs. forwards moves)', odds ratios"] = results_or_with_pct
+```
+
+## Visualisation
+
+```{python}
+from itertools import product
+figure_minor_i += 1
+theme = {"ytick.labelsize": "medium"}
+ref_cats_used = {k: v for k, v in ref_cats.items() if k in ["gender", "age_cat", "uk_immigration_status"]}
+shorter_iv = {r"uk\ immigration\ status": "immigration"}
+cols_removed = cols_to_remove
+cols_removed = [col for col in cols_to_remove if col != "multiple_disadvantage"]
+for or_section, i_sub in [(slice(0, 3), "a"), (slice(3, None), "b")]:
+    save_fmi = figure_minor_i
+    temp_res_or = results_or_final.loc[results_or_final.index.levels[0][or_section]].copy()
+    temp_res_or.index = temp_res_or.index.remove_unused_levels()
+    figure_minor_i = str(figure_minor_i) + i_sub
+    fig_str, fig = plot_odds_r(dv_str, dv.cat.categories[0], ref_cats_used, temp_res_or, replacements=shorter_iv, theme=theme, cols_removed=cols_removed)
+    plt.show(block=False)
+    figure_minor_i = save_fmi
+```
+
+# Tables in an Excel file
+
+```{python}
+#| output: asis
+import os
+sheetname = "Sheet1"
+qmdfile = os.getenv("QUARTO_DOCUMENT_FILE")
+filename = assets_output + qmdfile[:-4]+".xlsx"
+with pd.ExcelWriter(filename) as writer:
+    next_row = 0
+    for k, v in excel_output.items():
+        pd.DataFrame([k]).to_excel(writer, sheet_name=sheetname, header=False, index=False, startrow=next_row)
+        next_row += 1
+        v.to_excel(writer, sheet_name=sheetname, startrow=next_row)
+        next_row += (
+            (1 if not isinstance(v.columns, pd.MultiIndex) else 1 + len(v.columns.levels))
+            + len(v) + 1)
+    float_format = writer.book.add_format({"num_format": "#,##0.000"})
+    writer.sheets[sheetname].set_column("B:J", None, float_format)
+print(f"[Excel file](./{filename})")
+```

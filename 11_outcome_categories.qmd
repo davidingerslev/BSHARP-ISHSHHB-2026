@@ -127,6 +127,7 @@ sns.set()
 unique_outcomes = pd.concat([outcome_classification[x].to_frame().stack().drop_duplicates().reset_index(1)
                              for x in ["pl_end_reason", "rt_end_cat", "rt_outcome", "rt_outcome_lt"]],
                             ignore_index=True).rename(columns={"level_1": "col", 0: "outcome"})
+node_map = unique_outcomes.reset_index().set_index(["col", "outcome"])
 val_dicts = (outcome_classification.groupby("rt_outcome_lt")["count"].sum().reset_index()
              .apply(lambda x: {x["rt_outcome_lt"]: x["rt_outcome_lt"] + f" ({x["count"]:,})"}, axis=1))
 val_dict = {k: v for d in val_dicts for k, v in d.items()}
@@ -139,7 +140,7 @@ colours = sns.color_palette(n_colors=len(unique_outcomes))
 colours = np.round([[x*256 for x in colour] for colour in colours]).astype("int")
 colours = [f"rgba({r},{g},{b},0.7)" for r, g, b in colours]
 outcome_idx = unique_outcomes.reset_index().set_index(["col", "outcome"])
-link_grp = (outcome_classification.drop(columns="count")
+link_grp = (outcome_classification.drop(columns=["count", "annotation"])
             .stack().rename("outcome").reset_index(1).rename(columns={"level_1": "col"})
             .join(outcome_idx, on=["col", "outcome"]).drop(columns="outcome")
             .pivot(columns="col", values="index"))
@@ -157,6 +158,21 @@ for a, b in [("pl_end_reason", "rt_end_cat"),
     value += comparison["value"].to_list()
     colour += comparison[b].apply(lambda x: colours[x] if x!= 21 else colours[0]).to_list()
 
+src = ("rt_outcome", "[Not ended]")
+src_i = list(node_map.loc[src])[0]
+annots = [dict(tgt=("rt_outcome_lt", "Independent accom."), annotation="unshared L3/L4"),
+          dict(tgt=("rt_outcome_lt", "Insecure outcome"), annotation="L1/L2/shared")]
+annots_l = []
+for tgt_dict in annots:
+    tgt_i = list(node_map.loc[tgt_dict["tgt"]])[0]
+    annots_l.append((src_i, tgt_i, tgt_dict["annotation"]))
+annots_df = pd.DataFrame(dict(src=source, tgt=target))
+annots_df["text"] = ""
+annots_df = annots_df.set_index(["src", "tgt"])
+for (src, tgt, annot) in annots_l:
+    annots_df.loc[(src, tgt)] = annot
+label = annots_df["text"].to_list()
+
 fig = go.Figure(data=[go.Sankey(
     node=dict(
       pad=15,
@@ -165,7 +181,7 @@ fig = go.Figure(data=[go.Sankey(
       label=node_labels,
       color=colours[0]
     ),
-    link=dict(source=source, target=target, value=value, color=colour)
+    link=dict(source=source, target=target, value=value, color=colour, label=label)
 )])
 
 fig.update_layout(title=dict(text="Mapping of route outcomes into grouped categories", x=0.5, xanchor="center"), font_family="Arial")

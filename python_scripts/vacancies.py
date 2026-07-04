@@ -28,6 +28,7 @@ def _get_vacancies_real(basePath="./Original-CSVs", verbose=True, do_cleaning=Tr
         dtype=df_vac_dtypes,
         parse_dates=df_vac_dates,
         dayfirst=True,
+        low_memory=False,
     )
     # Short column names
     df_vac = helper.short_cols(df_vac)

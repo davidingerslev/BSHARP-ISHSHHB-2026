@@ -25,6 +25,7 @@ def _get_clients_real(basePath="./Original-CSVs", verbose=True, do_cleaning=True
         dtype=df_cli_dtypes,
         parse_dates=df_cli_dates,
         dayfirst=True,
+        low_memory=False,
     )
     # Short column names
     df_cli = helper.short_cols(df_cli)

@@ -1,0 +1,1240 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   class="main-svg"
+   width="890.5"
+   height="474.93561"
+   viewBox="0 0 890.5 474.93561"
+   version="1.1"
+   id="svg378"
+   sodipodi:docname="Figure_11.1.svg"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview380"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="1.247619"
+     inkscape:cx="445.64885"
+     inkscape:cy="225.62977"
+     inkscape:window-width="1920"
+     inkscape:window-height="991"
+     inkscape:window-x="894"
+     inkscape:window-y="2151"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg378" />
+  <defs
+     id="defs-9589d2">
+    <g
+       class="clips"
+       id="g4" />
+    <g
+       class="gradients"
+       id="g6" />
+    <g
+       class="patterns"
+       id="g8" />
+  </defs>
+  <g
+     class="bglayer"
+     id="g11"
+     transform="translate(-79.75,-99.75)" />
+  <g
+     class="layer-below"
+     id="g17"
+     transform="translate(-79.75,-99.75)">
+    <g
+       class="imagelayer"
+       id="g13" />
+    <g
+       class="shapelayer"
+       id="g15" />
+  </g>
+  <g
+     class="cartesianlayer"
+     id="g19"
+     transform="translate(-79.75,-99.75)" />
+  <g
+     class="polarlayer"
+     id="g21"
+     transform="translate(-79.75,-99.75)" />
+  <g
+     class="smithlayer"
+     id="g23"
+     transform="translate(-79.75,-99.75)" />
+  <g
+     class="ternarylayer"
+     id="g25"
+     transform="translate(-79.75,-99.75)" />
+  <g
+     class="geolayer"
+     id="g27"
+     transform="translate(-79.75,-99.75)" />
+  <g
+     class="funnelarealayer"
+     id="g29"
+     transform="translate(-79.75,-99.75)" />
+  <g
+     class="pielayer"
+     id="g31"
+     transform="translate(-79.75,-99.75)" />
+  <g
+     class="iciclelayer"
+     id="g33"
+     transform="translate(-79.75,-99.75)" />
+  <g
+     class="treemaplayer"
+     id="g35"
+     transform="translate(-79.75,-99.75)" />
+  <g
+     class="sunburstlayer"
+     id="g37"
+     transform="translate(-79.75,-99.75)" />
+  <g
+     class="glimages"
+     id="g39"
+     transform="translate(-79.75,-99.75)" />
+  <g
+     class="sankey"
+     transform="translate(0.25,0.25)"
+     id="g359">
+    <g
+       class="sankey-links"
+       style="fill:none"
+       id="g115">
+      <path
+         class="sankey-link"
+         d="m 20,0 c 135,0 135,32.470442 270,32.470442 v 20.19802 c -135,0 -135,-32.470442 -270,-32.470442 z"
+         style="opacity:1;fill:#4c72b1;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path41" />
+      <path
+         class="sankey-link"
+         d="m 20,61.164116 c 135,0 135,-8.495654 270,-8.495654 v 7.089709 c -135,0 -135,8.495654 -270,8.495654 z"
+         style="opacity:1;fill:#4c72b1;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path43" />
+      <path
+         class="sankey-link"
+         d="m 20,83.253825 c 135,0 135,-23.495654 270,-23.495654 v 6.222622 c -135,0 -135,23.495655 -270,23.495655 z"
+         style="opacity:1;fill:#4c72b1;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path45" />
+      <path
+         class="sankey-link"
+         d="m 20,104.47645 c 135,0 135,-38.495657 270,-38.495657 v 4.590459 c -135,0 -135,38.495658 -270,38.495658 z"
+         style="opacity:1;fill:#4c72b1;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path47" />
+      <path
+         class="sankey-link"
+         d="m 20,35.19802 c 135,0 135,50.373232 270,50.373232 v 10.966097 c -135,0 -135,-50.373233 -270,-50.373233 z"
+         style="opacity:1;fill:#55a968;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path49" />
+      <path
+         class="sankey-link"
+         d="m 20,124.06691 c 135,0 135,-27.529561 270,-27.529561 v 0.051 c -135,0 -135,27.529551 -270,27.529551 z"
+         style="opacity:1;fill:#55a968;fill-opacity:0.7;stroke:#55a968;stroke-width:1;stroke-opacity:0.7"
+         id="path51" />
+      <path
+         class="sankey-link"
+         d="m 20,139.11791 c 135,0 135,3.06798 270,3.06798 v 25.09451 c -135,0 -135,-3.06798 -270,-3.06798 z"
+         style="opacity:1;fill:#c54e52;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path53" />
+      <path
+         class="sankey-link"
+         d="m 20,179.21242 c 135,0 135,12.23953 270,12.23953 v 15.35254 c -135,0 -135,-12.23953 -270,-12.23953 z"
+         style="opacity:1;fill:#8272b4;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path55" />
+      <path
+         class="sankey-link"
+         d="m 20,209.56496 c 135,0 135,-2.76047 270,-2.76047 v 0.10201 c -135,0 -135,2.76047 -270,2.76047 z"
+         style="opacity:1;fill:#8272b4;fill-opacity:0.7;stroke:#8272b4;stroke-width:1;stroke-opacity:0.7"
+         id="path57" />
+      <path
+         class="sankey-link"
+         d="m 20,224.66697 c 135,0 135,-17.76047 270,-17.76047 v 0.10201 c -135,0 -135,17.76047 -270,17.76047 z"
+         style="opacity:1;fill:#8272b4;fill-opacity:0.7;stroke:#8272b4;stroke-width:1;stroke-opacity:0.7"
+         id="path59" />
+      <path
+         class="sankey-link"
+         d="m 20,239.76898 c 135,0 135,-32.76047 270,-32.76047 v 0.051 c -135,0 -135,32.76047 -270,32.76047 z"
+         style="opacity:1;fill:#8272b4;fill-opacity:0.7;stroke:#8272b4;stroke-width:1;stroke-opacity:0.7"
+         id="path61" />
+      <path
+         class="sankey-link"
+         d="m 20,254.81998 c 135,0 135,-0.41608 270,-0.41608 v 6.42664 c -135,0 -135,0.41608 -270,0.41608 z"
+         style="opacity:1;fill:#947860;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path63" />
+      <path
+         class="sankey-link"
+         d="m 20,276.24662 c 135,0 135,-15.41608 270,-15.41608 v 4.79448 c -135,0 -135,15.41608 -270,15.41608 z"
+         style="opacity:1;fill:#947860;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path65" />
+      <path
+         class="sankey-link"
+         d="m 20,296.0411 c 135,0 135,-30.41608 270,-30.41608 v 1.32613 c -135,0 -135,30.41609 -270,30.41609 z"
+         style="opacity:1;fill:#947860;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path67" />
+      <path
+         class="sankey-link"
+         d="m 20,312.36724 c 135,0 135,-15.97419 270,-15.97419 v 4.9475 c -135,0 -135,15.97418 -270,15.97418 z"
+         style="opacity:1;fill:#db8cc4;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path69" />
+      <path
+         class="sankey-link"
+         d="m 20,332.31473 c 135,0 135,-30.97418 270,-30.97418 v 1.12211 c -135,0 -135,30.97418 -270,30.97418 z"
+         style="opacity:1;fill:#db8cc4;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path71" />
+      <path
+         class="sankey-link"
+         d="m 20,348.43684 c 135,0 135,-20.97268 270,-20.97268 v 4.18242 c -135,0 -135,20.97268 -270,20.97268 z"
+         style="opacity:1;fill:#8d8d8d;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path73" />
+      <path
+         class="sankey-link"
+         d="m 20,367.61926 c 135,0 135,-35.97268 270,-35.97268 v 1.68317 c -135,0 -135,35.97268 -270,35.97268 z"
+         style="opacity:1;fill:#8d8d8d;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path75" />
+      <path
+         class="sankey-link"
+         d="m 20,384.30243 c 135,0 135,0 270,0 v 29.17492 c -135,0 -135,0 -270,0 z"
+         style="opacity:1;fill:#cdba74;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path77" />
+      <path
+         class="sankey-link"
+         d="m 20,428.47735 c 135,0 135,0 270,0 v 22.44224 c -135,0 -135,0 -270,0 z"
+         style="opacity:1;fill:#64b6ce;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path79" />
+      <path
+         class="sankey-link"
+         d="m 20,465.91959 c 135,0 135,0 270,0 V 470 c -135,0 -135,0 -270,0 z"
+         style="opacity:1;fill:#4c72b1;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path81" />
+      <path
+         class="sankey-link"
+         d="m 310,32.470442 c 135,0 135,3.529001 270,3.529001 v 38.10081 c -135,0 -135,-3.529001 -270,-3.529001 z"
+         style="opacity:1;fill:#de8552;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path83" />
+      <path
+         class="sankey-link"
+         d="m 310,85.571252 c 135,0 135,-11.470999 270,-11.470999 v 11.017102 c -135,0 -135,11.470999 -270,11.470999 z"
+         style="opacity:1;fill:#de8552;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path85" />
+      <path
+         class="sankey-link"
+         d="m 310,142.18589 c 135,0 135,3.07377 270,3.07377 v 25.09451 c -135,0 -135,-3.07377 -270,-3.07377 z"
+         style="opacity:1;fill:#55a968;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path87" />
+      <path
+         class="sankey-link"
+         d="m 310,191.45195 c 135,0 135,32.00159 270,32.00159 v 15.60756 c -135,0 -135,-32.00159 -270,-32.00159 z"
+         style="opacity:1;fill:#c54e52;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path89" />
+      <path
+         class="sankey-link"
+         d="m 310,254.4039 c 135,0 135,-15.3428 270,-15.3428 v 12.54726 c -135,0 -135,15.34279 -270,15.34279 z"
+         style="opacity:1;fill:#c54e52;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path91" />
+      <path
+         class="sankey-link"
+         d="m 310,296.39305 c 135,0 135,-44.78469 270,-44.78469 v 6.06961 c -135,0 -135,44.78469 -270,44.78469 z"
+         style="opacity:1;fill:#c54e52;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path93" />
+      <path
+         class="sankey-link"
+         d="m 310,327.46416 c 135,0 135,-69.78619 270,-69.78619 v 5.86558 c -135,0 -135,69.7862 -270,69.7862 z"
+         style="opacity:1;fill:#c54e52;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path95" />
+      <path
+         class="sankey-link"
+         d="m 310,384.30243 c 135,0 135,6.52174 270,6.52174 v 29.17492 c -135,0 -135,-6.52174 -270,-6.52174 z"
+         style="opacity:1;fill:#8272b4;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path97" />
+      <path
+         class="sankey-link"
+         d="m 310,428.47735 c 135,0 135,-8.47826 270,-8.47826 v 22.44224 c -135,0 -135,8.47826 -270,8.47826 z"
+         style="opacity:1;fill:#8272b4;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path99" />
+      <path
+         class="sankey-link"
+         d="m 310,465.91959 c 135,0 135,0 270,0 V 470 c -135,0 -135,0 -270,0 z"
+         style="opacity:1;fill:#947860;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path101" />
+      <path
+         class="sankey-link"
+         d="m 600,35.999443 c 135,0 135,10.809681 270,10.809681 v 49.117912 c -135,0 -135,-10.809681 -270,-10.809681 z"
+         style="opacity:1;fill:#db8cc4;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path103" />
+      <path
+         class="sankey-link"
+         d="m 600,145.25966 c 135,0 135,-49.332624 270,-49.332624 v 9.435944 c -135,0 -135,49.33262 -270,49.33262 z"
+         style="opacity:1;fill:#db8cc4;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path105" />
+      <path
+         class="sankey-link"
+         d="m 600,154.6956 c 135,0 135,36.9679 270,36.9679 v 15.65856 c -135,0 -135,-36.96789 -270,-36.96789 z"
+         style="opacity:1;fill:#8d8d8d;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path107" />
+      <path
+         class="sankey-link"
+         d="m 600,223.45354 c 135,0 135,-16.13148 270,-16.13148 v 40.09001 c -135,0 -135,16.13148 -270,16.13148 z"
+         style="opacity:1;fill:#8d8d8d;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path109" />
+      <path
+         class="sankey-link"
+         d="m 600,390.82417 c 135,0 135,0 270,0 v 51.61716 c -135,0 -135,0 -270,0 z"
+         style="opacity:1;fill:#cdba74;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path111" />
+      <path
+         class="sankey-link"
+         d="m 600,465.91959 c 135,0 135,0 270,0 V 470 c -135,0 -135,0 -270,0 z"
+         style="opacity:1;fill:#64b6ce;fill-opacity:0.7;stroke:#444444;stroke-width:0;stroke-opacity:1"
+         id="path113" />
+    </g>
+    <g
+       class="sankey-node-set"
+       id="g357">
+      <g
+         class="sankey-node"
+         style="opacity:1"
+         id="g121">
+        <rect
+           class="node-rect"
+           width="20"
+           height="20.198019"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect117"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,14.29901)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text119">BCC Social Tenancy via PMOS</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(0,61.164)"
+         style="opacity:1"
+         id="g127">
+        <rect
+           class="node-rect"
+           width="20"
+           height="7.0897088"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect123"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,7.7448545)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text125">RSL Social Tenancy via PMOS</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(0,83.254)"
+         style="opacity:1"
+         id="g133">
+        <rect
+           class="node-rect"
+           width="20"
+           height="6.2226224"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect129"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,7.3113111)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text131">BCC Social Tenancy NOT via PMOS</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(0,104.476)"
+         style="opacity:1"
+         id="g139">
+        <rect
+           class="node-rect"
+           width="20"
+           height="4.5904589"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect135"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,6.4952295)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text137">RSL Social Tenancy NOT via PMOS</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(0,35.198)"
+         style="opacity:1"
+         id="g145">
+        <rect
+           class="node-rect"
+           width="20"
+           height="10.966097"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect141"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,9.6830483)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text143">Renting Privately</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(0,124.067)"
+         style="opacity:1"
+         id="g151">
+        <rect
+           class="node-rect"
+           width="20"
+           height="0.5"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect147"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,4.45)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text149">Moved into Private Self Contained</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(0,139.118)"
+         style="opacity:1"
+         id="g157">
+        <rect
+           class="node-rect"
+           width="20"
+           height="25.094509"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect153"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,16.747255)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text155">[Not ended]</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(0,179.212)"
+         style="opacity:1"
+         id="g163">
+        <rect
+           class="node-rect"
+           width="20"
+           height="15.352535"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect159"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,11.876268)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text161">Staying with Friends or Family</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(0,209.565)"
+         style="opacity:1"
+         id="g169">
+        <rect
+           class="node-rect"
+           width="20"
+           height="0.5"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect165"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,4.45)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text167">Moved in with family or relatives</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(0,224.667)"
+         style="opacity:1"
+         id="g175">
+        <rect
+           class="node-rect"
+           width="20"
+           height="0.5"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect171"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,4.45)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text173">Moved in with Family &amp; Friends (Long-term)</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(0,239.769)"
+         style="opacity:1"
+         id="g181">
+        <rect
+           class="node-rect"
+           width="20"
+           height="0.5"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect177"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,4.45)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text179">Moved in with friends</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(0,254.82)"
+         style="opacity:1"
+         id="g187">
+        <rect
+           class="node-rect"
+           width="20"
+           height="6.4266429"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect183"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,7.4133213)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text185">Custody - Current Offence</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(0,276.247)"
+         style="opacity:1"
+         id="g193">
+        <rect
+           class="node-rect"
+           width="20"
+           height="4.7944794"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect189"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,6.5972397)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text191">Custody - Breach of Prior Order</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(0,296.041)"
+         style="opacity:1"
+         id="g199">
+        <rect
+           class="node-rect"
+           width="20"
+           height="1.3261327"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect195"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,4.8630663)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text197">Custody - As Result Of Prior Offence</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(0,312.367)"
+         style="opacity:1"
+         id="g205">
+        <rect
+           class="node-rect"
+           width="20"
+           height="4.947495"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect201"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,6.6737474)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text203">Hospital, Care Home or Hospice</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(0,332.315)"
+         style="opacity:1"
+         id="g211">
+        <rect
+           class="node-rect"
+           width="20"
+           height="1.1221122"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect207"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,4.7610561)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text209">Psychiatric Hospital</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(0,348.437)"
+         style="opacity:1"
+         id="g217">
+        <rect
+           class="node-rect"
+           width="20"
+           height="4.1824183"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect213"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,6.2912091)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text215">Non-HSR Supported Accommodation</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(0,367.619)"
+         style="opacity:1"
+         id="g223">
+        <rect
+           class="node-rect"
+           width="20"
+           height="1.6831683"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect219"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,5.0415842)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text221">Non-HSR Substance Misuse Accommodation</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(0,384.302)"
+         style="opacity:1"
+         id="g229">
+        <rect
+           class="node-rect"
+           width="20"
+           height="29.174917"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect225"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,18.787459)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text227">Evicted</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(0,428.477)"
+         style="opacity:1"
+         id="g235">
+        <rect
+           class="node-rect"
+           width="20"
+           height="22.442244"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect231"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,15.421122)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text233">Abandoned</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(0,465.92)"
+         style="opacity:1"
+         id="g241">
+        <rect
+           class="node-rect"
+           width="20"
+           height="4.0804081"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect237"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,6.240204)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text239">Death</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(290,32.47)"
+         style="opacity:1"
+         id="g247">
+        <rect
+           class="node-rect"
+           width="20"
+           height="38.100811"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect243"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,23.250405)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text245">To social housing</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(290,85.571)"
+         style="opacity:1"
+         id="g253">
+        <rect
+           class="node-rect"
+           width="20"
+           height="11.017101"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect249"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,9.7085509)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text251">To private rented</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(290,142.186)"
+         style="opacity:1"
+         id="g259">
+        <rect
+           class="node-rect"
+           width="20"
+           height="25.094509"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect255"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,16.747255)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text257">[Not ended]</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(290,191.452)"
+         style="opacity:1"
+         id="g265">
+        <rect
+           class="node-rect"
+           width="20"
+           height="15.607561"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect261"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,12.00378)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text263">To friends/family</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(290,254.404)"
+         style="opacity:1"
+         id="g271">
+        <rect
+           class="node-rect"
+           width="20"
+           height="12.547255"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect267"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,10.473627)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text269">Custody</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(290,296.393)"
+         style="opacity:1"
+         id="g277">
+        <rect
+           class="node-rect"
+           width="20"
+           height="6.0696068"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect273"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,7.2348035)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text275">To care/hospital</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(290,327.464)"
+         style="opacity:1"
+         id="g283">
+        <rect
+           class="node-rect"
+           width="20"
+           height="5.8655868"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect279"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,7.1327933)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text281">To external supported</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(290,384.302)"
+         style="opacity:1"
+         id="g289">
+        <rect
+           class="node-rect"
+           width="20"
+           height="29.174917"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect285"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,18.787459)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text287">Evicted</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(290,428.477)"
+         style="opacity:1"
+         id="g295">
+        <rect
+           class="node-rect"
+           width="20"
+           height="22.442244"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect291"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,15.421122)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text293">Abandoned</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(290,465.92)"
+         style="opacity:1"
+         id="g301">
+        <rect
+           class="node-rect"
+           width="20"
+           height="4.0804081"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect297"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,6.240204)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text299">Died</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(580,35.999)"
+         style="opacity:1"
+         id="g307">
+        <rect
+           class="node-rect"
+           width="20"
+           height="49.117912"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect303"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,28.758956)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text305">Independent accom.</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(580,145.26)"
+         style="opacity:1"
+         id="g313">
+        <rect
+           class="node-rect"
+           width="20"
+           height="25.094509"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect309"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,16.747255)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text311">[Not ended]</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(580,223.454)"
+         style="opacity:1"
+         id="g319">
+        <rect
+           class="node-rect"
+           width="20"
+           height="40.090008"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect315"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,24.245005)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text317">Insecure outcome</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(580,390.824)"
+         style="opacity:1"
+         id="g325">
+        <rect
+           class="node-rect"
+           width="20"
+           height="51.617161"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect321"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,30.008581)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text323" />
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(580,465.92)"
+         style="opacity:1"
+         id="g331">
+        <rect
+           class="node-rect"
+           width="20"
+           height="4.0804081"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect327"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="start"
+           transform="translate(23.25,6.240204)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text329">Died</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(870,46.809)"
+         style="opacity:1"
+         id="g337">
+        <rect
+           class="node-rect"
+           width="20"
+           height="58.553856"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect333"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="end"
+           transform="translate(-3.25,33.476928)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text335">Independent accom. (1,148)</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(870,191.663)"
+         style="opacity:1"
+         id="g343">
+        <rect
+           class="node-rect"
+           width="20"
+           height="55.748573"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect339"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="end"
+           transform="translate(-3.25,32.074287)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text341">Insecure outcome (1,093)</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(870,390.824)"
+         style="opacity:1"
+         id="g349">
+        <rect
+           class="node-rect"
+           width="20"
+           height="51.617161"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect345"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="end"
+           transform="translate(-3.25,30.008581)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text347">Returned to homelessness (1,012)</text>
+      </g>
+      <g
+         class="sankey-node"
+         transform="translate(870,465.92)"
+         style="opacity:1"
+         id="g355">
+        <rect
+           class="node-rect"
+           width="20"
+           height="4.0804081"
+           style="fill:#4c72b1;fill-opacity:0.7;stroke:#000000;stroke-width:0.5;stroke-opacity:1"
+           id="rect351"
+           x="0"
+           y="0" />
+        <text
+           class="node-label"
+           data-notex="1"
+           x="0"
+           y="0"
+           text-anchor="end"
+           transform="translate(-3.25,6.240204)"
+           style="font-size:12px;font-family:Arial;white-space:pre;fill:#2a3f5f;fill-opacity:1"
+           id="text353">Died (80)</text>
+      </g>
+    </g>
+  </g>
+  <defs
+     id="topdefs-9589d2">
+    <g
+       class="clips"
+       id="g361" />
+  </defs>
+  <g
+     class="layer-above"
+     id="g368"
+     transform="translate(-79.75,-99.75)">
+    <g
+       class="imagelayer"
+       id="g364" />
+    <g
+       class="shapelayer"
+       id="g366" />
+  </g>
+</svg>

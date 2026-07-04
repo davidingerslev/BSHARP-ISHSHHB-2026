@@ -65,7 +65,9 @@ def add_apwlvl(df_svc: pd.DataFrame):
     }
     apwlvl_df_manual = pd.DataFrame(
         apwlvl_dict_manual.values(),
-        index=apwlvl_dict_manual.keys(),
+        index=pd.MultiIndex.from_tuples(
+            apwlvl_dict_manual.keys(), names=["svc_type_short", "pathway_level"]
+        ),
         columns=["apwlvl"],
     )
     # Calculated adjustments: DPW_ except substance misuse pathway which has
@@ -127,7 +129,11 @@ def remap_OABs(df_svc: pd.DataFrame, basePath="./Original-CSVs", verbose=True):
 def clean_services(df_svc: pd.DataFrame):
     # Correct capacity ranges that Excel interpreted as dates(!)
     capacity_corrections = {"01-Mar": "1-3", "04-Jun": "4-6", "Jul-14": "7-14"}
-    df_svc.svc_capacity = df_svc.svc_capacity.replace(capacity_corrections)
+    df_svc.svc_capacity = (
+        df_svc.svc_capacity.astype("string")
+        .replace(capacity_corrections)
+        .astype("category")
+    )
     ordered_capcats = df_svc.svc_capacity.cat.categories.sort_values(
         key=lambda x: x.str.split("[-+]", regex=True).str.get(0).astype("int")
     )

@@ -67,7 +67,7 @@ rt_end_cat_map = {cat: outcome for outcome in rt_outcomes_map.keys() for cat in 
 
 ## Set up networks
 
-```{python}# Set up networks
+```{python}
 from python_scripts import networks
 from python_scripts import network_graphs
 import itertools
@@ -80,8 +80,7 @@ network_list = [
     {"title": "Women", "df": dpw_pls[dpw_pls.gender == "Female"]},
     {"title": "Men", "df": dpw_pls[dpw_pls.gender == "Male"]},
     {
-        "title": "People with 1 route who moved to stable housing at least 6 months ago and did not return " +
-                 "(excluding people already in services on 28 Oct 2017)",
+        "title": "'New' people with 1 route who did not return within 6m after moving to independent accommodation",
         "df": dpw_pls[
                 dpw_pls["route_id"].isin(
                     (dpw_pls.set_index("route_id").loc[lambda x: x["rt_end_cat"].isin(["To social housing", "To private rented"]) &
@@ -95,8 +94,7 @@ network_list = [
         ]
     },
     {
-        "title": "People who moved to private/social housing at least 6 months before end date and did not return " +
-                 "(excluding people already in services on start date)",
+        "title": "People not returning within 6m after moving to independent accommodation",
         "df": dpw_pls[
             dpw_pls.rt_end_cat.isin(["To social housing", "To private rented"]) &  # These outcomes
             (dpw_pls.after_rt_ret_within_6m == "No") &  # No return within 6 months
@@ -171,10 +169,10 @@ for i in network_list:
     adj_list_i, edge_list_i = networks.mkAdjEdgeLists(dffp, df_i, [nt])
     edge_list_i[nt] = edge_list_i[nt].replace(rt_end_cat_map).groupby(["source", "target"]).sum().reset_index()
     i["edge_list"] = edge_list_i
-    excel_output[f"Edge list: {title_i}"] = adj_list_i
+    excel_output[f"Edge list: {title_i}"] = adj_list_i[nt]
     adj_list_i[nt] = adj_list_i[nt].replace(rt_end_cat_map).groupby(["source", "target"]).sum().reset_index()
     i["adj_list"] = adj_list_i
-    excel_output[f"Adjacency list: {title_i}"] = adj_list_i
+    excel_output[f"Adjacency list: {title_i}"] = adj_list_i[nt]
     # DG = network_graphs.mkDgraph(edge_list_i[nt], title=title_i, threshold=0.07,
     #                              min_n=min_n, sorted_end_cats=sorted_end_cats, capacities=distinct_pathways.capacities,
     #                              individuals=df_i.o_cli_id.nunique())
@@ -280,7 +278,7 @@ for net_i, fig_i in zip(network_list, itertools.count(start=1)):
         link=dict(arrowlen=10, source=source, target=target, value=value, color=colour, label=label),
         orientation="v"
     )])
-    fig.update_layout(title = net_i["title"] + f" ({n_cli:,} people)", title_font_color="black",
+    fig.update_layout(title=net_i["title"] + f" ({n_cli:,} people)", title_x=0.5, title_font_color="black",
                       font_family="Arial", font_weight=750, font_color="white", font_size=14)
 
     fig_filename_svg = assets_output + f"Figure_15.{fig_i}.svg"
@@ -289,14 +287,20 @@ for net_i, fig_i in zip(network_list, itertools.count(start=1)):
     fig.write_image(fig_filename_png, width=1268, height=1297)
     net_i["svg"] = fig_filename_svg
     net_i["png"] = fig_filename_png
-    # with Image.open(fig_filename_png) as im:
-    #    im.show()
-# fig.show()
 
-# for net_i in network_list[len(network_list)-5:]:
-#     with Image.open(net_i["png"]) as im:
-#        im.show()
+    # fig.show()
 ```
+
+```{python}
+#| output: asis
+from IPython.display import Markdown
+for net_i in network_list:
+    display(Markdown(f"### {net_i["title"]}"))
+    display(Markdown(f""))
+    display(Markdown(f"![]({net_i["png"]})"))
+    display(Markdown(f""))
+```
+
 # Tables in an Excel file
 
 ```{python}

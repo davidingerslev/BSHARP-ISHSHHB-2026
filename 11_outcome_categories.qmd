@@ -140,7 +140,7 @@ colours = sns.color_palette(n_colors=len(unique_outcomes))
 colours = np.round([[x*256 for x in colour] for colour in colours]).astype("int")
 colours = [f"rgba({r},{g},{b},0.7)" for r, g, b in colours]
 outcome_idx = unique_outcomes.reset_index().set_index(["col", "outcome"])
-link_grp = (outcome_classification.drop(columns=["count", "annotation"])
+link_grp = (outcome_classification.drop(columns=["count"])
             .stack().rename("outcome").reset_index(1).rename(columns={"level_1": "col"})
             .join(outcome_idx, on=["col", "outcome"]).drop(columns="outcome")
             .pivot(columns="col", values="index"))

@@ -16,6 +16,7 @@ from python_scripts import services
 from python_scripts import helper
 from python_scripts import routes
 df, dffp = setup.setup(verbose=False)
+testing = False
 
 from python_scripts import distinct_pathways
 dpw_pls = distinct_pathways.get_distinct_pathways_routes(dffp)
@@ -75,27 +76,83 @@ extant = dpw_pls.groupby("o_cli_id").head(1)[
     lambda x: x.pl_start_dt < distinct_pathways.dpw_start_dt
 ]
 network_list = [
-    {"title": "all", "df": dpw_pls},
-    {"title": "women", "df": dpw_pls[dpw_pls.gender == "Female"]},
-    {"title": "men", "df": dpw_pls[dpw_pls.gender == "Male"]},
+    {"title": "All moves", "df": dpw_pls},
+    {"title": "Women", "df": dpw_pls[dpw_pls.gender == "Female"]},
+    {"title": "Men", "df": dpw_pls[dpw_pls.gender == "Male"]},
     {
-        "title": "people with 1 route who moved to stable housing at least 6 months ago and did not return " +
+        "title": "People with 1 route who moved to stable housing at least 6 months ago and did not return " +
                  "(excluding people already in services on 28 Oct 2017)",
         "df": dpw_pls[
-            (dpw_pls.groupby('o_cli_id').route_id.transform("nunique") == 1) &  # 1 route
-            dpw_pls.rt_end_cat.isin(["To social housing", "To private rented"]) &  # These outcomes
-            (dpw_pls.after_rt_ret_within_6m == "No") &  # No return within 6 months
-            (~dpw_pls.o_cli_id.isin(extant.o_cli_id))  # Not already in services
+                dpw_pls["route_id"].isin(
+                    (dpw_pls.set_index("route_id").loc[lambda x: x["rt_end_cat"].isin(["To social housing", "To private rented"]) &
+                                                      (x["after_rt_ret_within_6m"] == "No") &
+                                                      ~x["o_cli_id"].isin(extant.o_cli_id), :]
+                    ).index)
+                & dpw_pls["o_cli_id"].isin(
+                    (dpw_pls[["o_cli_id", "route_id"]].drop_duplicates().groupby("o_cli_id").size() == 1).index
+                )
+                # & (dpw_pls.groupby('o_cli_id').route_id.transform("nunique") == 1)  # 1 route
         ]
     },
     {
-        "title": "people who moved to private/social housing at least 6 months before end date and did not return " +
+        "title": "People who moved to private/social housing at least 6 months before end date and did not return " +
                  "(excluding people already in services on start date)",
         "df": dpw_pls[
             dpw_pls.rt_end_cat.isin(["To social housing", "To private rented"]) &  # These outcomes
             (dpw_pls.after_rt_ret_within_6m == "No") &  # No return within 6 months
             (~dpw_pls.o_cli_id.isin(extant.o_cli_id))  # Not already in services
         ]
+    },
+    {
+        "title": "People with multiple returns",
+        "df": dpw_pls.set_index("o_cli_id").loc[
+            (dpw_pls[["o_cli_id", "route_id"]].drop_duplicates().groupby("o_cli_id").size() >= 3)
+            .loc[lambda x: x].index
+        ].reset_index()
+    },
+    {
+        "title": "People using services long-term",
+        "df": dpw_pls.set_index("o_cli_id").loc[
+            (dpw_pls.groupby(["o_cli_id", "route_id"])["dur"].sum().dt.days >= (365.25 * 3.080))
+            .loc[lambda x: x].reset_index()["o_cli_id"].drop_duplicates()
+        ].reset_index()
+    },
+    {
+        "title": "People returning within 2y after moving to independent accommodation",
+        "df": (dpw_pls.set_index("route_id").loc[(dpw_pls.set_index("route_id")["after_rt_ret_within_2y"] == "Yes")
+               .loc[lambda x: x].index].reset_index())
+    },
+    {
+        "title": "People with substance use support needs",
+        "df": dpw_pls[dpw_pls["hsn_drug_use"] | dpw_pls["hsn_alcohol_use"]]
+    },
+    {
+        "title": "People with rough sleeping support needs",
+        "df": dpw_pls[dpw_pls["hsn_rough_sleeper"].fillna(False)]
+    },
+    {
+        "title": "People with offending support needs",
+        "df": dpw_pls[dpw_pls["hsn_prison_leaveron_probationrisk_of_offending"].fillna(False)]
+    },
+    {
+        "title": "People with sex working support needs",
+        "df": dpw_pls[dpw_pls["hsn_sex_working"].fillna(False)]
+    },
+    {
+        "title": "Women with rough sleeping support needs",
+        "df": dpw_pls[dpw_pls["hsn_rough_sleeper"].fillna(False) & (dpw_pls["gender"] == "Female")]
+    },
+    {
+        "title": "Men with rough sleeping support needs",
+        "df": dpw_pls[dpw_pls["hsn_rough_sleeper"].fillna(False) & (dpw_pls["gender"] == "Male")]
+    },
+    {
+        "title": "Women with support needs around risk of violence/abuse",
+        "df": dpw_pls[dpw_pls["hsn_risk_of_violenceabuse_victim"].fillna(False) & (dpw_pls["gender"] == "Female")]
+    },
+    {
+        "title": "Men with support needs around risk of violence/abuse",
+        "df": dpw_pls[dpw_pls["hsn_risk_of_violenceabuse_victim"].fillna(False) & (dpw_pls["gender"] == "Male")]
     },
     # {
     #     "title": "people whose first placement was after October 2022 " +
@@ -118,16 +175,16 @@ for i in network_list:
     adj_list_i[nt] = adj_list_i[nt].replace(rt_end_cat_map).groupby(["source", "target"]).sum().reset_index()
     i["adj_list"] = adj_list_i
     excel_output[f"Adjacency list: {title_i}"] = adj_list_i
-    DG = network_graphs.mkDgraph(edge_list_i[nt], title=title_i, threshold=0.07,
-                                 min_n=min_n, sorted_end_cats=sorted_end_cats, capacities=distinct_pathways.capacities,
-                                 individuals=df_i.o_cli_id.nunique())
-    DGs.append(DG)
-    i["DG_proportions"] = DG
-    DG = network_graphs.mkDgraph(adj_list_i[nt], title=title_i, threshold=(0.020 * adj_list_i[nt].weight.max()),
-                                 min_n=min_n, sorted_end_cats=sorted_end_cats, capacities=distinct_pathways.capacities,
-                                 individuals=df_i.o_cli_id.nunique())
-    DGs.append(DG)
-    i["DG_counts"] = DG
+    # DG = network_graphs.mkDgraph(edge_list_i[nt], title=title_i, threshold=0.07,
+    #                              min_n=min_n, sorted_end_cats=sorted_end_cats, capacities=distinct_pathways.capacities,
+    #                              individuals=df_i.o_cli_id.nunique())
+    # DGs.append(DG)
+    # i["DG_proportions"] = DG
+    # DG = network_graphs.mkDgraph(adj_list_i[nt], title=title_i, threshold=(0.020 * adj_list_i[nt].weight.max()),
+    #                              min_n=min_n, sorted_end_cats=sorted_end_cats, capacities=distinct_pathways.capacities,
+    #                              individuals=df_i.o_cli_id.nunique())
+    # DGs.append(DG)
+    # i["DG_counts"] = DG
 ```
 
 ## Sankey
@@ -138,81 +195,107 @@ import numpy as np
 import seaborn as sns
 import itertools
 import random
+from pathlib import Path
 from collections import defaultdict
+from PIL import Image
 sns.set()
 
-el = network_list[0]["edge_list"][nt]
-el["source"] = (el["source"].mask(el["source"].isin(["Known (adult pw)", "Known (other)", "New", "_RETURN"]),
-                                  "Into " + el["target"].str.extract(r"^([A-Z/]+)", expand=False)))
-el = el[(~el["source"].isin(["EXTANT", "ENTRY"])) & (~el["target"].isin(["END", "RETURN"]))]
-el = el.groupby(["source", "target"]).sum().reset_index().drop(columns="weight")
+for net_i, fig_i in zip(network_list, itertools.count(start=1)):
+    fig_filename_svg = assets_output + f"Figure_15.{fig_i}.svg"
+    fig_filename_png = assets_output + f"Figure_15.{fig_i}.png"
+    if testing and Path(fig_filename_png).exists():
+        net_i["svg"] = fig_filename_svg
+        net_i["png"] = fig_filename_png
+        continue
+    n_cli = len(net_i["df"]["o_cli_id"].drop_duplicates())
+    el = net_i["edge_list"][nt]
+    end_cat_n = el[el["target"].isin(sorted_end_cats.keys())].groupby("target")[["n"]].sum().reset_index()
+    end_cat_n["%"] = 100 * end_cat_n["n"]/end_cat_n["n"].sum()
+    end_cat_repl = {"Independent accommodation": "Independent accom", "Insecure outcome": "Insecure", "Returned to homelessness": "Homelessness"}
+    end_n = {k: v["str"] for k, v in
+             end_cat_n[["target"]].join((end_cat_n["target"].replace(end_cat_repl)
+                                         + ": " + end_cat_n["%"].apply("{:.0f}%".format)
+                                         + " / " + end_cat_n["n"].apply("{:,}".format))
+             .rename("str")).set_index("target").to_dict("index").items()}
 
-idx_node = { k: v for (k, v) in zip(itertools.count(), pd.concat([el["source"], el["target"]]).unique()) }
-node_idx = { v: k for (k, v) in idx_node.items() }
+    el["source"] = (el["source"].mask(el["source"].isin(["Known (adult pw)", "Known (other)", "New", "_RETURN"]),
+                                      "Into " + el["target"].str.extract(r"^([A-Z/]+)", expand=False)))
+    el = el[(~el["source"].isin(["EXTANT", "ENTRY"])) & (~el["target"].isin(["END", "RETURN"]))]
+    el = el.groupby(["source", "target"]).sum().reset_index().drop(columns="weight")
 
-el_idx = el.replace(node_idx)
+    idx_node = { k: v for (k, v) in zip(itertools.count(), pd.concat([el["source"], el["target"]]).unique()) }
+    node_idx = { v: k for (k, v) in idx_node.items() }
 
-p_x = dict(f=0.5, m=3, mf=1.7, su=4.3)
-pos = {
- 'F L1': (p_x["f"]-0.05, 1.5), 'F L2': (p_x["f"]+0.1, 2.5), 'F L3': (p_x["f"]+0.2, 3.5), 'F L4': (p_x["f"]+0.3, 4.5),
- 'Into F': (1, 0.5), 'Into M': (3.2, 0.5), 'Into M/F': (1.9, 0.5), 'Into SU': (4.5, 0.5),
- 'M L1': (p_x["m"], 1.5), 'M L2': (p_x["m"]+0.3, 2.5), 'M L3': (p_x["m"], 3.5), 'M L4': (p_x["m"]-0.2, 4.5),
- 'M/F L1': (p_x["mf"], 1.5), 'M/F L2': (p_x["mf"], 2.5), 'M/F L3': (p_x["mf"], 3.5), 'M/F L4': (p_x["mf"]+0.05, 4.5),
- 'SU L1': (p_x["su"], 2), 'SU L2': (p_x["su"]+0.25, 3),
- 'Died': (4.999, 5.5), 'Independent accommodation': (0.5, 5.5), 'Insecure outcome': (1.9, 5.5),
- 'Other': (4.5, 5.5), 'Returned to homelessness': (3.5, 5.5),
-}
+    el_idx = el.replace(node_idx)
 
-into_nodes = [v for (k, v) in node_idx.items() if k.startswith("Into")]
-exit_nodes = [v for (k, v) in node_idx.items() if k in sorted_end_cats.keys()]
-node_labels = list(node_idx.keys())
-colours = sns.color_palette(n_colors=len(node_idx) - len(exit_nodes) - len(into_nodes) + 1)
-colours = np.round([[x*256 for x in colour] for colour in colours]).astype("int")
-r, g, b = colours[0]
-node_colour = f"rgba({r},{g},{b},0.9)" 
-colours = [f"rgba({r},{g},{b},0.5)" for r, g, b in colours]
-grey = 'rgba(141,141,141,0.5)'
-colours.remove(grey)
-transparent = "rgba(0,0,0,0.0)"
-node_colours_map = defaultdict(lambda: "rgba(90,90,90,0.9)")
-for i in sorted(into_nodes):
-    colours.insert(i, grey)
-    node_colours_map[i] = grey
-for i in sorted(exit_nodes):
-    colours.insert(i, transparent)
-    node_colours_map[i] = grey
-node_colours = [node_colours_map[x] for x in idx_node.keys()]
+    p_x = dict(f=0.5, m=3, mf=1.7, su=4.3)
+    pos = {
+    'F L1': (p_x["f"]-0.05, 1.475), 'F L2': (p_x["f"]+0.1, 2.475), 'F L3': (p_x["f"]+0.2, 3.475), 'F L4': (p_x["f"]+0.3, 4.475),
+    'Into F': (1, 0.5), 'Into M': (3.2, 0.5), 'Into M/F': (1.9, 0.5), 'Into SU': (4.5, 0.5),
+    'M L1': (p_x["m"], 1.475), 'M L2': (p_x["m"]+0.3, 2.475), 'M L3': (p_x["m"], 3.475), 'M L4': (p_x["m"]-0.2, 4.475),
+    'M/F L1': (p_x["mf"], 1.525), 'M/F L2': (p_x["mf"], 2.525), 'M/F L3': (p_x["mf"], 3.525), 'M/F L4': (p_x["mf"]+0.05, 4.525),
+    'SU L1': (p_x["su"], 2), 'SU L2': (p_x["su"]+0.25, 3),
+    'Died': (4.9, 5.60), 'Independent accommodation': (0.6, 5.60), 'Insecure outcome': (1.9, 5.55),
+    'Other': (4.45, 5.55), 'Returned to homelessness': (3.5, 5.60),
+    }
 
-source = el_idx["source"]
-target = el_idx["target"]
-value = el_idx["n"] * 0.5
-colour = el_idx["source"].apply(lambda x: colours[x])
-label = []
+    into_nodes = [v for (k, v) in node_idx.items() if k.startswith("Into")]
+    exit_nodes = [v for (k, v) in node_idx.items() if k in sorted_end_cats.keys()]
+    node_labels = [end_n[x] if x in end_n.keys() else x for x in node_idx.keys()]
+    node_label_map = {x: "Move in" for x in node_labels if x.startswith("Into")}
+    colours = sns.color_palette(n_colors=len(node_idx) - len(exit_nodes) - len(into_nodes) + 1)
+    colours = np.round([[x*256 for x in colour] for colour in colours]).astype("int")
+    r, g, b = colours[0]
+    node_colour = f"rgba({r},{g},{b},0.9)" 
+    colours = [f"rgba({r},{g},{b},0.5)" for r, g, b in colours]
+    grey = 'rgba(141,141,141,0.5)'
+    colours.remove(grey)
+    transparent = "rgba(0,0,0,0.0)"
+    node_colours_map = defaultdict(lambda: "rgba(90,90,90,0.9)")
+    for i in sorted(into_nodes):
+        colours.insert(i, grey)
+        node_colours_map[i] = grey
+    for i in sorted(exit_nodes):
+        colours.insert(i, transparent)
+        node_colours_map[i] = grey
+    node_colours = [node_colours_map[x] for x in idx_node.keys()]
 
-fig = go.Figure(data=[go.Sankey(
-    node=dict(
-      align="left",
-      pad=15,
-      thickness=25,
-      line=dict(width=0),
-      label=node_labels,
-      color=node_colours,
-      x=[x/6 for (y, x) in [pos[i] for i in node_idx]],
-      y=[y/5 for (y, x) in [pos[i] for i in node_idx]],
-    ),
-    link=dict(source=source, target=target, value=value, color=colour, label=label),
-    orientation="v"
-)])
-fig.update_layout(font_family="Arial", font_weight=750, font_color="white")
+    source = el_idx["source"]
+    target = el_idx["target"]
+    value = el_idx["n"] * 0.5
+    colour = el_idx["source"].apply(lambda x: colours[x])
+    label = []
 
-fig_filename = assets_output + "Figure_15.1.svg"
-fig_filename_png = assets_output + "Figure_15.1.png"
-fig.write_image(fig_filename, width=1268, height=1297)
-fig.write_image(fig_filename_png, width=1268, height=1297)
-with Image.open(fig_filename_png) as im:
-    im.show()
+    fig = go.Figure(data=[go.Sankey(
+        node=dict(
+          align="left",
+          pad=15,
+          thickness=25,
+          line=dict(width=0),
+          label=[node_label_map[x] if x in node_label_map.keys() else x for x in node_labels],
+          color=node_colours,
+          x=[(x-0.2)/5.5 for (y, x) in [pos[i] for i in node_idx]],
+          y=[(y-0.1)/5 for (y, x) in [pos[i] for i in node_idx]],
+        ),
+        link=dict(arrowlen=10, source=source, target=target, value=value, color=colour, label=label),
+        orientation="v"
+    )])
+    fig.update_layout(title = net_i["title"] + f" ({n_cli:,} people)", title_font_color="black",
+                      font_family="Arial", font_weight=750, font_color="white", font_size=14)
+
+    fig_filename_svg = assets_output + f"Figure_15.{fig_i}.svg"
+    fig_filename_png = assets_output + f"Figure_15.{fig_i}.png"
+    fig.write_image(fig_filename_svg, width=1268, height=1297)
+    fig.write_image(fig_filename_png, width=1268, height=1297)
+    net_i["svg"] = fig_filename_svg
+    net_i["png"] = fig_filename_png
+    # with Image.open(fig_filename_png) as im:
+    #    im.show()
 # fig.show()
 
+# for net_i in network_list[len(network_list)-5:]:
+#     with Image.open(net_i["png"]) as im:
+#        im.show()
 ```
 # Tables in an Excel file
 

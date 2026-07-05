@@ -284,6 +284,12 @@ for net_i, fig_i in zip(network_list, itertools.count(start=1)):
         for pos_i in ["M/F L1", "M/F L2", "M/F L3", "M/F L4"]:
             x, y = pos[pos_i]
             pos[pos_i] = (x-0.5, y)
+    elif (net_i["title"] == "People not returning within 6m after moving to independent accommodation"
+          or net_i["title"] == "'New' people with 1 route who did not return within 6m after moving to independent accommodation"):
+        for pos_i in ["Independent accommodation"]:
+            x, y = pos[pos_i]
+            pos[pos_i] = (x+2, y)
+
 
     into_nodes = [v for (k, v) in node_idx.items() if k.startswith("Into")]
     exit_nodes = [v for (k, v) in node_idx.items() if k in sorted_end_cats.keys()]

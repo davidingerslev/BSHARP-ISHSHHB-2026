@@ -183,6 +183,41 @@ for i in network_list:
     #                              individuals=df_i.o_cli_id.nunique())
     # DGs.append(DG)
     # i["DG_counts"] = DG
+
+```
+
+```{python}
+intended_data = []
+for pway in "F", "M/F", "M", "SU":
+    move_in = 1 if pway == "SU" else 4
+    intended_data += [(f"Into {pway}", f"{pway} L1", move_in, move_in)]
+    # Add moves between levels and to end
+    for lvl in range(1, 5):
+        # Skip L3 and L4 for SU pathway
+        if pway == "SU" and lvl > 2:
+            continue
+        # Add move from previous level
+        if lvl > 1:
+            for i in range(1, lvl):
+                intended_data += [(f"{pway} L{i}", f"{pway} L{lvl}", 1, 1)]
+        # Add move to independent accommodation from L3 and L4
+        if lvl >= 3:
+            intended_data += [(f"{pway} L{lvl}", "Independent accommodation", 1, 1)]
+    # Add moves to/from SU pathway
+    if pway != "SU":
+        intended_data += [(f"{pway} L1", f"SU L1", 1, 1)]
+        intended_data += [(f"SU L2", f"{pway} L4", 1, 1)]
+intended_data += [("[hidden_1]", "[hidden_2]", 1, 10)]
+intended = pd.DataFrame(columns=["source", "target", "weight", "n"], data=intended_data)
+```
+
+```{python}
+network_list += [
+    {
+        "title": "Intended operation",
+        "edge_list": {nt: intended},
+        "df": pd.DataFrame(columns=["o_cli_id"])
+    }]
 ```
 
 ## Sankey
@@ -234,7 +269,7 @@ for net_i, fig_i in zip(network_list, itertools.count(start=1)):
     'M/F L1': (p_x["mf"], 1.525), 'M/F L2': (p_x["mf"], 2.525), 'M/F L3': (p_x["mf"], 3.525), 'M/F L4': (p_x["mf"]+0.05, 4.525),
     'SU L1': (p_x["su"], 2), 'SU L2': (p_x["su"]+0.25, 3),
     'Died': (4.9, 5.60), 'Independent accommodation': (0.6, 5.60), 'Insecure outcome': (1.9, 5.55),
-    'Other': (4.45, 5.55), 'Returned to homelessness': (3.5, 5.60),
+    'Other': (4.45, 5.55), 'Returned to homelessness': (3.5, 5.60), '[hidden_1]': (3, 0.01), '[hidden_2]': (3, 0.1)
     }
 
     # Adjustments
@@ -274,6 +309,9 @@ for net_i, fig_i in zip(network_list, itertools.count(start=1)):
         for pos_i in ["Into M/F"]:
             x, y = pos[pos_i]
             pos[pos_i] = (x-1, y)
+        for pos_i in ["M/F L1", "M/F L2", "M/F L3", "M/F L4"]:
+            x, y = pos[pos_i]
+            pos[pos_i] = (x-0.5, y)
     elif net_i["title"] == "Men with support needs around risk of violence/abuse":
         for pos_i in ["Into M"]:
             x, y = pos[pos_i]
@@ -289,6 +327,21 @@ for net_i, fig_i in zip(network_list, itertools.count(start=1)):
         for pos_i in ["Independent accommodation"]:
             x, y = pos[pos_i]
             pos[pos_i] = (x+2, y)
+    elif net_i["title"] == "Intended operation":
+        for pos_i in ["Independent accommodation"]:
+            x, y = pos[pos_i]
+            pos[pos_i] = (x+1.5, y)
+        for pway in ["F", "M", "M/F"]:
+            x, y = pos[f"Into {pway}"]
+            new_x = pos[f"{pway} L1"][0]
+            pos[f"Into {pway}"] = (new_x, y)
+            x, y = pos[f"{pway} L4"]
+            new_x = pos[f"{pway} L1"][0]
+            pos[f"{pway} L4"] = (new_x+0.5, y)
+            x, y = pos[f"{pway} L2"]
+            pos[f"{pway} L2"] = (new_x-0.24, y)
+            x, y = pos[f"{pway} L3"]
+            pos[f"{pway} L3"] = (new_x, y)
 
 
     into_nodes = [v for (k, v) in node_idx.items() if k.startswith("Into")]
@@ -310,6 +363,10 @@ for net_i, fig_i in zip(network_list, itertools.count(start=1)):
     for i in sorted(exit_nodes):
         colours.insert(i, transparent)
         node_colours_map[i] = grey
+    for i in ["[hidden_1]", "[hidden_2]"]:
+        node_colours_map[node_idx[i]] = transparent
+        node_labels[node_idx[i]] = ""
+    colours[node_idx["[hidden_1]"]] = transparent
     node_colours = [node_colours_map[x] for x in idx_node.keys()]
 
     source = el_idx["source"]
@@ -332,13 +389,14 @@ for net_i, fig_i in zip(network_list, itertools.count(start=1)):
         link=dict(arrowlen=10, source=source, target=target, value=value, color=colour, label=label),
         orientation="v"
     )])
-    fig.update_layout(title=net_i["title"] + f" ({n_cli:,} people)", title_x=0.5, title_font_color="black",
+    people_text = "" if n_cli == 0 else f" ({n_cli:,} people)"
+    fig.update_layout(title=net_i["title"] + people_text, title_x=0.5, title_font_color="black",
                       font_family="Arial", font_weight=750, font_color="white", font_size=14)
 
     fig_filename_svg = assets_output + f"Figure_15.{fig_i}.svg"
     fig_filename_png = assets_output + f"Figure_15.{fig_i}.png"
-    fig.write_image(fig_filename_svg, width=1268, height=1297)
-    fig.write_image(fig_filename_png, width=1268, height=1297)
+    fig.write_image(fig_filename_svg, width=1368, height=1297)
+    fig.write_image(fig_filename_png, width=1368, height=1297)
     net_i["svg"] = fig_filename_svg
     net_i["png"] = fig_filename_png
 

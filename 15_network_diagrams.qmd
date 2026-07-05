@@ -237,6 +237,54 @@ for net_i, fig_i in zip(network_list, itertools.count(start=1)):
     'Other': (4.45, 5.55), 'Returned to homelessness': (3.5, 5.60),
     }
 
+    # Adjustments
+    if net_i["title"] == "People using services long-term":
+        for pos_i in ["Independent accommodation", "Insecure outcome"]:
+            x, y = pos[pos_i]
+            pos[pos_i] = (x+0.25, y)
+        for pos_i in ["Into SU", "SU L1", "SU L2"]:
+            x, y = pos[pos_i]
+            pos[pos_i] = (x-0.1, y)
+    elif net_i["title"] == "People returning within 2y after moving to independent accommodation":
+        for pos_i in ["M/F L1"]:
+            x, y = pos[pos_i]
+            pos[pos_i] = (x, y+0.1)
+        for pos_i in ["Independent accommodation"]:
+            x, y = pos[pos_i]
+            pos[pos_i] = (x-0.1, y)
+        for pos_i in ["Other"]:
+            x, y = pos[pos_i]
+            pos[pos_i] = (x+0.25, y)
+        for pos_i in ["M L2"]:
+            x, y = pos[pos_i]
+            pos[pos_i] = (x-1, y)
+        for pos_i in ["M L3"]:
+            x, y = pos[pos_i]
+            pos[pos_i] = (x-0.65, y)
+        for pos_i in ["M L4"]:
+            x, y = pos[pos_i]
+            pos[pos_i] = (x-0.2, y)
+        for pos_i in ["SU L1", "SU L2"]:
+            x, y = pos[pos_i]
+            pos[pos_i] = (x-0.2, y)
+    elif net_i["title"] == "Men with rough sleeping support needs":
+        for pos_i in ["Into M"]:
+            x, y = pos[pos_i]
+            pos[pos_i] = (x-0.5, y)
+        for pos_i in ["Into M/F"]:
+            x, y = pos[pos_i]
+            pos[pos_i] = (x-1, y)
+    elif net_i["title"] == "Men with support needs around risk of violence/abuse":
+        for pos_i in ["Into M"]:
+            x, y = pos[pos_i]
+            pos[pos_i] = (x-0.5, y)
+        for pos_i in ["Into M/F"]:
+            x, y = pos[pos_i]
+            pos[pos_i] = (x-1, y)
+        for pos_i in ["M/F L1", "M/F L2", "M/F L3", "M/F L4"]:
+            x, y = pos[pos_i]
+            pos[pos_i] = (x-0.5, y)
+
     into_nodes = [v for (k, v) in node_idx.items() if k.startswith("Into")]
     exit_nodes = [v for (k, v) in node_idx.items() if k in sorted_end_cats.keys()]
     node_labels = [end_n[x] if x in end_n.keys() else x for x in node_idx.keys()]

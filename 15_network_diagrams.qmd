@@ -273,6 +273,16 @@ for net_i, fig_i in zip(network_list, itertools.count(start=1)):
     }
 
     # Adjustments
+    if net_i["title"] == "All moves":
+        for pos_i in ["Into F"]:
+            x, y = pos[pos_i]
+            pos[pos_i] = (x-0.2, y)
+        for pos_i in ["Into M/F"]:
+            x, y = pos[pos_i]
+            pos[pos_i] = (x-0.2, y)
+        for pos_i in ["Into M"]:
+            x, y = pos[pos_i]
+            pos[pos_i] = (x-0.1, y)
     if net_i["title"] == "People using services long-term":
         for pos_i in ["Independent accommodation", "Insecure outcome"]:
             x, y = pos[pos_i]
@@ -363,10 +373,11 @@ for net_i, fig_i in zip(network_list, itertools.count(start=1)):
     for i in sorted(exit_nodes):
         colours.insert(i, transparent)
         node_colours_map[i] = grey
-    for i in ["[hidden_1]", "[hidden_2]"]:
-        node_colours_map[node_idx[i]] = transparent
-        node_labels[node_idx[i]] = ""
-    colours[node_idx["[hidden_1]"]] = transparent
+    if "[hidden_l]" in node_idx.keys():
+        for i in ["[hidden_1]", "[hidden_2]"]:
+            node_colours_map[node_idx[i]] = transparent
+            node_labels[node_idx[i]] = ""
+        colours[node_idx["[hidden_1]"]] = transparent
     node_colours = [node_colours_map[x] for x in idx_node.keys()]
 
     source = el_idx["source"]

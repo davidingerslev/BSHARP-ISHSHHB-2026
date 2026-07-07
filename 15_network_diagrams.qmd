@@ -72,6 +72,9 @@ from python_scripts import networks
 from python_scripts import network_graphs
 import itertools
 
+# Exclude zero-day placements
+dpw_pls = dpw_pls[dpw_pls["dur"] > pd.Timedelta(days=0)]
+
 extant = dpw_pls.groupby("o_cli_id").head(1)[
     lambda x: x.pl_start_dt < distinct_pathways.dpw_start_dt
 ]
@@ -352,6 +355,8 @@ for net_i, fig_i in zip(network_list, itertools.count(start=1)):
             pos[f"{pway} L2"] = (new_x-0.24, y)
             x, y = pos[f"{pway} L3"]
             pos[f"{pway} L3"] = (new_x, y)
+        for k, (x, y) in pos.items():
+            pos[k] = (x, y/2)
 
 
     into_nodes = [v for (k, v) in node_idx.items() if k.startswith("Into")]
@@ -373,7 +378,7 @@ for net_i, fig_i in zip(network_list, itertools.count(start=1)):
     for i in sorted(exit_nodes):
         colours.insert(i, transparent)
         node_colours_map[i] = grey
-    if "[hidden_l]" in node_idx.keys():
+    if "[hidden_1]" in node_idx.keys():
         for i in ["[hidden_1]", "[hidden_2]"]:
             node_colours_map[node_idx[i]] = transparent
             node_labels[node_idx[i]] = ""

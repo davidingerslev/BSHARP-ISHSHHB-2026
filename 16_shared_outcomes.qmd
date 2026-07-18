@@ -1,0 +1,56 @@
+---
+title: "16. Shared accommodation outcomes"
+date: 2026-07-18
+warning: false
+---
+
+```{python}
+#|output: false
+# Setup code
+import pandas as pd
+from scipy import stats
+
+df = pd.DataFrame(
+  {('Self-contained', '34-'): {'Independent accommodation': '273', 'Internal move: backwards': '81',
+                               'Insecure outcome (external)': '57', 'Returned to homelessness': '46', 'Other': '36',
+                               'Internal move: forwards': '25', 'Internal move: sideways': '24', 'Died': '3'},
+   ('Self-contained', '35+'): {'Independent accommodation': '502', 'Internal move: backwards': '184',
+                               'Insecure outcome (external)': '65', 'Returned to homelessness': '59', 'Other': '34',
+                               'Internal move: forwards': '57', 'Internal move: sideways': '14', 'Died': '30'},
+   ('Shared', '34-'): {'Independent accommodation': '25', 'Internal move: backwards': '10',
+                       'Insecure outcome (external)': '9', 'Returned to homelessness': '13', 'Other': '23',
+                       'Internal move: forwards': '1', 'Internal move: sideways': '4', 'Died': '0'},
+   ('Shared', '35+'): {'Independent accommodation': '58', 'Internal move: backwards': '32',
+                       'Insecure outcome (external)': '17', 'Returned to homelessness': '5', 'Other': '5',
+                       'Internal move: forwards': '5', 'Internal move: sideways': '3', 'Died': '1'}}
+      ).astype("Int64")
+df.columns = df.columns.rename(("Accommodation Type", "Age Group"))
+df.index.rename("Outcome", inplace=True)
+df = df.unstack().rename("Count").reset_index()
+```
+
+## Contingency tables for 35+ and under 35s
+
+```{python}
+df_u35 = df[df["Age Group"] == "34-"]
+ct_u35 = pd.crosstab(df_u35["Outcome"], df_u35["Accommodation Type"], aggfunc="sum", values=df_u35["Count"])
+display(ct_u35)
+chi_2_u35 = stats.chi2_contingency(ct_u35)
+```
+
+```{python}
+import matplotlib
+import matplotlib.pyplot as plt
+matplotlib.rcParams.update({
+    'figure.figsize': (6, 9.5),
+    'font.size': 12,
+    'figure.constrained_layout.use': True
+})
+
+asset_themes = {"opaque": "assets_output/",
+                "transparent_lightbg": "assets_transparent_lightbg/",
+                "transparent_darkbg": "assets_transparent_darkbg/"}
+assets_output = asset_themes["opaque"]
+output_dir = assets_output
+```
+

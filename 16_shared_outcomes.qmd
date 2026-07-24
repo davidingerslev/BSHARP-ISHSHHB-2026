@@ -29,21 +29,67 @@ df.index.rename("Outcome", inplace=True)
 df = df.unstack().rename("Count").reset_index()
 ```
 
-## Contingency tables for 35+ and under 35s
+## Contingency table for under 35s
 
 ```{python}
 df_u35 = df[df["Age Group"] == "34-"]
 ct_u35 = pd.crosstab(df_u35["Outcome"], df_u35["Accommodation Type"], aggfunc="sum", values=df_u35["Count"])
 display(ct_u35)
-chi_2_u35 = stats.chi2_contingency(ct_u35)
+chi_2_u35 = stats.chi2_contingency(ct_u35.astype("int"))
+print(f"Chi2 statistic: {chi_2_u35.statistic:.3f}, p-value: {chi_2_u35.pvalue:.3f}")
+```
+
+## Contingency table for over 35s
+
+```{python}
+df_35o = df[df["Age Group"] == "35+"]
+ct_35o = pd.crosstab(df_35o["Outcome"], df_35o["Accommodation Type"], aggfunc="sum", values=df_35o["Count"])
+display(ct_35o)
+chi_2_35o = stats.chi2_contingency(ct_35o.astype("int"))
+print(f"Chi2 statistic: {chi_2_35o.statistic:.3f}, p-value: {chi_2_35o.pvalue:.3f}")
+```
+
+## Contingency table for shared
+
+```{python}
+df_shared = df[df["Accommodation Type"] == "Shared"]
+ct_shared = pd.crosstab(df_shared["Outcome"], df_shared["Age Group"], aggfunc="sum", values=df_shared["Count"])
+display(ct_shared)
+chi_2_shared = stats.chi2_contingency(ct_shared.astype("int"))
+print(f"Chi2 statistic: {chi_2_shared.statistic:.3f}, p-value: {chi_2_shared.pvalue:.3f}")
+```
+
+## Contingency table for self-contained
+
+```{python}
+df_sc = df[df["Accommodation Type"] == "Self-contained"]
+ct_sc = pd.crosstab(df_sc["Outcome"], df_sc["Age Group"], aggfunc="sum", values=df_sc["Count"])
+display(ct_sc)
+chi_2_sc = stats.chi2_contingency(ct_sc.astype("int"))
+print(f"Chi2 statistic: {chi_2_sc.statistic:.3f}, p-value: {chi_2_sc.pvalue:.3f}")
+```
+
+## Percentages
+```{python}
+df_ct = (df.pivot_table(index="Outcome", columns=["Age Group", "Accommodation Type"], margins=True)
+         .astype("int")
+         .droplevel(0, axis=1)
+         .iloc[:-1, :]
+         .sort_values("All", ascending=False)
+         .iloc[:, :-1]
+         .rename(columns={"34-": "Under 35"}))
+df_prop = df_ct.apply(lambda x: x/x.sum())
+with pd.option_context("display.float_format", "{:,.1%}".format):
+    display(df_prop)
 ```
 
 ```{python}
 import matplotlib
 import matplotlib.pyplot as plt
+import seaborn.objects as so
 matplotlib.rcParams.update({
-    'figure.figsize': (6, 9.5),
-    'font.size': 12,
+    'figure.figsize': (7.5, 5),
+    'font.size': 11,
     'figure.constrained_layout.use': True
 })
 
@@ -54,3 +100,29 @@ assets_output = asset_themes["opaque"]
 output_dir = assets_output
 ```
 
+```{python}
+plot_data_n = df_ct.unstack().reset_index(name="value")
+plot_data_pr = df_prop.unstack().reset_index(name="value")
+fig = plt.figure()
+p = (so.Plot(data=plot_data_pr, x="value", y="Outcome")
+     .layout(size=(7.5, 5))
+     .add(so.Bars(), so.Dodge())
+     .facet(col="Age Group", row="Accommodation Type")
+     .scale(x=so.Continuous().label(like=".0%"))
+     .label(x=None, y=None)
+     .on(fig)
+     .plot(pyplot=True))
+annot_text = "Very different for\nunder-35s in shared"
+fig.axes[2].annotate(annot_text, xy=(0.298,0), xytext=(.7, .2), xycoords="data", textcoords="axes fraction",
+                     horizontalalignment="center", va="top", color=(0,0,0,0),
+                     arrowprops=dict(arrowstyle="->", color=(0,0,0,0.7)))
+fig.axes[2].annotate(annot_text, xy=(0.154,3), xytext=(.7, .2), xycoords="data", textcoords="axes fraction",
+                     horizontalalignment="center", va="top", color=(0,0,0,0),
+                     arrowprops=dict(arrowstyle="->", color=(0,0,0,0.7)))
+fig.axes[2].annotate(annot_text, xy=(0.271,4), xytext=(.7, .2), xycoords="data", textcoords="axes fraction",
+                     horizontalalignment="center", va="top",
+                     arrowprops=dict(arrowstyle="->", color=(0,0,0,0.7)),
+                     bbox=dict(boxstyle="round", fc="0.8", alpha=0.7))
+plt.show(block=False)
+fig.savefig(f"{output_dir}/Figure_16.svg")
+```

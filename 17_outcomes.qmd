@@ -76,6 +76,6 @@ asset_themes = {"opaque": "assets_output/",
                 "transparent_darkbg": "assets_transparent_darkbg/"}
 assets_output = asset_themes["opaque"]
 output_dir = assets_output
-p.save(f"{output_dir}/Figure_16.svg")
+p.save(f"{output_dir}/Figure_17.svg")
 p.show(block=False)
 ```

@@ -1,0 +1,81 @@
+---
+title: "17. Outcomes"
+date: 2026-07-24
+warning: false
+---
+
+```{python}
+#|output: false
+# Setup code
+import pandas as pd
+from scipy import stats
+
+df = pd.DataFrame(
+  {'End reason': {0: 'To social housing', 1: 'Evicted', 2: 'Abandoned', 3: 'To friends/family',
+                  4: 'Custody', 5: 'Other', 6: 'To private rented', 7: 'To care/hospital',
+                  8: 'To external supported', 9: 'Died', 10: 'Missing data/error', 11: '[Not ended]'},
+   'All routes': {0: 999, 1: 867, 2: 639, 3: 376, 4: 336, 5: 289, 6: 278, 7: 171, 8: 167, 9: 117, 10: 95, 11: 738},
+   'Per person: latest route': {0: 978, 1: 415, 2: 339, 3: 281, 4: 148, 5: 204,
+                                6: 249, 7: 102, 8: 113, 9: 117, 10: 71, 11: 738}
+   }
+)
+
+rt_outcomes_map = {
+    'Independent accommodation': ['To social housing', 'To private rented'],
+    'Insecure outcome': ['To friends/family', 'Custody', 'To care/hospital', 'To external supported'],
+    'Returned to homelessness': ['Evicted', 'Abandoned'],
+    'Died': ['Died'],
+    # '_excluded': ['Other', 'Missing data/error']
+}
+rt_end_cat_map = {cat: outcome for outcome in rt_outcomes_map.keys() for cat in rt_outcomes_map[outcome]}
+
+df["Outcome"] = df["End reason"].replace(rt_end_cat_map)
+
+rt_df = df.iloc[df["Outcome"] != "[Not ended]",1:].groupby("Outcome").sum()
+rt_df = rt_df.rename(columns={rt_df.columns[0]: "Outcomes from each route", rt_df.columns[1]: "Latest outcome per person"},
+                     index={"Returned to homelessness": "Returned to\nhomelessness",
+                            "Independent accommodation": "Independent\naccommodation",
+                            "Insecure outcome": "Insecure\noutcome",
+                            "Missing data/error": "Missing\ndata/error"})
+rt_df = rt_df.sort_values(rt_df.columns[0], ascending = False)
+rt_df.columns.name = "measure"
+```
+
+```{python}
+rt_sum = rt_df.sum()
+rt_df = rt_df.rename(columns={col: f"{col}\n($n$={rt_sum[col]:,})" for col in rt_df.columns})
+rt_sum = rt_df.sum()
+rt_pct = rt_df / rt_sum
+plotdata = rt_df.unstack().to_frame(name="data")
+plottext = rt_pct.unstack().apply("{:.1%}".format).to_frame(name="text")
+```
+
+```{python}
+import seaborn.objects as so
+import seaborn as sns
+sns.set()
+colors = sns.color_palette()[4:6]
+p = (
+  so.Plot(data=plotdata, y="Outcome", x="data", color="measure")
+  .theme({"font.size": 12, "axes.titlesize": "medium"})
+  .add(so.Bar(edgewidth=0), legend=False)
+  .add(so.Text(halign="left"), data=plottext, y="Outcome", text="text", x=-480)
+  .label(y=None, x=None)
+  # .scale(x=so.Continuous().label(like="{x:.0%}"), color=colors)
+  .scale(x=so.Continuous().label(like="{x:,.0f}"), color=colors)
+  # .scale(color=colors)
+  .limit(x=(-480, None))
+  .facet(col="measure")
+  .layout(size=(6.4, 3.2), engine="constrained")
+)
+```
+
+```{python}
+asset_themes = {"opaque": "assets_output/",
+                "transparent_lightbg": "assets_transparent_lightbg/",
+                "transparent_darkbg": "assets_transparent_darkbg/"}
+assets_output = asset_themes["opaque"]
+output_dir = assets_output
+p.save(f"{output_dir}/Figure_16.svg")
+p.show(block=False)
+```
